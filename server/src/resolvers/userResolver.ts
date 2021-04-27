@@ -44,7 +44,7 @@ export default class UserResolver {
       }
       const hashedPassword = await argon2.hash(password);
       const user = await User.create({
-        username,
+        username: username.toLowerCase(),
         email,
         password: hashedPassword,
       }).save();
