@@ -4,8 +4,8 @@ export const checkRegisterInputValid = (
   username: string,
   email: string,
   password: string
-): CustomError[] | void => {
-  const errors = [];
+): CustomError[] => {
+  const errors: CustomError[] = [];
   if (username.length < 3) {
     errors.push({
       path: "username",

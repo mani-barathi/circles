@@ -1,4 +1,3 @@
-import User from "../entities/User";
 import {
   Resolver,
   Query,
@@ -8,6 +7,8 @@ import {
   Field,
   ObjectType,
 } from "type-graphql";
+import argon2 from "argon2";
+import User from "../entities/User";
 import { CustomError } from "../types";
 import { checkRegisterInputValid } from "../utils/validations";
 
@@ -37,10 +38,15 @@ export default class UserResolver {
   ): Promise<UserResponse> {
     try {
       const errors = checkRegisterInputValid(username, email, password);
-      if (errors) {
+      if (errors.length > 0) {
         return { errors };
       }
-      const user = await User.create({ username, email, password }).save();
+      const hashedPassword = await argon2.hash(password);
+      const user = await User.create({
+        username,
+        email,
+        password: hashedPassword,
+      }).save();
       return { user };
     } catch (e) {
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
