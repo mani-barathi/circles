@@ -7,6 +7,7 @@ import {
   Field,
   ObjectType,
 } from "type-graphql";
+import { EntityNotFoundError } from "typeorm";
 import argon2 from "argon2";
 import User from "../entities/User";
 import { CustomError } from "../types";
@@ -52,6 +53,27 @@ export default class UserResolver {
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
         const field = e.detail.includes("email") ? "email" : "username";
         return { errors: [{ path: field, message: `${field} is taken` }] };
+      }
+      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+    }
+  }
+
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("email") email: string,
+    @Arg("password") password: string
+  ): Promise<UserResponse> {
+    try {
+      const user = await User.findOneOrFail({ email });
+      const isCorrect = await argon2.verify(user.password, password);
+      if (isCorrect) {
+        return { user };
+      } else {
+        return { errors: [{ path: "unkown", message: "invalid credentials" }] };
+      }
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        return { errors: [{ path: "unkown", message: "no user found" }] };
       }
       return { errors: [{ path: "unkown", message: "something went wrong" }] };
     }
