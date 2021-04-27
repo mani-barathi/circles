@@ -1,15 +1,25 @@
 import User from "../entities/User";
-import { Resolver, FieldResolver, Root, Query } from "type-graphql";
+import { Resolver, Query, Mutation, Arg, Int, Field } from "type-graphql";
 
-@Resolver(User)
+@Resolver()
 export default class UserResolver {
-  @FieldResolver(() => String)
-  email(@Root() parent: User): string {
-    return `${parent.name}.email.com`;
+  @Query(() => Int)
+  getRandomNumber(): number {
+    return Math.floor(Math.random() * 100);
   }
 
-  @Query(() => User)
-  getUser(): User {
-    return new User("john");
+  @Mutation(() => User)
+  async register(
+    @Arg("username") username: string,
+    @Arg("email") email: string,
+    @Arg("password") password: string
+  ): Promise<User> {
+    try {
+      return await User.create({ username, email, password }).save();
+    } catch (e) {
+      console.log(typeof e);
+      console.log(e);
+      throw e;
+    }
   }
 }
