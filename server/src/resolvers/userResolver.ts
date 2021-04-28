@@ -87,4 +87,17 @@ export default class UserResolver {
       return { errors: [{ path: "unkown", message: "something went wrong" }] };
     }
   }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: Context) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        if (err) {
+          resolve(false);
+        }
+        res.clearCookie("qwe");
+        resolve(true);
+      })
+    );
+  }
 }
