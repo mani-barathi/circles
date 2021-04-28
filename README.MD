@@ -4,6 +4,9 @@ Developing a Social Groups web-app using typescript and graphQL
 
 ## Technology Used
 
+### Frontend
+
+- [**NextJs**](https://nextjs.org/docs/getting-started)
 ### Backend
 
 - [**Apollo-Express**](https://www.apollographql.com/blog/using-express-with-graphql-server-node-js/) as a Server
@@ -23,6 +26,17 @@ Developing a Social Groups web-app using typescript and graphQL
    ```
 1. Replace your database username and password in `./server/ormconfig.json`
 
+### Frontend
+
+1. cd into the client and install all dependencies
+   ```shell
+      cd client
+      npm install
+   ```
+1. start dev server
+   ```shell
+       npm run dev
+   ```
 ### Backend
 
 1. cd into the server and install all dependencies
