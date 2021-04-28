@@ -3,14 +3,14 @@ import {
   Query,
   Mutation,
   Arg,
-  Int,
   Field,
   ObjectType,
+  Ctx,
 } from "type-graphql";
 import { EntityNotFoundError } from "typeorm";
 import argon2 from "argon2";
 import User from "../entities/User";
-import { CustomError } from "../types";
+import { Context, CustomError } from "../types";
 import { checkRegisterInputValid } from "../utils/validations";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
@@ -26,9 +26,17 @@ class UserResponse {
 
 @Resolver()
 export default class UserResolver {
-  @Query(() => Int)
-  getRandomNumber(): number {
-    return Math.floor(Math.random() * 100);
+  @Query(() => UserResponse)
+  async me(@Ctx() { req }: Context): Promise<UserResponse> {
+    try {
+      const user = await User.findOneOrFail(req.session.userId);
+      return { user };
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        return { errors: [{ path: "unkown", message: "no user found" }] };
+      }
+      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+    }
   }
 
   @Mutation(() => UserResponse)
@@ -61,16 +69,17 @@ export default class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("email") email: string,
-    @Arg("password") password: string
+    @Arg("password") password: string,
+    @Ctx() { req }: Context
   ): Promise<UserResponse> {
     try {
       const user = await User.findOneOrFail({ email });
       const isCorrect = await argon2.verify(user.password, password);
-      if (isCorrect) {
-        return { user };
-      } else {
+      if (!isCorrect) {
         return { errors: [{ path: "unkown", message: "invalid credentials" }] };
       }
+      req.session.userId = user.id;
+      return { user };
     } catch (e) {
       if (e instanceof EntityNotFoundError) {
         return { errors: [{ path: "unkown", message: "no user found" }] };

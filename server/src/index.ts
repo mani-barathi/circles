@@ -5,6 +5,9 @@ import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
 // import User from "./entities/User"
 import UserResolver from "./resolvers/userResolver";
+import redis from "redis";
+import connectRedis from "connect-redis";
+import session from "express-session";
 
 const main = async () => {
   await createConnection();
@@ -14,7 +17,33 @@ const main = async () => {
   });
 
   const app = express();
-  const apolloServer = new ApolloServer({ schema });
+
+  const RedisStore = connectRedis(session);
+  const redisClient = redis.createClient();
+
+  app.use(
+    session({
+      name: "qwe",
+      store: new RedisStore({
+        client: redisClient,
+        disableTouch: true,
+      }),
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      },
+      saveUninitialized: false,
+      secret: "aksdfmioy234-asdfn-23fs-234",
+      resave: false,
+    })
+  );
+
+  const apolloServer = new ApolloServer({
+    schema,
+    context: ({ req, res }) => ({ req, res }),
+  });
 
   apolloServer.applyMiddleware({ app });
 
