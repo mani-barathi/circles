@@ -6,12 +6,14 @@ import {
   Field,
   ObjectType,
   Ctx,
+  UseMiddleware,
 } from "type-graphql";
 import { EntityNotFoundError } from "typeorm";
 import argon2 from "argon2";
 import User from "../entities/User";
 import { Context, CustomError } from "../types";
 import { checkRegisterInputValid } from "../utils/validations";
+import { isUnAuthorized, isAuthorized } from "../middlewares/authMiddlewares";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
 
@@ -27,6 +29,7 @@ class UserResponse {
 @Resolver()
 export default class UserResolver {
   @Query(() => UserResponse)
+  @UseMiddleware(isAuthorized)
   async me(@Ctx() { req }: Context): Promise<UserResponse> {
     try {
       const user = await User.findOneOrFail(req.session.userId);
@@ -40,6 +43,7 @@ export default class UserResolver {
   }
 
   @Mutation(() => UserResponse)
+  @UseMiddleware(isUnAuthorized)
   async register(
     @Arg("username") username: string,
     @Arg("email") email: string,
@@ -67,6 +71,7 @@ export default class UserResolver {
   }
 
   @Mutation(() => UserResponse)
+  @UseMiddleware(isUnAuthorized)
   async login(
     @Arg("email") email: string,
     @Arg("password") password: string,
