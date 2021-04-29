@@ -22,22 +22,15 @@ const login: React.FC<loginProps> = ({}) => {
     clearFields();
     setIsLogin((prev) => !prev);
   };
+
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    if (isLogin) {
-      handleLogin();
-    } else {
-      handleSignup();
-    }
+    isLogin ? handleLogin() : handleSignup();
   };
 
-  const handleLogin = async () => {
-    console.log(`login`);
-  };
+  const handleLogin = async () => {};
 
-  const handleSignup = async () => {
-    console.log(`signup`);
-  };
+  const handleSignup = async () => {};
 
   return (
     <div style={{ padding: "0 1rem" }}>
@@ -76,13 +69,11 @@ const login: React.FC<loginProps> = ({}) => {
 
         <div>
           {errors.map((error) => (
-            <h5 className="red-color" key={error.message}>
-              {error.message}
-            </h5>
+            <h4 key={error.message}>{error.message}</h4>
           ))}
         </div>
 
-        <div>{feedback && <h5 className="green-color">{feedback}</h5>}</div>
+        <div>{feedback && <h4>{feedback}</h4>}</div>
 
         <button type="submit">{isLogin ? "Login" : "Submit"}</button>
       </form>
@@ -90,15 +81,15 @@ const login: React.FC<loginProps> = ({}) => {
       <div className="item">
         <h4>
           {isLogin ? (
-            <>
+            <div>
               <span> New ? Create an Account</span> &nbsp;
-              <button onClick={toggleIsLogin}> Here </button>
-            </>
+              <button onClick={toggleIsLogin}>Here</button>
+            </div>
           ) : (
-            <>
+            <div>
               <span>Already have an Account?</span> &nbsp;
-              <button onClick={toggleIsLogin}> Login </button>
-            </>
+              <button onClick={toggleIsLogin}>Login</button>
+            </div>
           )}
         </h4>
       </div>
