@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
 
 interface loginProps {}
 
@@ -7,15 +8,17 @@ const login: React.FC<loginProps> = ({}) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState([]);
+  const [err, setErr] = useState([]);
   const [feedback, setFeedback] = useState(null);
+  const [loginUser] = useLoginMutation();
+  const [registerUser] = useRegisterMutation();
 
   const clearFields = () => {
     setUsername("");
     setEmail("");
     setPassword("");
     setFeedback(null);
-    setErrors([]);
+    setErr([]);
   };
 
   const toggleIsLogin = () => {
@@ -28,9 +31,49 @@ const login: React.FC<loginProps> = ({}) => {
     isLogin ? handleLogin() : handleSignup();
   };
 
-  const handleLogin = async () => {};
+  const handleLogin = async () => {
+    try {
+      const { data, errors } = await loginUser({
+        variables: { email, password },
+      });
+      if (errors) {
+        console.log("handleSignup", errors);
+        alert("somthing went wrong");
+      } else {
+        if (data.login?.errors) {
+          setErr(data.login.errors);
+          setPassword("");
+        } else {
+          console.log(data.login.user);
+        }
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
 
-  const handleSignup = async () => {};
+  const handleSignup = async () => {
+    setErr([]);
+    try {
+      const { data, errors } = await registerUser({
+        variables: { username, email, password },
+      });
+      if (errors) {
+        console.log("handleSignup", errors);
+        alert("somthing went wrong");
+      } else {
+        if (data.register?.errors) {
+          setErr(data.register.errors);
+          setPassword("");
+        } else {
+          setFeedback(`Account created for ${data.register.user.username}`);
+          console.log(data.register.user);
+        }
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
 
   return (
     <div style={{ padding: "0 1rem" }}>
@@ -68,7 +111,7 @@ const login: React.FC<loginProps> = ({}) => {
         <br />
 
         <div>
-          {errors.map((error) => (
+          {err.map((error) => (
             <h4 key={error.message}>{error.message}</h4>
           ))}
         </div>
