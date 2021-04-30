@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import User from "./User";
 
@@ -27,8 +28,8 @@ export default class Circle extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.circles)
   @JoinColumn({ name: "creatorId", referencedColumnName: "id" })
-  @Field(() => String)
-  creator: string;
+  @Field(() => User, { nullable: true })
+  creator: User;
 
   @Field(() => String)
   @Column()
@@ -37,4 +38,8 @@ export default class Circle extends BaseEntity {
   @Field(() => String)
   @CreateDateColumn()
   createdAt: string;
+
+  @Field(() => String, { nullable: true })
+  @UpdateDateColumn()
+  updatedAt: string;
 }

@@ -29,3 +29,16 @@ export const checkRegisterInputValid = (
   }
   return errors;
 };
+
+export const checkCircleInputValid = (name: string): CustomError[] => {
+  const errors: CustomError[] = [];
+
+  if (name.length < 3 || name.length > 32) {
+    errors.push({
+      path: "name",
+      message: "name must be between 3 and 32 characters",
+    });
+  }
+
+  return errors;
+};

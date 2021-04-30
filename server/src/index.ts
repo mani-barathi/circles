@@ -2,13 +2,14 @@ import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import cors from "cors";
-import { createConnection } from "typeorm";
-import { buildSchema } from "type-graphql";
-// import User from "./entities/User"
-import UserResolver from "./resolvers/userResolver";
 import redis from "redis";
 import connectRedis from "connect-redis";
 import session from "express-session";
+import { createConnection } from "typeorm";
+import { buildSchema } from "type-graphql";
+
+import UserResolver from "./resolvers/userResolver";
+import CircleResolver from "./resolvers/circleResolver";
 
 const corsOptions = {
   origin: "http://localhost:3000",
@@ -19,7 +20,7 @@ const main = async () => {
   await createConnection();
 
   const schema = await buildSchema({
-    resolvers: [UserResolver],
+    resolvers: [UserResolver, CircleResolver],
   });
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
