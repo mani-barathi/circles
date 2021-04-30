@@ -42,7 +42,7 @@ export type MutationLoginArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  me: UserResponse;
+  me?: Maybe<User>;
 };
 
 export type User = {
@@ -104,16 +104,10 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = (
   { __typename?: 'Query' }
-  & { me: (
-    { __typename?: 'UserResponse' }
-    & { user?: Maybe<(
-      { __typename?: 'User' }
-      & Pick<User, 'username' | 'id' | 'email'>
-    )>, errors?: Maybe<Array<(
-      { __typename?: 'CustomError' }
-      & Pick<CustomError, 'path' | 'message'>
-    )>> }
-  ) }
+  & { me?: Maybe<(
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username' | 'email'>
+  )> }
 );
 
 
@@ -205,15 +199,9 @@ export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutatio
 export const MeDocument = gql`
     query Me {
   me {
-    user {
-      username
-      id
-      email
-    }
-    errors {
-      path
-      message
-    }
+    id
+    username
+    email
   }
 }
     `;

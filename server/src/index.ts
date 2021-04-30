@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
+import cors from "cors";
 import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
 // import User from "./entities/User"
@@ -9,17 +10,22 @@ import redis from "redis";
 import connectRedis from "connect-redis";
 import session from "express-session";
 
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+};
+
 const main = async () => {
   await createConnection();
 
   const schema = await buildSchema({
     resolvers: [UserResolver],
   });
-
-  const app = express();
-
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
+
+  const app = express();
+  app.use(cors(corsOptions));
 
   app.use(
     session({
@@ -45,7 +51,7 @@ const main = async () => {
     context: ({ req, res }) => ({ req, res }),
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
 
   app.get("/", (_, res) => res.send("Circles API"));
   app.listen(4000, () => console.log("URL: http://localhost:4000/graphql "));

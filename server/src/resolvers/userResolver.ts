@@ -13,7 +13,7 @@ import argon2 from "argon2";
 import User from "../entities/User";
 import { Context, CustomError } from "../types";
 import { checkRegisterInputValid } from "../utils/validations";
-import { isUnAuthorized, isAuthorized } from "../middlewares/authMiddlewares";
+import { isUnAuthorized } from "../middlewares/authMiddlewares";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
 
@@ -28,17 +28,13 @@ class UserResponse {
 
 @Resolver()
 export default class UserResolver {
-  @Query(() => UserResponse)
-  @UseMiddleware(isAuthorized)
-  async me(@Ctx() { req }: Context): Promise<UserResponse> {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req }: Context) {
     try {
-      const user = await User.findOneOrFail(req.session.userId);
-      return { user };
+      if (!req.session.userId) return null;
+      return await User.findOne(req.session.userId);
     } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        return { errors: [{ path: "unkown", message: "no user found" }] };
-      }
-      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+      return null;
     }
   }
 

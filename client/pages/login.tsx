@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
+import { useRouter } from "next/router";
+import {
+  MeDocument,
+  MeQuery,
+  useLoginMutation,
+  useRegisterMutation,
+} from "../generated/graphql";
 
 interface loginProps {}
 
 const login: React.FC<loginProps> = ({}) => {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +42,15 @@ const login: React.FC<loginProps> = ({}) => {
     try {
       const { data, errors } = await loginUser({
         variables: { email, password },
+        update: (cache, response) => {
+          cache.writeQuery<MeQuery>({
+            query: MeDocument,
+            data: {
+              __typename: "Query",
+              me: response.data?.login?.user,
+            },
+          });
+        },
       });
       if (errors) {
         console.log("handleSignup", errors);
@@ -45,9 +61,11 @@ const login: React.FC<loginProps> = ({}) => {
           setPassword("");
         } else {
           console.log(data.login.user);
+          router.push("/");
         }
       }
     } catch (error) {
+      console.log("handleLogin: ", error);
       alert(error);
     }
   };
@@ -76,7 +94,7 @@ const login: React.FC<loginProps> = ({}) => {
   };
 
   return (
-    <div style={{ padding: "0 1rem" }}>
+    <div>
       <h1> {isLogin ? "Login" : "Sign Up"} </h1>
 
       <form onSubmit={handleFormSubmit}>
