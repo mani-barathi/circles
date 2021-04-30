@@ -17,8 +17,8 @@ const login: React.FC<loginProps> = ({}) => {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState([]);
   const [feedback, setFeedback] = useState(null);
-  const [loginUser] = useLoginMutation();
-  const [registerUser] = useRegisterMutation();
+  const [loginUser, { loading: loginLoading }] = useLoginMutation();
+  const [registerUser, { loading: registerLoading }] = useRegisterMutation();
 
   const clearFields = () => {
     setUsername("");
@@ -56,12 +56,13 @@ const login: React.FC<loginProps> = ({}) => {
         console.log("handleSignup", errors);
         alert("somthing went wrong");
       } else {
-        if (data.login?.errors) {
+        if (data.login?.user) {
+          const path =
+            typeof router.query.next === "string" ? router.query.next : "/";
+          router.push(path);
+        } else {
           setErr(data.login.errors);
           setPassword("");
-        } else {
-          console.log(data.login.user);
-          router.push("/");
         }
       }
     } catch (error) {
@@ -85,6 +86,7 @@ const login: React.FC<loginProps> = ({}) => {
           setPassword("");
         } else {
           setFeedback(`Account created for ${data.register.user.username}`);
+          clearFields();
           console.log(data.register.user);
         }
       }
@@ -136,7 +138,12 @@ const login: React.FC<loginProps> = ({}) => {
 
         <div>{feedback && <h4>{feedback}</h4>}</div>
 
-        <button type="submit">{isLogin ? "Login" : "Submit"}</button>
+        <button
+          disabled={isLogin ? loginLoading : registerLoading}
+          type="submit"
+        >
+          {isLogin ? "Login" : "Submit"}
+        </button>
       </form>
 
       <div className="item">
