@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import User from "./User";
 import Invitation from "./Invitation";
+import Member from "./Member";
 
 @ObjectType()
 @Entity()
@@ -36,6 +37,10 @@ export default class Circle extends BaseEntity {
   @OneToMany(() => Invitation, (invitation) => invitation.circle)
   @Field(() => User, { nullable: true })
   invitations: User;
+
+  @OneToMany(() => Member, (member) => member.circle)
+  @Field(() => User, { nullable: true })
+  members: User;
 
   @Field(() => String)
   @Column()
