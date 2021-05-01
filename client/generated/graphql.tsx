@@ -14,10 +14,48 @@ export type Scalars = {
   Float: number;
 };
 
+export type Circle = {
+  __typename?: 'Circle';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  creatorId: Scalars['String'];
+  creator?: Maybe<User>;
+  invitations?: Maybe<User>;
+  members?: Maybe<User>;
+  description: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt?: Maybe<Scalars['String']>;
+};
+
+export type CircleResponse = {
+  __typename?: 'CircleResponse';
+  circle?: Maybe<Circle>;
+  errors?: Maybe<Array<CustomError>>;
+};
+
 export type CustomError = {
   __typename?: 'CustomError';
   path: Scalars['String'];
   message: Scalars['String'];
+};
+
+export type Invitation = {
+  __typename?: 'Invitation';
+  active: Scalars['Boolean'];
+  circleId?: Maybe<Scalars['Int']>;
+  circle: Circle;
+  senderId?: Maybe<Scalars['Int']>;
+  sender: User;
+  recipientId?: Maybe<Scalars['Int']>;
+  recipient: User;
+  createdAt: Scalars['String'];
+  updatedAt?: Maybe<Scalars['String']>;
+};
+
+export type InvitationResponse = {
+  __typename?: 'InvitationResponse';
+  invitation?: Maybe<Invitation>;
+  errors?: Maybe<Array<CustomError>>;
 };
 
 export type Mutation = {
@@ -25,6 +63,8 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  createCircle: CircleResponse;
+  sendInvitation: InvitationResponse;
 };
 
 
@@ -40,16 +80,30 @@ export type MutationLoginArgs = {
   email: Scalars['String'];
 };
 
+
+export type MutationCreateCircleArgs = {
+  description: Scalars['String'];
+  name: Scalars['String'];
+};
+
+
+export type MutationSendInvitationArgs = {
+  circleId: Scalars['Float'];
+  recipiantName: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
+  getCircles: Array<Circle>;
+  getIntivations: Array<Invitation>;
 };
 
 export type User = {
   __typename?: 'User';
   id: Scalars['ID'];
   username: Scalars['String'];
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
 };
 
 export type UserResponse = {
@@ -57,6 +111,26 @@ export type UserResponse = {
   user?: Maybe<User>;
   errors?: Maybe<Array<CustomError>>;
 };
+
+export type CreateCircleMutationVariables = Exact<{
+  name: Scalars['String'];
+  description: Scalars['String'];
+}>;
+
+
+export type CreateCircleMutation = (
+  { __typename?: 'Mutation' }
+  & { createCircle: (
+    { __typename?: 'CircleResponse' }
+    & { circle?: Maybe<(
+      { __typename?: 'Circle' }
+      & Pick<Circle, 'id' | 'name' | 'description' | 'creatorId' | 'createdAt'>
+    )>, errors?: Maybe<Array<(
+      { __typename?: 'CustomError' }
+      & Pick<CustomError, 'path' | 'message'>
+    )>> }
+  ) }
+);
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
@@ -107,6 +181,24 @@ export type RegisterMutation = (
   ) }
 );
 
+export type GetIntivationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetIntivationsQuery = (
+  { __typename?: 'Query' }
+  & { getIntivations: Array<(
+    { __typename?: 'Invitation' }
+    & Pick<Invitation, 'active' | 'createdAt'>
+    & { circle: (
+      { __typename?: 'Circle' }
+      & Pick<Circle, 'id' | 'name'>
+    ), sender: (
+      { __typename?: 'User' }
+      & Pick<User, 'username' | 'id'>
+    ) }
+  )> }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -119,6 +211,50 @@ export type MeQuery = (
 );
 
 
+export const CreateCircleDocument = gql`
+    mutation CreateCircle($name: String!, $description: String!) {
+  createCircle(name: $name, description: $description) {
+    circle {
+      id
+      name
+      description
+      creatorId
+      createdAt
+    }
+    errors {
+      path
+      message
+    }
+  }
+}
+    `;
+export type CreateCircleMutationFn = Apollo.MutationFunction<CreateCircleMutation, CreateCircleMutationVariables>;
+
+/**
+ * __useCreateCircleMutation__
+ *
+ * To run a mutation, you first call `useCreateCircleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCircleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCircleMutation, { data, loading, error }] = useCreateCircleMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useCreateCircleMutation(baseOptions?: Apollo.MutationHookOptions<CreateCircleMutation, CreateCircleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCircleMutation, CreateCircleMutationVariables>(CreateCircleDocument, options);
+      }
+export type CreateCircleMutationHookResult = ReturnType<typeof useCreateCircleMutation>;
+export type CreateCircleMutationResult = Apollo.MutationResult<CreateCircleMutation>;
+export type CreateCircleMutationOptions = Apollo.BaseMutationOptions<CreateCircleMutation, CreateCircleMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -234,6 +370,49 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const GetIntivationsDocument = gql`
+    query GetIntivations {
+  getIntivations {
+    active
+    createdAt
+    circle {
+      id
+      name
+    }
+    sender {
+      username
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetIntivationsQuery__
+ *
+ * To run a query within a React component, call `useGetIntivationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIntivationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIntivationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetIntivationsQuery(baseOptions?: Apollo.QueryHookOptions<GetIntivationsQuery, GetIntivationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetIntivationsQuery, GetIntivationsQueryVariables>(GetIntivationsDocument, options);
+      }
+export function useGetIntivationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetIntivationsQuery, GetIntivationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetIntivationsQuery, GetIntivationsQueryVariables>(GetIntivationsDocument, options);
+        }
+export type GetIntivationsQueryHookResult = ReturnType<typeof useGetIntivationsQuery>;
+export type GetIntivationsLazyQueryHookResult = ReturnType<typeof useGetIntivationsLazyQuery>;
+export type GetIntivationsQueryResult = Apollo.QueryResult<GetIntivationsQuery, GetIntivationsQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

@@ -37,8 +37,12 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       // User logged in
       return (
         <>
-          <span>{data.me.username}</span>&nbsp; &nbsp;
+          <span>
+            <strong>{data.me.username}</strong>
+          </span>
+          &nbsp; &nbsp;
           <Link href="/">Home</Link> &nbsp; &nbsp;
+          <Link href="/createCircle">New Circle</Link> &nbsp; &nbsp;
           <button onClick={handleLogout} disabled={logoutLoading}>
             Logout
           </button>

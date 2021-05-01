@@ -1,0 +1,16 @@
+mutation CreateCircle($name: String!, $description: String!) {
+  createCircle(name: $name, description: $description) {
+    circle {
+      id
+      name
+      description
+      creatorId
+      createdAt
+    }
+
+    errors {
+      path
+      message
+    }
+  }
+}

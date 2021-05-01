@@ -1,0 +1,14 @@
+query GetIntivations {
+  getIntivations {
+    active
+    createdAt
+    circle {
+      id
+      name
+    }
+    sender {
+      username
+      id
+    }
+  }
+}

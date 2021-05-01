@@ -19,7 +19,7 @@ export default class Invitation extends BaseEntity {
   @Column({ default: true })
   active: Boolean;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @PrimaryColumn()
   circleId: number;
 
@@ -27,32 +27,36 @@ export default class Invitation extends BaseEntity {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "circleId", referencedColumnName: "id" })
-  @Field(() => Circle, { nullable: true })
+  @Field(() => Circle)
   circle: Circle;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @PrimaryColumn()
   senderId: number;
 
-  @ManyToOne(() => User, (user) => user.sentInvitations)
+  @ManyToOne(() => User, (user) => user.sentInvitations, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "senderId", referencedColumnName: "id" })
-  @Field(() => User, { nullable: true })
+  @Field(() => User)
   sender: User;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @PrimaryColumn()
   recipientId: number;
 
-  @ManyToOne(() => User, (user) => user.receivedinvitations)
+  @ManyToOne(() => User, (user) => user.receivedinvitations, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "recipientId", referencedColumnName: "id" })
-  @Field(() => User, { nullable: true })
+  @Field(() => User)
   recipient: User;
 
   @Field(() => String)
   @CreateDateColumn()
   createdAt: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @UpdateDateColumn()
   updatedAt: string;
 }
