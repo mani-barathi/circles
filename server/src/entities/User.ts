@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from "typeorm";
 import Circle from "./Circle";
+import Invitation from "./Invitation";
 
 @ObjectType()
 @Entity()
@@ -19,12 +20,18 @@ export default class User extends BaseEntity {
   @Column({ unique: true })
   username: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column({ unique: true })
-  email: string;
+  email?: string;
 
   @OneToMany(() => Circle, (circle) => circle.creator)
   circles: Circle[];
+
+  @OneToMany(() => Invitation, (invitation) => invitation.sender)
+  sentInvitations: Invitation[];
+
+  @OneToMany(() => Invitation, (invitation) => invitation.recipient)
+  receivedinvitations: Invitation[];
 
   @Column()
   password: string;

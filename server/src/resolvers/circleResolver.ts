@@ -35,7 +35,7 @@ export default class CircleResolver {
       //   .innerJoinAndSelect("c.creator", "creator")
       .innerJoin("c.creator", "creator")
       .select(["c.id", "c.name", "c.description", "c.createdAt", "c.creatorId"])
-      .addSelect(["creator.id", "creator.username", "creator.email"])
+      .addSelect(["creator.id", "creator.username"])
       .orderBy("c.createdAt", "DESC")
       //   .where("c.createdAt < :cursor",{cursor:new Date(parseInt("1619793415482"))})
       //   .take(1)

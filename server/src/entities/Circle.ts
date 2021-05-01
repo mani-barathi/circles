@@ -8,8 +8,10 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import User from "./User";
+import Invitation from "./Invitation";
 
 @ObjectType()
 @Entity()
@@ -30,6 +32,10 @@ export default class Circle extends BaseEntity {
   @JoinColumn({ name: "creatorId", referencedColumnName: "id" })
   @Field(() => User, { nullable: true })
   creator: User;
+
+  @OneToMany(() => Invitation, (invitation) => invitation.circle)
+  @Field(() => User, { nullable: true })
+  invitations: User;
 
   @Field(() => String)
   @Column()
