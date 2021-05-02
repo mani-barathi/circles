@@ -1,6 +1,7 @@
 import { CustomError } from "../types";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,16}$/;
+const CIRCLE_NAME_REGEX = /^[a-z0-9_\s]{3,32}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;
 
 export const checkRegisterInputValid = (
@@ -33,10 +34,11 @@ export const checkRegisterInputValid = (
 export const checkCircleInputValid = (name: string): CustomError[] => {
   const errors: CustomError[] = [];
 
-  if (name.length < 3 || name.length > 32) {
+  if (!name.toLowerCase().match(CIRCLE_NAME_REGEX)) {
     errors.push({
       path: "name",
-      message: "name must be between 3 and 32 characters",
+      message:
+        "name can contain alphabets, numbers, underscores and must be between 3 and 32 characters",
     });
   }
 

@@ -3,5 +3,10 @@ query Me {
     id
     username
     email
+    myCircles {
+      id
+      name
+      isAdmin
+    }
   }
 }

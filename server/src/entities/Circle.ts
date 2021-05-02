@@ -54,3 +54,9 @@ export default class Circle extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: string;
 }
+
+@ObjectType()
+export class MyCircle extends Circle {
+  @Field(() => Boolean)
+  isAdmin: boolean;
+}

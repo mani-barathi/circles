@@ -13,6 +13,7 @@ import {
 } from "type-graphql";
 import { checkCircleInputValid } from "../utils/validations";
 import { createQueryBuilder } from "typeorm";
+import Member from "../entities/Member";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
 const FOREIGN_KEY_CONSTRAINT_ERROR_CODE = "23503";
@@ -26,21 +27,20 @@ class CircleResponse {
   errors?: CustomError[];
 }
 
-@Resolver()
+@Resolver(Circle)
 export default class CircleResolver {
   @Query(() => [Circle])
   @UseMiddleware(isAuthorized)
   async getCircles(): Promise<Circle[]> {
     const circles = await createQueryBuilder<Circle>("circle", "c")
-      //   .innerJoinAndSelect("c.creator", "creator")
       .innerJoin("c.creator", "creator")
       .select(["c.id", "c.name", "c.description", "c.createdAt", "c.creatorId"])
       .addSelect(["creator.id", "creator.username"])
       .orderBy("c.createdAt", "DESC")
-      //   .where("c.createdAt < :cursor",{cursor:new Date(parseInt("1619793415482"))})
-      //   .take(1)
+      // .where("c.createdAt < :cursor", {
+      //   cursor: new Date(parseInt("1619793415482")),
+      // })
       .getMany();
-    console.log(circles);
     return circles;
   }
 
@@ -58,9 +58,15 @@ export default class CircleResolver {
       }
 
       const circle = await Circle.create({
-        name,
+        name: name.toLowerCase(),
         description,
         creatorId: req.session.userId,
+      }).save();
+
+      await Member.create({
+        circleId: circle.id,
+        isAdmin: true,
+        userId: req.session.userId,
       }).save();
       return { circle };
     } catch (e) {

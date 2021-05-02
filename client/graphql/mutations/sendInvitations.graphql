@@ -1,0 +1,14 @@
+mutation SendInvitation($circleId: Int!, $recipiantName: String!) {
+  sendInvitation(circleId: $circleId, recipiantName: $recipiantName) {
+    invitation {
+      circleId
+      senderId
+      recipientId
+      active
+    }
+    errors {
+      path
+      message
+    }
+  }
+}

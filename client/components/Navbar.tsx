@@ -1,11 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import {
-  MeDocument,
-  MeQuery,
-  useLogoutMutation,
-  useMeQuery,
-} from "../generated/graphql";
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { useApolloClient } from "@apollo/client";
 import { useRouter } from "next/router";
 
@@ -43,6 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
           &nbsp; &nbsp;
           <Link href="/">Home</Link> &nbsp; &nbsp;
           <Link href="/createCircle">New Circle</Link> &nbsp; &nbsp;
+          <Link href="/circle">Explore</Link> &nbsp; &nbsp;
           <button onClick={handleLogout} disabled={logoutLoading}>
             Logout
           </button>

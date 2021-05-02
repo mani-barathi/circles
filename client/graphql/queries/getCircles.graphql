@@ -1,0 +1,11 @@
+query GetCircles {
+  getCircles {
+    id
+    name
+    description
+    createdAt
+    creator {
+      username
+    }
+  }
+}

@@ -88,8 +88,22 @@ export type MutationCreateCircleArgs = {
 
 
 export type MutationSendInvitationArgs = {
-  circleId: Scalars['Float'];
+  circleId: Scalars['Int'];
   recipiantName: Scalars['String'];
+};
+
+export type MyCircle = {
+  __typename?: 'MyCircle';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  creatorId: Scalars['String'];
+  creator?: Maybe<User>;
+  invitations?: Maybe<User>;
+  members?: Maybe<User>;
+  description: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt?: Maybe<Scalars['String']>;
+  isAdmin: Scalars['Boolean'];
 };
 
 export type Query = {
@@ -104,6 +118,7 @@ export type User = {
   id: Scalars['ID'];
   username: Scalars['String'];
   email?: Maybe<Scalars['String']>;
+  myCircles: Array<MyCircle>;
 };
 
 export type UserResponse = {
@@ -181,6 +196,41 @@ export type RegisterMutation = (
   ) }
 );
 
+export type SendInvitationMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  recipiantName: Scalars['String'];
+}>;
+
+
+export type SendInvitationMutation = (
+  { __typename?: 'Mutation' }
+  & { sendInvitation: (
+    { __typename?: 'InvitationResponse' }
+    & { invitation?: Maybe<(
+      { __typename?: 'Invitation' }
+      & Pick<Invitation, 'circleId' | 'senderId' | 'recipientId' | 'active'>
+    )>, errors?: Maybe<Array<(
+      { __typename?: 'CustomError' }
+      & Pick<CustomError, 'path' | 'message'>
+    )>> }
+  ) }
+);
+
+export type GetCirclesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCirclesQuery = (
+  { __typename?: 'Query' }
+  & { getCircles: Array<(
+    { __typename?: 'Circle' }
+    & Pick<Circle, 'id' | 'name' | 'description' | 'createdAt'>
+    & { creator?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'username'>
+    )> }
+  )> }
+);
+
 export type GetIntivationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -207,6 +257,10 @@ export type MeQuery = (
   & { me?: Maybe<(
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username' | 'email'>
+    & { myCircles: Array<(
+      { __typename?: 'MyCircle' }
+      & Pick<MyCircle, 'id' | 'name' | 'isAdmin'>
+    )> }
   )> }
 );
 
@@ -370,6 +424,89 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const SendInvitationDocument = gql`
+    mutation SendInvitation($circleId: Int!, $recipiantName: String!) {
+  sendInvitation(circleId: $circleId, recipiantName: $recipiantName) {
+    invitation {
+      circleId
+      senderId
+      recipientId
+      active
+    }
+    errors {
+      path
+      message
+    }
+  }
+}
+    `;
+export type SendInvitationMutationFn = Apollo.MutationFunction<SendInvitationMutation, SendInvitationMutationVariables>;
+
+/**
+ * __useSendInvitationMutation__
+ *
+ * To run a mutation, you first call `useSendInvitationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendInvitationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendInvitationMutation, { data, loading, error }] = useSendInvitationMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      recipiantName: // value for 'recipiantName'
+ *   },
+ * });
+ */
+export function useSendInvitationMutation(baseOptions?: Apollo.MutationHookOptions<SendInvitationMutation, SendInvitationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendInvitationMutation, SendInvitationMutationVariables>(SendInvitationDocument, options);
+      }
+export type SendInvitationMutationHookResult = ReturnType<typeof useSendInvitationMutation>;
+export type SendInvitationMutationResult = Apollo.MutationResult<SendInvitationMutation>;
+export type SendInvitationMutationOptions = Apollo.BaseMutationOptions<SendInvitationMutation, SendInvitationMutationVariables>;
+export const GetCirclesDocument = gql`
+    query GetCircles {
+  getCircles {
+    id
+    name
+    description
+    createdAt
+    creator {
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCirclesQuery__
+ *
+ * To run a query within a React component, call `useGetCirclesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCirclesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCirclesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCirclesQuery(baseOptions?: Apollo.QueryHookOptions<GetCirclesQuery, GetCirclesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCirclesQuery, GetCirclesQueryVariables>(GetCirclesDocument, options);
+      }
+export function useGetCirclesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCirclesQuery, GetCirclesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCirclesQuery, GetCirclesQueryVariables>(GetCirclesDocument, options);
+        }
+export type GetCirclesQueryHookResult = ReturnType<typeof useGetCirclesQuery>;
+export type GetCirclesLazyQueryHookResult = ReturnType<typeof useGetCirclesLazyQuery>;
+export type GetCirclesQueryResult = Apollo.QueryResult<GetCirclesQuery, GetCirclesQueryVariables>;
 export const GetIntivationsDocument = gql`
     query GetIntivations {
   getIntivations {
@@ -419,6 +556,11 @@ export const MeDocument = gql`
     id
     username
     email
+    myCircles {
+      id
+      name
+      isAdmin
+    }
   }
 }
     `;

@@ -7,6 +7,7 @@ import {
   Arg,
   Ctx,
   Field,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -48,7 +49,7 @@ export default class CircleResolver {
   @UseMiddleware(isAuthorized)
   async sendInvitation(
     @Arg("recipiantName") recipiantName: string,
-    @Arg("circleId") circleId: number,
+    @Arg("circleId", () => Int) circleId: number,
     @Ctx() { req }: Context
   ): Promise<InvitationResponse> {
     try {
