@@ -6,7 +6,7 @@ import {
   BaseEntity,
   OneToMany,
 } from "typeorm";
-import Circle, { MyCircle } from "./Circle";
+import Circle from "./Circle";
 import Invitation from "./Invitation";
 import Member from "./Member";
 
@@ -25,8 +25,8 @@ export default class User extends BaseEntity {
   @Column({ unique: true })
   email?: string;
 
-  @Field(() => [MyCircle])
-  myCircles: MyCircle[];
+  @Field(() => [Circle])
+  myCircles: Circle[];
 
   @OneToMany(() => Circle, (circle) => circle.creator)
   circles: Circle[];

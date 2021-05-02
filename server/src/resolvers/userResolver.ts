@@ -15,7 +15,7 @@ import User from "../entities/User";
 import { Context, CustomError } from "../types";
 import { checkRegisterInputValid } from "../utils/validations";
 import { isUnAuthorized } from "../middlewares/authMiddlewares";
-import { MyCircle } from "../entities/Circle";
+import Circle from "../entities/Circle";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
 
@@ -31,12 +31,11 @@ class UserResponse {
 @Resolver(User)
 export default class UserResolver {
   @FieldResolver()
-  async myCircles(@Ctx() { req }: Context): Promise<MyCircle[]> {
+  async myCircles(@Ctx() { req }: Context): Promise<Circle[]> {
     const entityManager = getManager();
-    const query: MyCircle[] = await entityManager.query(
+    const query: Circle[] = await entityManager.query(
       `
-      SELECT c.*,m."isAdmin" from circle as c 
-      INNER JOIN member as m on c.id = m."circleId" 
+      SELECT c.* from circle as c INNER JOIN member as m on c.id = m."circleId" 
       WHERE m."userId" = $1 ORDER BY c."updatedAt" DESC;
     `,
       [req.session.userId]

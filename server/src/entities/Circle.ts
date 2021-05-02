@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, Int, ObjectType } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -29,6 +29,18 @@ export default class Circle extends BaseEntity {
   @Column()
   creatorId: number;
 
+  @Field(() => Int)
+  @Column("int", { default: 1 })
+  totalMembers: number;
+
+  // To check whether the current logged in user is a member of the circle
+  @Field(() => Boolean)
+  isMember: boolean;
+
+  // To check whether the current logged in user is admin of the circle
+  @Field(() => Boolean)
+  isAdmin: boolean;
+
   @ManyToOne(() => User, (user) => user.circles)
   @JoinColumn({ name: "creatorId", referencedColumnName: "id" })
   @Field(() => User, { nullable: true })
@@ -53,10 +65,4 @@ export default class Circle extends BaseEntity {
   @Field(() => String, { nullable: true })
   @UpdateDateColumn()
   updatedAt: string;
-}
-
-@ObjectType()
-export class MyCircle extends Circle {
-  @Field(() => Boolean)
-  isAdmin: boolean;
 }

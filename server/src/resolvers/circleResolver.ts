@@ -5,14 +5,17 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
+  Int,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
   UseMiddleware,
 } from "type-graphql";
 import { checkCircleInputValid } from "../utils/validations";
-import { createQueryBuilder } from "typeorm";
+import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm";
 import Member from "../entities/Member";
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
@@ -29,12 +32,35 @@ class CircleResponse {
 
 @Resolver(Circle)
 export default class CircleResolver {
+  @FieldResolver()
+  isAdmin(@Root() circle: Circle, @Ctx() { req }: Context): Boolean {
+    return req.session.userId === circle.creatorId;
+  }
+
+  @FieldResolver()
+  async isMember(
+    @Root() circle: Circle,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const member = await getManager().query(
+      `select exists(select 1 from member where "userId" = $1 and "circleId" = $2)`,
+      [req.session.userId, circle.id]
+    );
+    return member[0].exists;
+  }
+
   @Query(() => [Circle])
-  @UseMiddleware(isAuthorized)
   async getCircles(): Promise<Circle[]> {
     const circles = await createQueryBuilder<Circle>("circle", "c")
       .innerJoin("c.creator", "creator")
-      .select(["c.id", "c.name", "c.description", "c.createdAt", "c.creatorId"])
+      .select([
+        "c.id",
+        "c.name",
+        "c.description",
+        "c.createdAt",
+        "c.creatorId",
+        "c.totalMembers",
+      ])
       .addSelect(["creator.id", "creator.username"])
       .orderBy("c.createdAt", "DESC")
       // .where("c.createdAt < :cursor", {
@@ -42,6 +68,32 @@ export default class CircleResolver {
       // })
       .getMany();
     return circles;
+  }
+
+  @Query(() => Circle)
+  @UseMiddleware(isAuthorized)
+  async circle(@Arg("circleId", () => Int) circleId: number): Promise<Circle> {
+    try {
+      const circle = await createQueryBuilder<Circle>("circle", "c")
+        .innerJoin("c.creator", "creator")
+        .select([
+          "c.id",
+          "c.name",
+          "c.description",
+          "c.createdAt",
+          "c.creatorId",
+          "c.totalMembers",
+        ])
+        .addSelect(["creator.id", "creator.username"])
+        .where("c.id = :circleId", { circleId })
+        .getOneOrFail();
+      return circle;
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new Error("No Circle Found!");
+      }
+      throw new Error("Something went wrong");
+    }
   }
 
   @Mutation(() => CircleResponse)
@@ -61,6 +113,7 @@ export default class CircleResolver {
         name: name.toLowerCase(),
         description,
         creatorId: req.session.userId,
+        // totalMembers:1
       }).save();
 
       await Member.create({
