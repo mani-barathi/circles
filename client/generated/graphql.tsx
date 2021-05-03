@@ -67,6 +67,7 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   createCircle: CircleResponse;
+  acceptInvitation: Circle;
   sendInvitation: InvitationResponse;
 };
 
@@ -87,6 +88,12 @@ export type MutationLoginArgs = {
 export type MutationCreateCircleArgs = {
   description: Scalars['String'];
   name: Scalars['String'];
+};
+
+
+export type MutationAcceptInvitationArgs = {
+  circleId: Scalars['Int'];
+  senderId: Scalars['Int'];
 };
 
 
@@ -121,6 +128,20 @@ export type UserResponse = {
   user?: Maybe<User>;
   errors?: Maybe<Array<CustomError>>;
 };
+
+export type AcceptInviteMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  senderId: Scalars['Int'];
+}>;
+
+
+export type AcceptInviteMutation = (
+  { __typename?: 'Mutation' }
+  & { acceptInvitation: (
+    { __typename?: 'Circle' }
+    & Pick<Circle, 'id' | 'name'>
+  ) }
+);
 
 export type CreateCircleMutationVariables = Exact<{
   name: Scalars['String'];
@@ -277,6 +298,41 @@ export type MeQuery = (
 );
 
 
+export const AcceptInviteDocument = gql`
+    mutation AcceptInvite($circleId: Int!, $senderId: Int!) {
+  acceptInvitation(circleId: $circleId, senderId: $senderId) {
+    id
+    name
+  }
+}
+    `;
+export type AcceptInviteMutationFn = Apollo.MutationFunction<AcceptInviteMutation, AcceptInviteMutationVariables>;
+
+/**
+ * __useAcceptInviteMutation__
+ *
+ * To run a mutation, you first call `useAcceptInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptInviteMutation, { data, loading, error }] = useAcceptInviteMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      senderId: // value for 'senderId'
+ *   },
+ * });
+ */
+export function useAcceptInviteMutation(baseOptions?: Apollo.MutationHookOptions<AcceptInviteMutation, AcceptInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AcceptInviteMutation, AcceptInviteMutationVariables>(AcceptInviteDocument, options);
+      }
+export type AcceptInviteMutationHookResult = ReturnType<typeof useAcceptInviteMutation>;
+export type AcceptInviteMutationResult = Apollo.MutationResult<AcceptInviteMutation>;
+export type AcceptInviteMutationOptions = Apollo.BaseMutationOptions<AcceptInviteMutation, AcceptInviteMutationVariables>;
 export const CreateCircleDocument = gql`
     mutation CreateCircle($name: String!, $description: String!) {
   createCircle(name: $name, description: $description) {

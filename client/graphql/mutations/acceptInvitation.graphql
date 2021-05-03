@@ -1,0 +1,6 @@
+mutation AcceptInvite($circleId: Int!, $senderId: Int!) {
+  acceptInvitation(circleId: $circleId, senderId: $senderId) {
+    id
+    name
+  }
+}

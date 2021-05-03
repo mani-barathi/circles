@@ -28,6 +28,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
 
   const handleInvite = async () => {
     const recipiantName = prompt("Enter the username whom you want to invite");
+    if (!recipiantName) return;
     if (recipiantName.length < 3) {
       return alert("username cannot be less than 3 characters");
     }
@@ -37,7 +38,6 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
         variables: { circleId: parseInt(circleId as string), recipiantName },
       });
       if (data?.sendInvitation.invitation) {
-        console.log(data?.sendInvitation.invitation);
         alert("invitation sent");
       } else {
         alert(data?.sendInvitation.errors[0].message);

@@ -1,11 +1,18 @@
 import React, { useState } from "react";
-import { CustomError, useCreateCircleMutation } from "../generated/graphql";
+import { useRouter } from "next/router";
+import {
+  CustomError,
+  MeDocument,
+  MeQuery,
+  useCreateCircleMutation,
+} from "../generated/graphql";
 import useAuth from "../hooks/useAuth";
 
 interface createCircleProps {}
 
 const createCircle: React.FC<createCircleProps> = ({}) => {
   const { user, userLoading } = useAuth();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [err, setErr] = useState<CustomError[]>([]);
@@ -20,14 +27,35 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
     setErr(null);
     const variables = { name, description };
     try {
-      const { data, errors } = await createCircle({ variables });
-      console.log(data);
+      const { data, errors } = await createCircle({
+        variables,
+        update: (cache, { data }) => {
+          if (data.createCircle?.errors?.length > 0) return;
+
+          const existingMe = cache.readQuery<MeQuery>({
+            query: MeDocument,
+          });
+          cache.writeQuery<MeQuery>({
+            query: MeDocument,
+            data: {
+              me: {
+                ...existingMe.me,
+                myCircles: [
+                  data.createCircle.circle,
+                  ...existingMe.me.myCircles,
+                ],
+              },
+            },
+          });
+        },
+      });
       if (data.createCircle.errors) {
         setErr(data.createCircle.errors);
       } else {
         setErr([{ path: "succes", message: "circle created!" }]);
         setName("");
         setDescription("");
+        router.push(`/circle/${data.createCircle.circle?.id}`);
       }
     } catch (error) {
       alert(error);
