@@ -87,6 +87,25 @@ export default class CircleResolver {
     }
   }
 
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async rejectInvitation(
+    @Arg("senderId", () => Int) senderId: number,
+    @Arg("circleId", () => Int) circleId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    try {
+      await Invitation.delete({
+        circleId,
+        senderId,
+        recipientId: req.session.userId,
+      });
+      return true;
+    } catch (e) {
+      throw new Error("something went wrong");
+    }
+  }
+
   @Mutation(() => InvitationResponse)
   @UseMiddleware(isAuthorized)
   async sendInvitation(

@@ -8,6 +8,7 @@ import {
   MeQuery,
   useAcceptInviteMutation,
   User,
+  useRejectInvitationMutation,
 } from "../generated/graphql";
 
 interface InvitationProps {
@@ -28,9 +29,18 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
       senderId: parseInt(invitation.sender.id),
     },
   });
+  const [
+    rejectInvite,
+    { loading: rejectLoading },
+  ] = useRejectInvitationMutation({
+    variables: {
+      circleId: parseInt(invitation.circle.id),
+      senderId: parseInt(invitation.sender.id),
+    },
+  });
   const handleAcceptInvitation = async () => {
     try {
-      const { data } = await acceptInvite({
+      await acceptInvite({
         update: (cache, { data }) => {
           if (!data.acceptInvitation) return;
 
@@ -38,10 +48,10 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
             query: GetIntivationsDocument,
           });
           cache.writeQuery<GetIntivationsQuery>({
-            query: MeDocument,
+            query: GetIntivationsDocument,
             data: {
               getIntivations: existingInvitations.getIntivations.filter(
-                (ele) => ele.circle.id !== data.acceptInvitation.id
+                (ele) => ele.circle.id !== invitation.circle.id
               ),
             },
           });
@@ -54,22 +64,42 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
             data: {
               me: {
                 ...existingMe.me,
-                myCircles: [data.acceptInvitation, ...existingMe.me.myCircles],
+                myCircles: [invitation.circle, ...existingMe.me.myCircles],
               },
             },
           });
         },
       });
-      if (data) {
-        // refetch();
-      }
     } catch (error) {
       console.log(error);
       alert(error);
     }
   };
 
-  const handleRejectInvitation = () => {};
+  const handleRejectInvitation = async () => {
+    try {
+      await rejectInvite({
+        update: (cache, { data }) => {
+          if (!data) return;
+          const existingInvitations = cache.readQuery<GetIntivationsQuery>({
+            query: GetIntivationsDocument,
+          });
+          console.log(existingInvitations);
+          cache.writeQuery<GetIntivationsQuery>({
+            query: GetIntivationsDocument,
+            data: {
+              getIntivations: existingInvitations.getIntivations.filter(
+                (ele) => ele.circle.id !== invitation.circle.id
+              ),
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  };
   return (
     <div>
       <strong>{invitation.circle.name}</strong> &nbsp;
@@ -78,7 +108,9 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
         accept
       </button>
       &nbsp;
-      <button onClick={handleRejectInvitation}>reject</button>
+      <button onClick={handleRejectInvitation} disabled={rejectLoading}>
+        reject
+      </button>
     </div>
   );
 };

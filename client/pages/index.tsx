@@ -1,19 +1,18 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import Invitation from "../components/Invitation";
-import { useGetIntivationsLazyQuery } from "../generated/graphql";
+import {
+  useGetIntivationsLazyQuery,
+  useGetIntivationsQuery,
+} from "../generated/graphql";
 import useAuth from "../hooks/useAuth";
 
 export default function Home() {
   const { user, userLoading } = useAuth();
-  const [getInvits, { data, loading, error }] = useGetIntivationsLazyQuery({
+  const { data, loading, error } = useGetIntivationsQuery({
     fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
   });
-
-  useEffect(() => {
-    if (!user) return;
-    getInvits();
-  }, [user]);
 
   if (!user || userLoading) return <h3>Loading...</h3>;
 

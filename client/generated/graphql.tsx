@@ -68,6 +68,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   createCircle: CircleResponse;
   acceptInvitation: Circle;
+  rejectInvitation: Scalars['Boolean'];
   sendInvitation: InvitationResponse;
 };
 
@@ -92,6 +93,12 @@ export type MutationCreateCircleArgs = {
 
 
 export type MutationAcceptInvitationArgs = {
+  circleId: Scalars['Int'];
+  senderId: Scalars['Int'];
+};
+
+
+export type MutationRejectInvitationArgs = {
   circleId: Scalars['Int'];
   senderId: Scalars['Int'];
 };
@@ -210,6 +217,17 @@ export type RegisterMutation = (
       & Pick<CustomError, 'path' | 'message'>
     )>> }
   ) }
+);
+
+export type RejectInvitationMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  senderId: Scalars['Int'];
+}>;
+
+
+export type RejectInvitationMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'rejectInvitation'>
 );
 
 export type SendInvitationMutationVariables = Exact<{
@@ -492,6 +510,38 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const RejectInvitationDocument = gql`
+    mutation RejectInvitation($circleId: Int!, $senderId: Int!) {
+  rejectInvitation(circleId: $circleId, senderId: $senderId)
+}
+    `;
+export type RejectInvitationMutationFn = Apollo.MutationFunction<RejectInvitationMutation, RejectInvitationMutationVariables>;
+
+/**
+ * __useRejectInvitationMutation__
+ *
+ * To run a mutation, you first call `useRejectInvitationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectInvitationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rejectInvitationMutation, { data, loading, error }] = useRejectInvitationMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      senderId: // value for 'senderId'
+ *   },
+ * });
+ */
+export function useRejectInvitationMutation(baseOptions?: Apollo.MutationHookOptions<RejectInvitationMutation, RejectInvitationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RejectInvitationMutation, RejectInvitationMutationVariables>(RejectInvitationDocument, options);
+      }
+export type RejectInvitationMutationHookResult = ReturnType<typeof useRejectInvitationMutation>;
+export type RejectInvitationMutationResult = Apollo.MutationResult<RejectInvitationMutation>;
+export type RejectInvitationMutationOptions = Apollo.BaseMutationOptions<RejectInvitationMutation, RejectInvitationMutationVariables>;
 export const SendInvitationDocument = gql`
     mutation SendInvitation($circleId: Int!, $recipiantName: String!) {
   sendInvitation(circleId: $circleId, recipiantName: $recipiantName) {
