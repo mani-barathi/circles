@@ -1,4 +1,5 @@
 import Circle from "../entities/Circle";
+import Member from "../entities/Member";
 import User from "../entities/User";
 import Invitation from "../entities/Invitation";
 import { isAuthorized } from "../middlewares/authMiddlewares";
@@ -14,7 +15,9 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { createQueryBuilder, EntityNotFoundError } from "typeorm";
+import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm";
+
+const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
 
 @ObjectType()
 class InvitationResponse {
@@ -43,6 +46,45 @@ export default class CircleResolver {
       .andWhere("i.active = true")
       .getMany();
     return invitations;
+  }
+
+  @Mutation(() => Circle)
+  @UseMiddleware(isAuthorized)
+  async acceptInvitation(
+    @Arg("senderId", () => Int) senderId: number,
+    @Arg("circleId", () => Int) circleId: number,
+    @Ctx() { req }: Context
+  ): Promise<Circle> {
+    try {
+      const deleted = await Invitation.delete({
+        circleId,
+        senderId,
+        recipientId: req.session.userId,
+      });
+      if (deleted.affected !== 1 || !deleted.affected) {
+        throw new EntityNotFoundError(Invitation, {});
+      }
+
+      await Member.insert({
+        circleId,
+        userId: req.session.userId,
+        isAdmin: false,
+      });
+
+      const circle = await getManager().query(
+        `update circle set "totalMembers" = "totalMembers" + 1 where id = $1 returning id,name`,
+        [circleId]
+      );
+      return circle[0][0];
+    } catch (e) {
+      if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
+        throw new Error("your are already a member of the circle");
+      }
+      if (e instanceof EntityNotFoundError) {
+        throw new Error("no invitation found");
+      }
+      throw new Error("something went wrong");
+    }
   }
 
   @Mutation(() => InvitationResponse)
