@@ -15,8 +15,8 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const handleLogout = async () => {
     const { data } = await logoutUser();
     if (data?.logout) {
+      router.replace("/login");
       client.cache.reset();
-      router.push("/login");
     } else {
       alert("something went wrong try refreshing");
     }

@@ -19,6 +19,9 @@ export type Circle = {
   id: Scalars['ID'];
   name: Scalars['String'];
   creatorId: Scalars['String'];
+  totalMembers: Scalars['Int'];
+  isMember: Scalars['Boolean'];
+  isAdmin: Scalars['Boolean'];
   creator?: Maybe<User>;
   invitations?: Maybe<User>;
   members?: Maybe<User>;
@@ -92,25 +95,17 @@ export type MutationSendInvitationArgs = {
   recipiantName: Scalars['String'];
 };
 
-export type MyCircle = {
-  __typename?: 'MyCircle';
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  creatorId: Scalars['String'];
-  creator?: Maybe<User>;
-  invitations?: Maybe<User>;
-  members?: Maybe<User>;
-  description: Scalars['String'];
-  createdAt: Scalars['String'];
-  updatedAt?: Maybe<Scalars['String']>;
-  isAdmin: Scalars['Boolean'];
-};
-
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
   getCircles: Array<Circle>;
+  circle: Circle;
   getIntivations: Array<Invitation>;
+};
+
+
+export type QueryCircleArgs = {
+  circleId: Scalars['Int'];
 };
 
 export type User = {
@@ -118,7 +113,7 @@ export type User = {
   id: Scalars['ID'];
   username: Scalars['String'];
   email?: Maybe<Scalars['String']>;
-  myCircles: Array<MyCircle>;
+  myCircles: Array<Circle>;
 };
 
 export type UserResponse = {
@@ -216,6 +211,23 @@ export type SendInvitationMutation = (
   ) }
 );
 
+export type CircleQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type CircleQuery = (
+  { __typename?: 'Query' }
+  & { circle: (
+    { __typename?: 'Circle' }
+    & Pick<Circle, 'id' | 'name' | 'description' | 'createdAt' | 'totalMembers' | 'isAdmin' | 'isMember'>
+    & { creator?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'username'>
+    )> }
+  ) }
+);
+
 export type GetCirclesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -258,8 +270,8 @@ export type MeQuery = (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username' | 'email'>
     & { myCircles: Array<(
-      { __typename?: 'MyCircle' }
-      & Pick<MyCircle, 'id' | 'name' | 'isAdmin'>
+      { __typename?: 'Circle' }
+      & Pick<Circle, 'id' | 'name'>
     )> }
   )> }
 );
@@ -467,6 +479,50 @@ export function useSendInvitationMutation(baseOptions?: Apollo.MutationHookOptio
 export type SendInvitationMutationHookResult = ReturnType<typeof useSendInvitationMutation>;
 export type SendInvitationMutationResult = Apollo.MutationResult<SendInvitationMutation>;
 export type SendInvitationMutationOptions = Apollo.BaseMutationOptions<SendInvitationMutation, SendInvitationMutationVariables>;
+export const CircleDocument = gql`
+    query Circle($circleId: Int!) {
+  circle(circleId: $circleId) {
+    id
+    name
+    description
+    createdAt
+    totalMembers
+    isAdmin
+    isMember
+    creator {
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useCircleQuery__
+ *
+ * To run a query within a React component, call `useCircleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCircleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCircleQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useCircleQuery(baseOptions: Apollo.QueryHookOptions<CircleQuery, CircleQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CircleQuery, CircleQueryVariables>(CircleDocument, options);
+      }
+export function useCircleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CircleQuery, CircleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CircleQuery, CircleQueryVariables>(CircleDocument, options);
+        }
+export type CircleQueryHookResult = ReturnType<typeof useCircleQuery>;
+export type CircleLazyQueryHookResult = ReturnType<typeof useCircleLazyQuery>;
+export type CircleQueryResult = Apollo.QueryResult<CircleQuery, CircleQueryVariables>;
 export const GetCirclesDocument = gql`
     query GetCircles {
   getCircles {
@@ -559,7 +615,6 @@ export const MeDocument = gql`
     myCircles {
       id
       name
-      isAdmin
     }
   }
 }

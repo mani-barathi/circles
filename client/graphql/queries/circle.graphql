@@ -1,0 +1,14 @@
+query Circle($circleId: Int!) {
+  circle(circleId: $circleId) {
+    id
+    name
+    description
+    createdAt
+    totalMembers
+    isAdmin
+    isMember
+    creator {
+      username
+    }
+  }
+}
