@@ -11,6 +11,7 @@ import { buildSchema } from "type-graphql";
 import UserResolver from "./resolvers/userResolver";
 import CircleResolver from "./resolvers/circleResolver";
 import InvitationResolver from "./resolvers/InvitationResolver";
+import MemberResolver from "./resolvers/MemberResolver";
 
 const corsOptions = {
   origin: "http://localhost:3000",
@@ -21,7 +22,12 @@ const main = async () => {
   await createConnection();
 
   const schema = await buildSchema({
-    resolvers: [UserResolver, CircleResolver, InvitationResolver],
+    resolvers: [
+      UserResolver,
+      CircleResolver,
+      InvitationResolver,
+      MemberResolver,
+    ],
   });
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();

@@ -51,8 +51,8 @@ export default class Circle extends BaseEntity {
   invitations: User;
 
   @OneToMany(() => Member, (member) => member.circle)
-  @Field(() => User, { nullable: true })
-  members: User;
+  @Field(() => [Member], { nullable: true })
+  members: Member[];
 
   @Field(() => String)
   @Column()

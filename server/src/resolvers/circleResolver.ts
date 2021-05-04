@@ -49,6 +49,18 @@ export default class CircleResolver {
     return member[0].exists;
   }
 
+  @FieldResolver()
+  async members(@Root() circle: Circle): Promise<Member[]> {
+    const members = await createQueryBuilder<Member>("member", "m")
+      .select(["m.isAdmin", "m.userId", "m.createdAt"])
+      .innerJoin("m.user", "u")
+      .addSelect(["u.id", "u.username"])
+      .where("m.circleId = :circleId", { circleId: circle.id })
+      .orderBy("m.createdAt", "ASC")
+      .getMany();
+    return members;
+  }
+
   @Query(() => [Circle])
   async getCircles(): Promise<Circle[]> {
     const circles = await createQueryBuilder<Circle>("circle", "c")

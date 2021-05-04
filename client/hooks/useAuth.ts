@@ -8,7 +8,9 @@ function useAuth() {
 
   useEffect(() => {
     if (!loading && !data?.me) {
-      router.replace("/login?next=" + router.asPath);
+      if (window.location.pathname !== "/login") {
+        router.replace("/login?next=" + router.asPath);
+      }
     }
   }, [loading, data, router]);
 

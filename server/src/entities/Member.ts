@@ -24,7 +24,7 @@ export default class Member extends BaseEntity {
   @Field(() => User, { nullable: true })
   user: User;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @PrimaryColumn()
   circleId: number;
 
