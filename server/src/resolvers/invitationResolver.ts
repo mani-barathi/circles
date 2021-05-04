@@ -29,7 +29,7 @@ class InvitationResponse {
 }
 
 @Resolver()
-export default class CircleResolver {
+export default class InivitationResolver {
   @Query(() => [Invitation])
   @UseMiddleware(isAuthorized)
   async getIntivations(@Ctx() { req }: Context): Promise<Invitation[]> {
@@ -44,6 +44,21 @@ export default class CircleResolver {
       .orderBy("i.createdAt", "DESC")
       .where("i.recipientId =:id", { id: req.session.userId })
       .andWhere("i.active = true")
+      .getMany();
+    return invitations;
+  }
+
+  @Query(() => [Invitation])
+  @UseMiddleware(isAuthorized)
+  async getSentInvitationOfCircle(
+    @Arg("circleId", () => Int) circleId: number
+  ): Promise<Invitation[]> {
+    const invitations = await createQueryBuilder<Invitation>("invitation", "i")
+      .select(["i.circleId", "i.senderId", "i.recipientId", "i.createdAt"])
+      .innerJoin("i.recipient", "r")
+      .addSelect(["r.id", "r.username"])
+      .where("i.circleId = :circleId", { circleId })
+      .orderBy("i.createdAt", "DESC")
       .getMany();
     return invitations;
   }

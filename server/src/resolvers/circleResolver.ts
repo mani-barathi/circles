@@ -1,4 +1,5 @@
 import Circle from "../entities/Circle";
+import Invitation from "../entities/Invitation";
 import { isAuthorized } from "../middlewares/authMiddlewares";
 import { Context, CustomError } from "../types";
 import {
@@ -59,6 +60,18 @@ export default class CircleResolver {
       .orderBy("m.createdAt", "ASC")
       .getMany();
     return members;
+  }
+
+  @FieldResolver()
+  async invitations(@Root() circle: Circle): Promise<Invitation[]> {
+    const invitations = await createQueryBuilder<Invitation>("invitation", "i")
+      .select(["i.circleId", "i.senderId", "i.recipientId", "i.createdAt"])
+      .innerJoin("i.recipient", "r")
+      .addSelect(["r.id", "r.username"])
+      .where("i.circleId = :circleId", { circleId: circle.id })
+      .orderBy("i.createdAt", "DESC")
+      .getMany();
+    return invitations;
   }
 
   @Query(() => [Circle])
