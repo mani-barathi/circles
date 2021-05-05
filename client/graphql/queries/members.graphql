@@ -1,0 +1,13 @@
+query Members($circleId: Int!, $cursor: String) {
+  members(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    members {
+      userId
+      isAdmin
+      createdAt
+      user {
+        username
+      }
+    }
+  }
+}

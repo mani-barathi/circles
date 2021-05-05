@@ -43,6 +43,7 @@ export default class CircleResolver {
     @Root() circle: Circle,
     @Ctx() { req }: Context
   ): Promise<Boolean> {
+    if (!req.session.userId) return false;
     const member = await getManager().query(
       `select exists(select 1 from member where "userId" = $1 and "circleId" = $2)`,
       [req.session.userId, circle.id]
@@ -96,7 +97,6 @@ export default class CircleResolver {
   }
 
   @Query(() => Circle)
-  @UseMiddleware(isAuthorized)
   async circle(@Arg("circleId", () => Int) circleId: number): Promise<Circle> {
     try {
       const circle = await createQueryBuilder<Circle>("circle", "c")

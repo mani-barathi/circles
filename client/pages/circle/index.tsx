@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { useGetCirclesQuery } from "../../generated/graphql";
 
 interface indexProps {}
@@ -13,9 +14,12 @@ const index: React.FC<indexProps> = ({}) => {
 
       {data?.getCircles.map((circle) => (
         <div key={circle.id}>
-          <h3>{circle.name}</h3>
-          <strong>Creator : {circle.creator.username}</strong>
-          <p>{circle.description}</p>
+          <Link href={`/circle/${circle.id}`}>
+            <a>
+              <h3>{circle.name}</h3>
+            </a>
+          </Link>
+          <h4>Creator : {circle.creator.username}</h4>
           <hr />
         </div>
       ))}

@@ -23,8 +23,8 @@ export type Circle = {
   isMember: Scalars['Boolean'];
   isAdmin: Scalars['Boolean'];
   creator?: Maybe<User>;
-  invitations?: Maybe<User>;
-  members?: Maybe<User>;
+  invitations?: Maybe<Array<Invitation>>;
+  members?: Maybe<Array<Member>>;
   description: Scalars['String'];
   createdAt: Scalars['String'];
   updatedAt?: Maybe<Scalars['String']>;
@@ -59,6 +59,17 @@ export type InvitationResponse = {
   __typename?: 'InvitationResponse';
   invitation?: Maybe<Invitation>;
   errors?: Maybe<Array<CustomError>>;
+};
+
+export type Member = {
+  __typename?: 'Member';
+  userId: Scalars['Int'];
+  user?: Maybe<User>;
+  circleId?: Maybe<Scalars['Int']>;
+  circle?: Maybe<Circle>;
+  isAdmin: Scalars['Boolean'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type Mutation = {
@@ -109,16 +120,35 @@ export type MutationSendInvitationArgs = {
   recipiantName: Scalars['String'];
 };
 
+export type PaginatedMembers = {
+  __typename?: 'PaginatedMembers';
+  members: Array<Member>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
   getCircles: Array<Circle>;
   circle: Circle;
   getIntivations: Array<Invitation>;
+  getSentInvitationOfCircle: Array<Invitation>;
+  members: PaginatedMembers;
 };
 
 
 export type QueryCircleArgs = {
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryGetSentInvitationOfCircleArgs = {
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryMembersArgs = {
+  cursor?: Maybe<Scalars['String']>;
   circleId: Scalars['Int'];
 };
 
@@ -313,6 +343,28 @@ export type MeQuery = (
       & Pick<Circle, 'id' | 'name'>
     )> }
   )> }
+);
+
+export type MembersQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type MembersQuery = (
+  { __typename?: 'Query' }
+  & { members: (
+    { __typename?: 'PaginatedMembers' }
+    & Pick<PaginatedMembers, 'hasMore'>
+    & { members: Array<(
+      { __typename?: 'Member' }
+      & Pick<Member, 'userId' | 'isAdmin' | 'createdAt'>
+      & { user?: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'username'>
+      )> }
+    )> }
+  ) }
 );
 
 
@@ -752,3 +804,47 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const MembersDocument = gql`
+    query Members($circleId: Int!, $cursor: String) {
+  members(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    members {
+      userId
+      isAdmin
+      createdAt
+      user {
+        username
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useMembersQuery__
+ *
+ * To run a query within a React component, call `useMembersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMembersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMembersQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useMembersQuery(baseOptions: Apollo.QueryHookOptions<MembersQuery, MembersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MembersQuery, MembersQueryVariables>(MembersDocument, options);
+      }
+export function useMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MembersQuery, MembersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MembersQuery, MembersQueryVariables>(MembersDocument, options);
+        }
+export type MembersQueryHookResult = ReturnType<typeof useMembersQuery>;
+export type MembersLazyQueryHookResult = ReturnType<typeof useMembersLazyQuery>;
+export type MembersQueryResult = Apollo.QueryResult<MembersQuery, MembersQueryVariables>;

@@ -1,30 +1,29 @@
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Members from "../../components/Members";
 import {
   useCircleLazyQuery,
   useSendInvitationMutation,
 } from "../../generated/graphql";
-import useAuth from "../../hooks/useAuth";
 
 interface circlePageProps {}
 
 const circlePage: React.FC<circlePageProps> = ({}) => {
   const router = useRouter();
-  const { user, userLoading } = useAuth();
+  const [showMembers, setShowMembers] = useState(false);
   const { circleId } = router.query;
   const [getCircle, { data, loading, error }] = useCircleLazyQuery({
-    variables: { circleId: parseInt(circleId as string) },
     fetchPolicy: "cache-and-network",
   });
   const [sendInvitation] = useSendInvitationMutation();
 
   useEffect(() => {
-    if (!user) return;
-    getCircle();
-  }, [user]);
+    const intId = typeof circleId === "string" ? parseInt(circleId) : -1;
+    if (intId === -1) return;
+    getCircle({ variables: { circleId: intId } });
+  }, [circleId]);
 
-  if (loading || userLoading) return <h3>Loading...</h3>;
-  if (!userLoading && !user) return <h3>Not Authorized!</h3>;
+  if (loading) return <h3>Loading...</h3>;
 
   const handleInvite = async () => {
     const recipiantName = prompt("Enter the username whom you want to invite");
@@ -47,17 +46,22 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
     }
   };
 
+  const toggleGetMembers = () => setShowMembers((prev) => !prev);
+
   return (
     <div>
       {data ? (
         <div>
           <h1>{data.circle.name}</h1>
-          {data.circle.isAdmin ? (
+          <h3>creator: {data.circle.creator.username}</h3>
+          {data.circle.isAdmin && (
             <button onClick={handleInvite}>Invite New Member</button>
-          ) : (
-            <h3>creator: {data.circle.creator.username}</h3>
-          )}
-          <p>members: {data.circle.totalMembers}</p>
+          )}{" "}
+          &nbsp;
+          <button disabled={!data.circle.isMember} onClick={toggleGetMembers}>
+            Members: {data.circle.totalMembers}
+          </button>
+          <div>{showMembers && <Members circleId={circleId} />}</div>
           <p>{data.circle.description}</p>
         </div>
       ) : (
