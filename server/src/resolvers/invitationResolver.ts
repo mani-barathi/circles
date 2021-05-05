@@ -110,15 +110,40 @@ export default class InivitationResolver {
     @Ctx() { req }: Context
   ): Promise<Boolean> {
     try {
-      await Invitation.delete({
+      const deleted = await Invitation.delete({
         circleId,
         senderId,
         recipientId: req.session.userId,
       });
+      if (deleted.affected !== 1 || !deleted.affected) {
+        throw new Error(
+          "Unable to reject.. either the invitation do not exist or you don't have permission"
+        );
+      }
       return true;
     } catch (e) {
-      throw new Error("something went wrong");
+      throw e;
     }
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async cancelInvitation(
+    @Arg("recipientId", () => Int) recipientId: number,
+    @Arg("circleId", () => Int) circleId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const deleted = await Invitation.delete({
+      circleId,
+      recipientId,
+      senderId: req.session.userId,
+    });
+    if (deleted.affected !== 1 || !deleted.affected) {
+      throw new Error(
+        "Unable to cancel.. either the invitation do not exist or you don't have permission"
+      );
+    }
+    return true;
   }
 
   @Mutation(() => InvitationResponse)

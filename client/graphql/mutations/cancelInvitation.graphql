@@ -1,0 +1,3 @@
+mutation CancelInvitation($circleId: Int!, $recipientId: Int!) {
+  cancelInvitation(circleId: $circleId, recipientId: $recipientId)
+}
