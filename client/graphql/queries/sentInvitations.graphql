@@ -1,0 +1,12 @@
+query SentInvitaions($circleId: Int!) {
+  getSentInvitationOfCircle(circleId: $circleId) {
+    senderId
+    recipientId
+    circleId
+    createdAt
+    recipient {
+      id
+      username
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Members from "../../components/Members";
+import SentInvitations from "../../components/SentInvitations";
 import {
   useCircleLazyQuery,
   useSendInvitationMutation,
@@ -10,7 +11,10 @@ interface circlePageProps {}
 
 const circlePage: React.FC<circlePageProps> = ({}) => {
   const router = useRouter();
-  const [showMembers, setShowMembers] = useState(false);
+  const [toggle, setToggle] = useState({
+    showMembers: false,
+    showSentInvitations: false,
+  });
   const { circleId } = router.query;
   const [getCircle, { data, loading, error }] = useCircleLazyQuery({
     fetchPolicy: "cache-and-network",
@@ -26,6 +30,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
   if (loading) return <h3>Loading...</h3>;
 
   const handleInvite = async () => {
+    setToggle({ showMembers: false, showSentInvitations: false });
     const recipiantName = prompt("Enter the username whom you want to invite");
     if (!recipiantName) return;
     if (recipiantName.length < 3) {
@@ -46,7 +51,20 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
     }
   };
 
-  const toggleGetMembers = () => setShowMembers((prev) => !prev);
+  const handleToggle = (n: number) => {
+    // toggle members
+    if (n === 1)
+      setToggle((prev) => ({
+        showMembers: !prev.showMembers,
+        showSentInvitations: false,
+      }));
+    // toggle invitations
+    else
+      setToggle((prev) => ({
+        showMembers: false,
+        showSentInvitations: !prev.showSentInvitations,
+      }));
+  };
 
   return (
     <div>
@@ -55,13 +73,30 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
           <h1>{data.circle.name}</h1>
           <h3>creator: {data.circle.creator.username}</h3>
           {data.circle.isAdmin && (
-            <button onClick={handleInvite}>Invite New Member</button>
-          )}{" "}
-          &nbsp;
-          <button disabled={!data.circle.isMember} onClick={toggleGetMembers}>
-            Members: {data.circle.totalMembers}
-          </button>
-          <div>{showMembers && <Members circleId={circleId} />}</div>
+            <>
+              <button onClick={handleInvite}>Invite New Member</button>
+              &nbsp;
+              <button onClick={() => handleToggle(0)}>sentInvitations</button>
+              &nbsp;
+            </>
+          )}
+
+          {data.circle.isMember ? (
+            <button
+              disabled={!data.circle.isMember}
+              onClick={() => handleToggle(1)}
+            >
+              Members: {data.circle.totalMembers}
+            </button>
+          ) : (
+            <h4>Members: {data.circle.totalMembers}</h4>
+          )}
+          <div>
+            {toggle.showMembers && <Members circleId={circleId} />}
+            {toggle.showSentInvitations && (
+              <SentInvitations circleId={circleId} />
+            )}
+          </div>
           <p>{data.circle.description}</p>
         </div>
       ) : (

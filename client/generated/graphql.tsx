@@ -367,6 +367,23 @@ export type MembersQuery = (
   ) }
 );
 
+export type SentInvitaionsQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type SentInvitaionsQuery = (
+  { __typename?: 'Query' }
+  & { getSentInvitationOfCircle: Array<(
+    { __typename?: 'Invitation' }
+    & Pick<Invitation, 'senderId' | 'recipientId' | 'circleId' | 'createdAt'>
+    & { recipient: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username'>
+    ) }
+  )> }
+);
+
 
 export const AcceptInviteDocument = gql`
     mutation AcceptInvite($circleId: Int!, $senderId: Int!) {
@@ -848,3 +865,45 @@ export function useMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Me
 export type MembersQueryHookResult = ReturnType<typeof useMembersQuery>;
 export type MembersLazyQueryHookResult = ReturnType<typeof useMembersLazyQuery>;
 export type MembersQueryResult = Apollo.QueryResult<MembersQuery, MembersQueryVariables>;
+export const SentInvitaionsDocument = gql`
+    query SentInvitaions($circleId: Int!) {
+  getSentInvitationOfCircle(circleId: $circleId) {
+    senderId
+    recipientId
+    circleId
+    createdAt
+    recipient {
+      id
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useSentInvitaionsQuery__
+ *
+ * To run a query within a React component, call `useSentInvitaionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSentInvitaionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSentInvitaionsQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useSentInvitaionsQuery(baseOptions: Apollo.QueryHookOptions<SentInvitaionsQuery, SentInvitaionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SentInvitaionsQuery, SentInvitaionsQueryVariables>(SentInvitaionsDocument, options);
+      }
+export function useSentInvitaionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SentInvitaionsQuery, SentInvitaionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SentInvitaionsQuery, SentInvitaionsQueryVariables>(SentInvitaionsDocument, options);
+        }
+export type SentInvitaionsQueryHookResult = ReturnType<typeof useSentInvitaionsQuery>;
+export type SentInvitaionsLazyQueryHookResult = ReturnType<typeof useSentInvitaionsLazyQuery>;
+export type SentInvitaionsQueryResult = Apollo.QueryResult<SentInvitaionsQuery, SentInvitaionsQueryVariables>;
