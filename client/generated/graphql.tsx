@@ -82,6 +82,7 @@ export type Mutation = {
   rejectInvitation: Scalars['Boolean'];
   cancelInvitation: Scalars['Boolean'];
   sendInvitation: InvitationResponse;
+  removeMember: Scalars['Boolean'];
 };
 
 
@@ -125,6 +126,12 @@ export type MutationCancelInvitationArgs = {
 export type MutationSendInvitationArgs = {
   circleId: Scalars['Int'];
   recipiantName: Scalars['String'];
+};
+
+
+export type MutationRemoveMemberArgs = {
+  memberId: Scalars['Int'];
+  circleId: Scalars['Int'];
 };
 
 export type PaginatedMembers = {
@@ -276,6 +283,17 @@ export type RejectInvitationMutationVariables = Exact<{
 export type RejectInvitationMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'rejectInvitation'>
+);
+
+export type RemoveMemberMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  memberId: Scalars['Int'];
+}>;
+
+
+export type RemoveMemberMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'removeMember'>
 );
 
 export type SendInvitationMutationVariables = Exact<{
@@ -661,6 +679,38 @@ export function useRejectInvitationMutation(baseOptions?: Apollo.MutationHookOpt
 export type RejectInvitationMutationHookResult = ReturnType<typeof useRejectInvitationMutation>;
 export type RejectInvitationMutationResult = Apollo.MutationResult<RejectInvitationMutation>;
 export type RejectInvitationMutationOptions = Apollo.BaseMutationOptions<RejectInvitationMutation, RejectInvitationMutationVariables>;
+export const RemoveMemberDocument = gql`
+    mutation removeMember($circleId: Int!, $memberId: Int!) {
+  removeMember(circleId: $circleId, memberId: $memberId)
+}
+    `;
+export type RemoveMemberMutationFn = Apollo.MutationFunction<RemoveMemberMutation, RemoveMemberMutationVariables>;
+
+/**
+ * __useRemoveMemberMutation__
+ *
+ * To run a mutation, you first call `useRemoveMemberMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveMemberMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeMemberMutation, { data, loading, error }] = useRemoveMemberMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      memberId: // value for 'memberId'
+ *   },
+ * });
+ */
+export function useRemoveMemberMutation(baseOptions?: Apollo.MutationHookOptions<RemoveMemberMutation, RemoveMemberMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveMemberMutation, RemoveMemberMutationVariables>(RemoveMemberDocument, options);
+      }
+export type RemoveMemberMutationHookResult = ReturnType<typeof useRemoveMemberMutation>;
+export type RemoveMemberMutationResult = Apollo.MutationResult<RemoveMemberMutation>;
+export type RemoveMemberMutationOptions = Apollo.BaseMutationOptions<RemoveMemberMutation, RemoveMemberMutationVariables>;
 export const SendInvitationDocument = gql`
     mutation SendInvitation($circleId: Int!, $recipiantName: String!) {
   sendInvitation(circleId: $circleId, recipiantName: $recipiantName) {

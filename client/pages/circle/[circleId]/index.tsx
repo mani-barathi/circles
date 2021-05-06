@@ -1,11 +1,10 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import Members from "../../components/Members";
-import SentInvitations from "../../components/SentInvitations";
+import SentInvitations from "../../../components/SentInvitations";
 import {
   useCircleLazyQuery,
   useSendInvitationMutation,
-} from "../../generated/graphql";
+} from "../../../generated/graphql";
 
 interface circlePageProps {}
 
@@ -18,6 +17,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
   const { circleId } = router.query;
   const [getCircle, { data, loading, error }] = useCircleLazyQuery({
     fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
   });
   const [sendInvitation] = useSendInvitationMutation();
 
@@ -53,12 +53,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
 
   const handleToggle = (n: number) => {
     // toggle members
-    if (n === 1)
-      setToggle((prev) => ({
-        showMembers: !prev.showMembers,
-        showSentInvitations: false,
-      }));
-    // toggle invitations
+    if (n === 1) router.push(`/circle/${circleId}/members`);
     else
       setToggle((prev) => ({
         showMembers: false,
@@ -76,7 +71,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
             <>
               <button onClick={handleInvite}>Invite New Member</button>
               &nbsp;
-              <button onClick={() => handleToggle(0)}>sentInvitations</button>
+              <button onClick={() => handleToggle(0)}>sent Invitations</button>
               &nbsp;
             </>
           )}
@@ -92,7 +87,6 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
             <h4>Members: {data.circle.totalMembers}</h4>
           )}
           <div>
-            {toggle.showMembers && <Members circleId={circleId} />}
             {toggle.showSentInvitations && (
               <SentInvitations circleId={circleId} />
             )}

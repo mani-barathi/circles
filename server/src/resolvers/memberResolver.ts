@@ -2,13 +2,16 @@ import Member from "../entities/Member";
 import { isAuthorized } from "../middlewares/authMiddlewares";
 import {
   Arg,
+  Ctx,
   Field,
   Int,
+  Mutation,
   ObjectType,
   Query,
   UseMiddleware,
 } from "type-graphql";
-import { getConnection } from "typeorm";
+import { EntityNotFoundError, getConnection, getManager } from "typeorm";
+import { Context } from "../types";
 
 @ObjectType()
 class PaginatedMembers {
@@ -33,7 +36,7 @@ export default class MemberResolver {
       replacements.push(new Date(parseInt(cursor) + 1));
     }
     const members: any[] = await getConnection().query(
-      ` SELECT m.*, u.username FROM member m INNER JOIN "user" u ON u.id=m."userId" 
+      ` SELECT m.*, u.username FROM member m INNER JOIN "user" u ON u.id = m."userId" 
       WHERE m."circleId" = $1  
       ${cursor ? `AND m."createdAt" > $3` : ""} 
       ORDER BY m."createdAt" LIMIT $2
@@ -53,14 +56,33 @@ export default class MemberResolver {
       hasMore: formatedMembers.length === take,
     };
   }
-}
 
-// const membersQuery = await createQueryBuilder<Member>("member", "m")
-//       .select(["m.isAdmin", "m.circleId", "m.userId", "m.createdAt"])
-//       .innerJoin("m.user", "u")
-//       .addSelect(["u.id", "u.username"])
-//       .where("m.circleId = :circleId", { circleId })
-// if(cursor){
-//     membersQuery.andWhere('m.createdAt > :cursor',{cursor: new Date((parseInt(cursor)+1))})
-// }
-// const members = await membersQuery.take(take).getMany()
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async removeMember(
+    @Arg("circleId", () => Int) circleId: number,
+    @Arg("memberId", () => Int) memberId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const { userId } = req.session;
+    try {
+      await Member.findOneOrFail({ circleId, userId, isAdmin: true });
+      const deleted = await Member.delete({ userId: memberId, circleId });
+
+      if (deleted.affected !== 1 || !deleted.affected) {
+        return true;
+      }
+
+      await getManager().query(
+        `update circle set "totalMembers" = "totalMembers" - 1 where id = $1`,
+        [circleId]
+      );
+      return true;
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new Error("Un Authorized access");
+      }
+      throw new Error("something went wrong!");
+    }
+  }
+}

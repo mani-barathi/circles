@@ -1,0 +1,3 @@
+mutation removeMember($circleId: Int!, $memberId: Int!) {
+  removeMember(circleId: $circleId, memberId: $memberId)
+}
