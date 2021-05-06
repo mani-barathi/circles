@@ -158,4 +158,28 @@ export default class CircleResolver {
       return { errors: [{ path: "unkown", message: "something went wrong" }] };
     }
   }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async exitCircle(
+    @Arg("circleId", () => Int) circleId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const { userId } = req.session;
+    try {
+      const deleted = await Member.delete({ userId, circleId });
+
+      if (deleted.affected !== 1 || !deleted.affected) {
+        return true;
+      }
+
+      await getManager().query(
+        `update circle set "totalMembers" = "totalMembers" - 1 where id = $1`,
+        [circleId]
+      );
+      return true;
+    } catch (e) {
+      throw new Error("something went wrong!");
+    }
+  }
 }

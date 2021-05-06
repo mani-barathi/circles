@@ -1,0 +1,3 @@
+mutation ExitCircle($circleId: Int!) {
+  exitCircle(circleId: $circleId)
+}

@@ -2,16 +2,19 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import {
+  MeDocument,
   MembersDocument,
   MembersQuery,
+  MeQuery,
   useCircleQuery,
+  useExitCircleMutation,
   useMembersLazyQuery,
   useRemoveMemberMutation,
 } from "../../../generated/graphql";
 
 interface membersProps {}
 
-const members: React.FC<membersProps> = ({}) => {
+const info: React.FC<membersProps> = ({}) => {
   const router = useRouter();
   const circleId =
     typeof router.query.circleId === "string"
@@ -29,6 +32,7 @@ const members: React.FC<membersProps> = ({}) => {
     removeMember,
     { loading: removeMemberLoading },
   ] = useRemoveMemberMutation();
+  const [exitGroup, { loading: exitGroupLoading }] = useExitCircleMutation();
 
   useEffect(() => {
     if (!circleData || typeof circleId !== "number") return;
@@ -73,27 +77,42 @@ const members: React.FC<membersProps> = ({}) => {
               },
             },
           });
-
-          //   // reducing the count of the totalMembers in circle Query
-          //   const existingCircle = cache.readQuery<CircleQuery>({
-          //     query: CircleDocument,
-          //     variables: { circleId },
-          //   });
-          //   cache.writeQuery<CircleQuery>({
-          //     query: CircleDocument,
-          //     variables: { circleId },
-          //     data: {
-          //       circle: {
-          //         ...existingCircle.circle,
-          //         totalMembers: existingCircle.circle.totalMembers - 1,
-          //       },
-          //     },
-          //   });
         }, // end of update
       }); // end of removeMember
     } catch (e) {
       console.log("handleRemoveMember:", e);
       alert(e.message);
+    }
+  };
+
+  const handleExitGroup = async () => {
+    if (!confirm("Are you sure to exit the circle?")) return;
+    try {
+      await exitGroup({
+        variables: { circleId },
+        update: (cache, { data }) => {
+          if (!data || !data.exitCircle) return;
+
+          const existingMe = cache.readQuery<MeQuery>({
+            query: MeDocument,
+          });
+          cache.writeQuery<MeQuery>({
+            query: MeDocument,
+            data: {
+              me: {
+                ...existingMe.me,
+                myCircles: existingMe.me.myCircles.filter(
+                  (c) => c.id !== circleId.toString()
+                ),
+              },
+            },
+          });
+        },
+      });
+      router.push("/");
+    } catch (e) {
+      console.log("handleExitGroup", e);
+      alert(e);
     }
   };
 
@@ -104,6 +123,9 @@ const members: React.FC<membersProps> = ({}) => {
           <h3>{circleData.circle.name}</h3>
         </a>
       </Link>
+      <button disabled={exitGroupLoading} onClick={handleExitGroup}>
+        Exit Group
+      </button>
       <h4>Members:{data?.members.members.length}</h4>
       {data?.members.members.map((m) => (
         <li key={m.userId}>
@@ -122,4 +144,4 @@ const members: React.FC<membersProps> = ({}) => {
   );
 };
 
-export default members;
+export default info;

@@ -78,6 +78,7 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   createCircle: CircleResponse;
+  exitCircle: Scalars['Boolean'];
   acceptInvitation: Circle;
   rejectInvitation: Scalars['Boolean'];
   cancelInvitation: Scalars['Boolean'];
@@ -102,6 +103,11 @@ export type MutationLoginArgs = {
 export type MutationCreateCircleArgs = {
   description: Scalars['String'];
   name: Scalars['String'];
+};
+
+
+export type MutationExitCircleArgs = {
+  circleId: Scalars['Int'];
 };
 
 
@@ -223,6 +229,16 @@ export type CreateCircleMutation = (
       & Pick<CustomError, 'path' | 'message'>
     )>> }
   ) }
+);
+
+export type ExitCircleMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type ExitCircleMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'exitCircle'>
 );
 
 export type LoginMutationVariables = Exact<{
@@ -532,6 +548,37 @@ export function useCreateCircleMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateCircleMutationHookResult = ReturnType<typeof useCreateCircleMutation>;
 export type CreateCircleMutationResult = Apollo.MutationResult<CreateCircleMutation>;
 export type CreateCircleMutationOptions = Apollo.BaseMutationOptions<CreateCircleMutation, CreateCircleMutationVariables>;
+export const ExitCircleDocument = gql`
+    mutation ExitCircle($circleId: Int!) {
+  exitCircle(circleId: $circleId)
+}
+    `;
+export type ExitCircleMutationFn = Apollo.MutationFunction<ExitCircleMutation, ExitCircleMutationVariables>;
+
+/**
+ * __useExitCircleMutation__
+ *
+ * To run a mutation, you first call `useExitCircleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExitCircleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [exitCircleMutation, { data, loading, error }] = useExitCircleMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useExitCircleMutation(baseOptions?: Apollo.MutationHookOptions<ExitCircleMutation, ExitCircleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ExitCircleMutation, ExitCircleMutationVariables>(ExitCircleDocument, options);
+      }
+export type ExitCircleMutationHookResult = ReturnType<typeof useExitCircleMutation>;
+export type ExitCircleMutationResult = Apollo.MutationResult<ExitCircleMutation>;
+export type ExitCircleMutationOptions = Apollo.BaseMutationOptions<ExitCircleMutation, ExitCircleMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {

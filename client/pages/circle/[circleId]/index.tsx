@@ -53,7 +53,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
 
   const handleToggle = (n: number) => {
     // toggle members
-    if (n === 1) router.push(`/circle/${circleId}/members`);
+    if (n === 1) router.push(`/circle/${circleId}/info`);
     else
       setToggle((prev) => ({
         showMembers: false,
@@ -66,9 +66,14 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
       {data ? (
         <div>
           <h1>{data.circle.name}</h1>
-          <h3>creator: {data.circle.creator.username}</h3>
+          <h4>Creator: {data.circle.creator.username}</h4>
+          <div>Members: {data.circle.totalMembers}</div>
+          {data.circle.isMember && (
+            <button onClick={() => handleToggle(1)}>Info</button>
+          )}
           {data.circle.isAdmin && (
             <>
+              &nbsp;
               <button onClick={handleInvite}>Invite New Member</button>
               &nbsp;
               <button onClick={() => handleToggle(0)}>sent Invitations</button>
@@ -76,16 +81,6 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
             </>
           )}
 
-          {data.circle.isMember ? (
-            <button
-              disabled={!data.circle.isMember}
-              onClick={() => handleToggle(1)}
-            >
-              Members: {data.circle.totalMembers}
-            </button>
-          ) : (
-            <h4>Members: {data.circle.totalMembers}</h4>
-          )}
           <div>
             {toggle.showSentInvitations && (
               <SentInvitations circleId={circleId} />
