@@ -9,6 +9,7 @@ import {
 import Circle from "./Circle";
 import Invitation from "./Invitation";
 import Member from "./Member";
+import MemberRequest from "./MemberRequest";
 
 @ObjectType()
 @Entity()
@@ -33,6 +34,9 @@ export default class User extends BaseEntity {
 
   @OneToMany(() => Invitation, (invitation) => invitation.sender)
   sentInvitations: Invitation[];
+
+  @OneToMany(() => MemberRequest, (memberRequest) => memberRequest.user)
+  memberRequests: MemberRequest[];
 
   @OneToMany(() => Invitation, (invitation) => invitation.recipient)
   receivedinvitations: Invitation[];
