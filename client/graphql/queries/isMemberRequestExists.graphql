@@ -1,0 +1,3 @@
+query IsMemberRequestExists($circleId: Int!) {
+  isMemberRequestExists(circleId: $circleId)
+}

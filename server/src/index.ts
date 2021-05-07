@@ -12,6 +12,7 @@ import UserResolver from "./resolvers/userResolver";
 import CircleResolver from "./resolvers/circleResolver";
 import InvitationResolver from "./resolvers/InvitationResolver";
 import MemberResolver from "./resolvers/MemberResolver";
+import MemberRequestResolver from "./resolvers/MemberRequestResolver";
 
 const corsOptions = {
   origin: "http://localhost:3000",
@@ -27,6 +28,7 @@ const main = async () => {
       CircleResolver,
       InvitationResolver,
       MemberResolver,
+      MemberRequestResolver,
     ],
   });
   const RedisStore = connectRedis(session);

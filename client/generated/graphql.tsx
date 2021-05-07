@@ -24,6 +24,7 @@ export type Circle = {
   isAdmin: Scalars['Boolean'];
   creator?: Maybe<User>;
   invitations?: Maybe<Array<Invitation>>;
+  memberRequests?: Maybe<Array<MemberRequest>>;
   members?: Maybe<Array<Member>>;
   description: Scalars['String'];
   createdAt: Scalars['String'];
@@ -72,6 +73,17 @@ export type Member = {
   updatedAt: Scalars['String'];
 };
 
+export type MemberRequest = {
+  __typename?: 'MemberRequest';
+  active: Scalars['Boolean'];
+  circleId?: Maybe<Scalars['Int']>;
+  circle: Circle;
+  userId?: Maybe<Scalars['Int']>;
+  user: User;
+  createdAt: Scalars['String'];
+  updatedAt?: Maybe<Scalars['String']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   register: UserResponse;
@@ -84,6 +96,7 @@ export type Mutation = {
   cancelInvitation: Scalars['Boolean'];
   sendInvitation: InvitationResponse;
   removeMember: Scalars['Boolean'];
+  sendMemberRequest: Scalars['Boolean'];
 };
 
 
@@ -140,6 +153,11 @@ export type MutationRemoveMemberArgs = {
   circleId: Scalars['Int'];
 };
 
+
+export type MutationSendMemberRequestArgs = {
+  circleId: Scalars['Int'];
+};
+
 export type PaginatedMembers = {
   __typename?: 'PaginatedMembers';
   members: Array<Member>;
@@ -154,6 +172,7 @@ export type Query = {
   getIntivations: Array<Invitation>;
   getSentInvitationOfCircle: Array<Invitation>;
   members: PaginatedMembers;
+  isMemberRequestExists: Scalars['Boolean'];
 };
 
 
@@ -169,6 +188,11 @@ export type QueryGetSentInvitationOfCircleArgs = {
 
 export type QueryMembersArgs = {
   cursor?: Maybe<Scalars['String']>;
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryIsMemberRequestExistsArgs = {
   circleId: Scalars['Int'];
 };
 
@@ -332,6 +356,16 @@ export type SendInvitationMutation = (
   ) }
 );
 
+export type SendMemberRequestMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type SendMemberRequestMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'sendMemberRequest'>
+);
+
 export type CircleQueryVariables = Exact<{
   circleId: Scalars['Int'];
 }>;
@@ -380,6 +414,16 @@ export type GetIntivationsQuery = (
       & Pick<User, 'username' | 'id'>
     ) }
   )> }
+);
+
+export type IsMemberRequestExistsQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type IsMemberRequestExistsQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'isMemberRequestExists'>
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -801,6 +845,37 @@ export function useSendInvitationMutation(baseOptions?: Apollo.MutationHookOptio
 export type SendInvitationMutationHookResult = ReturnType<typeof useSendInvitationMutation>;
 export type SendInvitationMutationResult = Apollo.MutationResult<SendInvitationMutation>;
 export type SendInvitationMutationOptions = Apollo.BaseMutationOptions<SendInvitationMutation, SendInvitationMutationVariables>;
+export const SendMemberRequestDocument = gql`
+    mutation SendMemberRequest($circleId: Int!) {
+  sendMemberRequest(circleId: $circleId)
+}
+    `;
+export type SendMemberRequestMutationFn = Apollo.MutationFunction<SendMemberRequestMutation, SendMemberRequestMutationVariables>;
+
+/**
+ * __useSendMemberRequestMutation__
+ *
+ * To run a mutation, you first call `useSendMemberRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMemberRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendMemberRequestMutation, { data, loading, error }] = useSendMemberRequestMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useSendMemberRequestMutation(baseOptions?: Apollo.MutationHookOptions<SendMemberRequestMutation, SendMemberRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendMemberRequestMutation, SendMemberRequestMutationVariables>(SendMemberRequestDocument, options);
+      }
+export type SendMemberRequestMutationHookResult = ReturnType<typeof useSendMemberRequestMutation>;
+export type SendMemberRequestMutationResult = Apollo.MutationResult<SendMemberRequestMutation>;
+export type SendMemberRequestMutationOptions = Apollo.BaseMutationOptions<SendMemberRequestMutation, SendMemberRequestMutationVariables>;
 export const CircleDocument = gql`
     query Circle($circleId: Int!) {
   circle(circleId: $circleId) {
@@ -928,6 +1003,39 @@ export function useGetIntivationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type GetIntivationsQueryHookResult = ReturnType<typeof useGetIntivationsQuery>;
 export type GetIntivationsLazyQueryHookResult = ReturnType<typeof useGetIntivationsLazyQuery>;
 export type GetIntivationsQueryResult = Apollo.QueryResult<GetIntivationsQuery, GetIntivationsQueryVariables>;
+export const IsMemberRequestExistsDocument = gql`
+    query IsMemberRequestExists($circleId: Int!) {
+  isMemberRequestExists(circleId: $circleId)
+}
+    `;
+
+/**
+ * __useIsMemberRequestExistsQuery__
+ *
+ * To run a query within a React component, call `useIsMemberRequestExistsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsMemberRequestExistsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsMemberRequestExistsQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useIsMemberRequestExistsQuery(baseOptions: Apollo.QueryHookOptions<IsMemberRequestExistsQuery, IsMemberRequestExistsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IsMemberRequestExistsQuery, IsMemberRequestExistsQueryVariables>(IsMemberRequestExistsDocument, options);
+      }
+export function useIsMemberRequestExistsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IsMemberRequestExistsQuery, IsMemberRequestExistsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IsMemberRequestExistsQuery, IsMemberRequestExistsQueryVariables>(IsMemberRequestExistsDocument, options);
+        }
+export type IsMemberRequestExistsQueryHookResult = ReturnType<typeof useIsMemberRequestExistsQuery>;
+export type IsMemberRequestExistsLazyQueryHookResult = ReturnType<typeof useIsMemberRequestExistsLazyQuery>;
+export type IsMemberRequestExistsQueryResult = Apollo.QueryResult<IsMemberRequestExistsQuery, IsMemberRequestExistsQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
