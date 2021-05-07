@@ -1,6 +1,7 @@
-import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import Link from "next/link"
+import { useRouter } from "next/router"
+import React, { useEffect } from "react"
+import PageNotFound from "../../../components/PageNotFound"
 import {
   MeDocument,
   MembersDocument,
@@ -10,60 +11,60 @@ import {
   useExitCircleMutation,
   useMembersLazyQuery,
   useRemoveMemberMutation,
-} from "../../../generated/graphql";
+} from "../../../generated/graphql"
 
 interface membersProps {}
 
 const info: React.FC<membersProps> = ({}) => {
-  const router = useRouter();
+  const router = useRouter()
   const circleId =
     typeof router.query.circleId === "string"
       ? parseInt(router.query.circleId)
-      : null;
+      : null
   const { data: circleData, loading: circleLoading } = useCircleQuery({
     variables: { circleId },
     skip: typeof router.query.circleId !== "string",
-  });
+  })
   const [getMembers, { data, error, loading }] = useMembersLazyQuery({
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
-  });
+  })
   const [
     removeMember,
     { loading: removeMemberLoading },
-  ] = useRemoveMemberMutation();
-  const [exitGroup, { loading: exitGroupLoading }] = useExitCircleMutation();
+  ] = useRemoveMemberMutation()
+  const [exitGroup, { loading: exitGroupLoading }] = useExitCircleMutation()
 
   useEffect(() => {
-    if (!circleData || typeof circleId !== "number") return;
+    if (!circleData || typeof circleId !== "number") return
     if (circleData?.circle.isMember) {
-      getMembers({ variables: { circleId } });
+      getMembers({ variables: { circleId } })
     }
-  }, [circleId, circleData]);
+  }, [circleId, circleData])
 
-  if (loading || circleLoading) return <h4>Loading...</h4>;
+  if (loading || circleLoading) return <h4>Loading...</h4>
   if (error)
     return (
       <h4>
         Something went wrong <p>{error.message}</p>
       </h4>
-    );
+    )
 
-  if (!circleData?.circle.isMember) return <h4>UnAuthorized</h4>;
+  if (!circleData?.circle.isMember) return <PageNotFound />
 
   const handleRemoveMember = async (memberId: number) => {
-    if (!confirm("Are you sure to remove this person from the circle?")) return;
-    const variables = { memberId, circleId };
+    if (!confirm("Are you sure to remove this person from the circle?")) return
+    const variables = { memberId, circleId }
     try {
       await removeMember({
         variables,
         update: (cache, { data }) => {
-          if (!data || !data.removeMember) return;
+          if (!data || !data.removeMember) return
           // removing the member from the members list
           const existingMembers = cache.readQuery<MembersQuery>({
             query: MembersDocument,
             variables: { circleId },
-          });
+          })
 
           cache.writeQuery<MembersQuery>({
             query: MembersDocument,
@@ -76,26 +77,26 @@ const info: React.FC<membersProps> = ({}) => {
                 ),
               },
             },
-          });
+          })
         }, // end of update
-      }); // end of removeMember
+      }) // end of removeMember
     } catch (e) {
-      console.log("handleRemoveMember:", e);
-      alert(e.message);
+      console.log("handleRemoveMember:", e)
+      alert(e.message)
     }
-  };
+  }
 
   const handleExitGroup = async () => {
-    if (!confirm("Are you sure to exit the circle?")) return;
+    if (!confirm("Are you sure to exit the circle?")) return
     try {
       await exitGroup({
         variables: { circleId },
         update: (cache, { data }) => {
-          if (!data || !data.exitCircle) return;
+          if (!data || !data.exitCircle) return
 
           const existingMe = cache.readQuery<MeQuery>({
             query: MeDocument,
-          });
+          })
           cache.writeQuery<MeQuery>({
             query: MeDocument,
             data: {
@@ -106,15 +107,15 @@ const info: React.FC<membersProps> = ({}) => {
                 ),
               },
             },
-          });
+          })
         },
-      });
-      router.push("/");
+      })
+      router.push("/")
     } catch (e) {
-      console.log("handleExitGroup", e);
-      alert(e);
+      console.log("handleExitGroup", e)
+      alert(e)
     }
-  };
+  }
 
   return (
     <div>
@@ -141,7 +142,7 @@ const info: React.FC<membersProps> = ({}) => {
         </li>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default info;
+export default info

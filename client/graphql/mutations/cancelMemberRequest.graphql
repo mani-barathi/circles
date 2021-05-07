@@ -1,0 +1,3 @@
+mutation CancelMemberRequest($circleId: Int!) {
+  cancelMemberRequest(circleId: $circleId)
+}

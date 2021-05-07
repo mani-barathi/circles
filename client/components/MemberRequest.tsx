@@ -2,6 +2,7 @@ import React from "react"
 import {
   IsMemberRequestExistsDocument,
   IsMemberRequestExistsQuery,
+  useCancelMemberRequestMutation,
   useIsMemberRequestExistsQuery,
   useSendMemberRequestMutation,
 } from "../generated/graphql"
@@ -22,12 +23,19 @@ const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
   ] = useSendMemberRequestMutation({
     variables: { circleId: parseInt(circleId as string) },
   })
+  const [
+    cancelRequest,
+    { loading: cancelRequestLoading },
+  ] = useCancelMemberRequestMutation({
+    variables: { circleId: parseInt(circleId as string) },
+  })
+
   if (loading) return null
   if (error) return <div>{error.message}</div>
 
   const handleSendRequest = async () => {
     try {
-      const { errors } = await sendRequest({
+      await sendRequest({
         update: (cache, { data }) => {
           if (!data || !data.sendMemberRequest) return
           cache.writeQuery<IsMemberRequestExistsQuery>({
@@ -39,21 +47,40 @@ const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
           })
         },
       })
-      if (errors) {
-        return alert(errors[0].message)
-      }
       alert("Member request sent successfully")
     } catch (e) {
       console.log(e)
-      alert(e)
+      alert(e.message)
     }
   }
-  const handleCancelRequest = () => {}
+
+  const handleCancelRequest = async () => {
+    try {
+      await cancelRequest({
+        update: (cache, { data }) => {
+          if (!data || !data.cancelMemberRequest) return
+          cache.writeQuery<IsMemberRequestExistsQuery>({
+            variables: { circleId: parseInt(circleId as string) },
+            query: IsMemberRequestExistsDocument,
+            data: {
+              isMemberRequestExists: !data.cancelMemberRequest,
+            },
+          })
+        },
+      })
+      alert("Member request cancelled successfully")
+    } catch (e) {
+      console.log(e)
+      alert(e.message)
+    }
+  }
 
   return (
     <>
       {data.isMemberRequestExists ? (
-        <button onClick={handleCancelRequest}>Cancel Member Request</button>
+        <button onClick={handleCancelRequest} disabled={cancelRequestLoading}>
+          Cancel Member Request
+        </button>
       ) : (
         <button onClick={handleSendRequest} disabled={sendRequsetLoading}>
           Send Member Request

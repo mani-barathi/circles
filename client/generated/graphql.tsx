@@ -96,6 +96,7 @@ export type Mutation = {
   cancelInvitation: Scalars['Boolean'];
   sendInvitation: InvitationResponse;
   removeMember: Scalars['Boolean'];
+  cancelMemberRequest: Scalars['Boolean'];
   sendMemberRequest: Scalars['Boolean'];
 };
 
@@ -150,6 +151,11 @@ export type MutationSendInvitationArgs = {
 
 export type MutationRemoveMemberArgs = {
   memberId: Scalars['Int'];
+  circleId: Scalars['Int'];
+};
+
+
+export type MutationCancelMemberRequestArgs = {
   circleId: Scalars['Int'];
 };
 
@@ -233,6 +239,16 @@ export type CancelInvitationMutationVariables = Exact<{
 export type CancelInvitationMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'cancelInvitation'>
+);
+
+export type CancelMemberRequestMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type CancelMemberRequestMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'cancelMemberRequest'>
 );
 
 export type CreateCircleMutationVariables = Exact<{
@@ -548,6 +564,37 @@ export function useCancelInvitationMutation(baseOptions?: Apollo.MutationHookOpt
 export type CancelInvitationMutationHookResult = ReturnType<typeof useCancelInvitationMutation>;
 export type CancelInvitationMutationResult = Apollo.MutationResult<CancelInvitationMutation>;
 export type CancelInvitationMutationOptions = Apollo.BaseMutationOptions<CancelInvitationMutation, CancelInvitationMutationVariables>;
+export const CancelMemberRequestDocument = gql`
+    mutation CancelMemberRequest($circleId: Int!) {
+  cancelMemberRequest(circleId: $circleId)
+}
+    `;
+export type CancelMemberRequestMutationFn = Apollo.MutationFunction<CancelMemberRequestMutation, CancelMemberRequestMutationVariables>;
+
+/**
+ * __useCancelMemberRequestMutation__
+ *
+ * To run a mutation, you first call `useCancelMemberRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelMemberRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelMemberRequestMutation, { data, loading, error }] = useCancelMemberRequestMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useCancelMemberRequestMutation(baseOptions?: Apollo.MutationHookOptions<CancelMemberRequestMutation, CancelMemberRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CancelMemberRequestMutation, CancelMemberRequestMutationVariables>(CancelMemberRequestDocument, options);
+      }
+export type CancelMemberRequestMutationHookResult = ReturnType<typeof useCancelMemberRequestMutation>;
+export type CancelMemberRequestMutationResult = Apollo.MutationResult<CancelMemberRequestMutation>;
+export type CancelMemberRequestMutationOptions = Apollo.BaseMutationOptions<CancelMemberRequestMutation, CancelMemberRequestMutationVariables>;
 export const CreateCircleDocument = gql`
     mutation CreateCircle($name: String!, $description: String!) {
   createCircle(name: $name, description: $description) {
