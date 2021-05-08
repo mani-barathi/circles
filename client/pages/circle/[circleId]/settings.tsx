@@ -45,6 +45,7 @@ const info: React.FC<membersProps> = ({}) => {
       </h4>
     )
 
+  if (!circleData) return null
   if (!circleData?.circle.isMember) return <PageNotFound />
 
   const handleExitGroup = async () => {

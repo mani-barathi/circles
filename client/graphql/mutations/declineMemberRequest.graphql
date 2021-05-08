@@ -1,0 +1,3 @@
+mutation DeclineMemberRequest($circleId: Int!, $memberId: Int!) {
+  declineMemberRequest(circleId: $circleId, memberId: $memberId)
+}

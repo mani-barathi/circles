@@ -1,5 +1,6 @@
 import {
   Arg,
+  Authorized,
   Ctx,
   Int,
   Mutation,
@@ -9,6 +10,7 @@ import {
 } from "type-graphql"
 import { EntityNotFoundError, getManager } from "typeorm"
 import MemberRequest from "../entities/MemberRequest"
+import Member from "../entities/Member"
 import { isAuthorized } from "../middlewares/authMiddlewares"
 import { Context, createPaginatedResponse } from "../types"
 import {
@@ -75,6 +77,58 @@ export default class MemberRequestResolver {
         hasMore: requests.length === limitPlusOne,
         data: requests.slice(0, limit),
       }
+    } catch (e) {
+      throw new Error("something went wrong")
+    }
+  }
+
+  @Mutation(() => Boolean)
+  @Authorized(["ADMIN"])
+  async acceptMemberRequest(
+    @Arg("memberId", () => Int) memberId: number,
+    @Arg("circleId", () => Int) circleId: number
+  ): Promise<Boolean> {
+    try {
+      await getManager().transaction(async (tm) => {
+        const deleted = await tm.delete(MemberRequest, {
+          circleId,
+          userId: memberId,
+        })
+        if (deleted.affected !== 1 || !deleted.affected) {
+          throw new EntityNotFoundError(MemberRequest, {})
+        }
+
+        await tm.insert(Member, { circleId, userId: memberId, isAdmin: false })
+
+        await tm.query(
+          `update circle set "totalMembers" = "totalMembers" + 1 where id = $1 returning id,name`,
+          [circleId]
+        )
+      }) // end of transaction
+      return true
+    } catch (e) {
+      if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
+        throw new Error("the person is already a member of the circle")
+      }
+      if (e instanceof EntityNotFoundError) {
+        throw new Error("no member request found")
+      }
+      throw new Error("something went wrong")
+    }
+  }
+
+  @Mutation(() => Boolean)
+  @Authorized(["ADMIN"])
+  async declineMemberRequest(
+    @Arg("memberId", () => Int) memberId: number,
+    @Arg("circleId", () => Int) circleId: number
+  ): Promise<Boolean> {
+    try {
+      await MemberRequest.delete({
+        circleId,
+        userId: memberId,
+      })
+      return true
     } catch (e) {
       throw new Error("something went wrong")
     }

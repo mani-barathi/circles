@@ -14,6 +14,7 @@ import InvitationResolver from "./resolvers/invitation"
 import MemberResolver from "./resolvers/member"
 import MemberRequestResolver from "./resolvers/MemberRequest"
 import { COOKIE_NAME } from "./constants"
+import { customAuthChecker } from "./utils/authChecker"
 
 const corsOptions = {
   origin: "http://localhost:3000",
@@ -31,6 +32,7 @@ const main = async () => {
       MemberResolver,
       MemberRequestResolver,
     ],
+    authChecker: customAuthChecker,
   })
   const RedisStore = connectRedis(session)
   const redisClient = redis.createClient()

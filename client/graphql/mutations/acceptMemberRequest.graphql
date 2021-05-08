@@ -1,0 +1,3 @@
+mutation AcceptMemberRequest($circleId: Int!, $memberId: Int!) {
+  acceptMemberRequest(circleId: $circleId, memberId: $memberId)
+}
