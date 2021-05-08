@@ -1,10 +1,8 @@
 import {
   Arg,
   Ctx,
-  Field,
   Int,
   Mutation,
-  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
@@ -12,19 +10,14 @@ import {
 import { EntityNotFoundError, getManager } from "typeorm"
 import MemberRequest from "../entities/MemberRequest"
 import { isAuthorized } from "../middlewares/authMiddlewares"
-import { Context } from "../types"
+import { Context, createPaginatedResponse } from "../types"
+import {
+  FOREIGN_KEY_CONSTRAINT_ERROR_CODE,
+  UNIQUE_CONSTRAINT_ERROR_CODE,
+} from "../constants"
 
-const UNIQUE_CONSTRAINT_ERROR_CODE = "23505"
-const FOREIGN_KEY_CONSTRAINT_ERROR_CODE = "23503"
-
-@ObjectType()
-class PaginatedMemberRequests {
-  @Field(() => [MemberRequest])
-  requests: MemberRequest[]
-
-  @Field(() => Boolean)
-  hasMore: Boolean
-}
+const PaginatedMemberRequests = createPaginatedResponse(MemberRequest)
+type PaginatedMemberRequests = InstanceType<typeof PaginatedMemberRequests>
 
 @Resolver()
 export default class MemberRequestResolver {
@@ -80,7 +73,7 @@ export default class MemberRequestResolver {
       )
       return {
         hasMore: requests.length === limitPlusOne,
-        requests: requests.slice(0, limit),
+        data: requests.slice(0, limit),
       }
     } catch (e) {
       throw new Error("something went wrong")

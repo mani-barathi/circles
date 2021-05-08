@@ -1,7 +1,7 @@
 query MemberRequests($circleId: Int!, $cursor: String) {
   memberRequests(circleId: $circleId, cursor: $cursor) {
     hasMore
-    requests {
+    data {
       userId
       circleId
       user {

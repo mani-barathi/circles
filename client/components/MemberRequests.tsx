@@ -26,8 +26,8 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
   return (
     <div>
       <h4>Member Requests</h4>
-      {data?.memberRequests.requests.length === 0 && <p>No Member Request</p>}
-      {data?.memberRequests.requests.map((request) => (
+      {data?.memberRequests.data.length === 0 && <p>No Member Request</p>}
+      {data?.memberRequests.data.map((request) => (
         <li key={request.userId}>
           {request.user.username} &nbsp;
           <button onClick={() => handleAcceptRequest(request.userId)}>

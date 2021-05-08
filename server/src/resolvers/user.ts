@@ -4,52 +4,51 @@ import {
   Mutation,
   Arg,
   Field,
-  ObjectType,
   Ctx,
   UseMiddleware,
   FieldResolver,
-} from "type-graphql";
-import { EntityNotFoundError, getManager } from "typeorm";
-import argon2 from "argon2";
-import User from "../entities/User";
-import { Context, CustomError } from "../types";
-import { checkRegisterInputValid } from "../utils/validations";
-import { isUnAuthorized } from "../middlewares/authMiddlewares";
-import Circle from "../entities/Circle";
-
-const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
+  ObjectType,
+} from "type-graphql"
+import { EntityNotFoundError, getManager } from "typeorm"
+import argon2 from "argon2"
+import User from "../entities/User"
+import Circle from "../entities/Circle"
+import { Context, CustomError } from "../types"
+import { checkRegisterInputValid } from "../utils/validations"
+import { isUnAuthorized } from "../middlewares/authMiddlewares"
+import { COOKIE_NAME, UNIQUE_CONSTRAINT_ERROR_CODE } from "../constants"
 
 @ObjectType()
 class UserResponse {
   @Field(() => User, { nullable: true })
-  user?: User;
+  user?: User
 
   @Field(() => [CustomError], { nullable: true })
-  errors?: CustomError[];
+  errors?: CustomError[]
 }
 
 @Resolver(User)
 export default class UserResolver {
   @FieldResolver()
   async myCircles(@Ctx() { req }: Context): Promise<Circle[]> {
-    const entityManager = getManager();
+    const entityManager = getManager()
     const query: Circle[] = await entityManager.query(
       `
       SELECT c.* from circle as c INNER JOIN member as m on c.id = m."circleId" 
       WHERE m."userId" = $1 ORDER BY c."updatedAt" DESC;
     `,
       [req.session.userId]
-    );
-    return query;
+    )
+    return query
   }
 
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: Context) {
     try {
-      if (!req.session.userId) return null;
-      return await User.findOne(req.session.userId);
+      if (!req.session.userId) return null
+      return await User.findOne(req.session.userId)
     } catch (e) {
-      return null;
+      return null
     }
   }
 
@@ -61,23 +60,23 @@ export default class UserResolver {
     @Arg("password") password: string
   ): Promise<UserResponse> {
     try {
-      const errors = checkRegisterInputValid(username, email, password);
+      const errors = checkRegisterInputValid(username, email, password)
       if (errors.length > 0) {
-        return { errors };
+        return { errors }
       }
-      const hashedPassword = await argon2.hash(password);
+      const hashedPassword = await argon2.hash(password)
       const user = await User.create({
         username: username.toLowerCase(),
         email,
         password: hashedPassword,
-      }).save();
-      return { user };
+      }).save()
+      return { user }
     } catch (e) {
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
-        const field = e.detail.includes("email") ? "email" : "username";
-        return { errors: [{ path: field, message: `${field} is taken` }] };
+        const field = e.detail.includes("email") ? "email" : "username"
+        return { errors: [{ path: field, message: `${field} is taken` }] }
       }
-      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+      return { errors: [{ path: "unkown", message: "something went wrong" }] }
     }
   }
 
@@ -89,18 +88,18 @@ export default class UserResolver {
     @Ctx() { req }: Context
   ): Promise<UserResponse> {
     try {
-      const user = await User.findOneOrFail({ email });
-      const isCorrect = await argon2.verify(user.password, password);
+      const user = await User.findOneOrFail({ email })
+      const isCorrect = await argon2.verify(user.password, password)
       if (!isCorrect) {
-        return { errors: [{ path: "unkown", message: "invalid credentials" }] };
+        return { errors: [{ path: "unkown", message: "invalid credentials" }] }
       }
-      req.session.userId = user.id;
-      return { user };
+      req.session.userId = user.id
+      return { user }
     } catch (e) {
       if (e instanceof EntityNotFoundError) {
-        return { errors: [{ path: "unkown", message: "no user found" }] };
+        return { errors: [{ path: "unkown", message: "no user found" }] }
       }
-      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+      return { errors: [{ path: "unkown", message: "something went wrong" }] }
     }
   }
 
@@ -109,11 +108,11 @@ export default class UserResolver {
     return new Promise((resolve) =>
       req.session.destroy((err) => {
         if (err) {
-          resolve(false);
+          resolve(false)
         }
-        res.clearCookie("qwe");
-        resolve(true);
+        res.clearCookie(COOKIE_NAME)
+        resolve(true)
       })
-    );
+    )
   }
 }

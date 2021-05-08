@@ -1,26 +1,11 @@
-import Member from "../entities/Member";
-import { isAuthorized } from "../middlewares/authMiddlewares";
-import {
-  Arg,
-  Ctx,
-  Field,
-  Int,
-  Mutation,
-  ObjectType,
-  Query,
-  UseMiddleware,
-} from "type-graphql";
-import { EntityNotFoundError, getConnection, getManager } from "typeorm";
-import { Context } from "../types";
+import { Arg, Ctx, Int, Mutation, Query, UseMiddleware } from "type-graphql"
+import { EntityNotFoundError, getConnection, getManager } from "typeorm"
+import Member from "../entities/Member"
+import { isAuthorized } from "../middlewares/authMiddlewares"
+import { Context, createPaginatedResponse } from "../types"
 
-@ObjectType()
-class PaginatedMembers {
-  @Field(() => [Member])
-  members: Member[];
-
-  @Field(() => Boolean)
-  hasMore: Boolean;
-}
+const PaginatedMembers = createPaginatedResponse(Member)
+type PaginatedMembers = InstanceType<typeof PaginatedMembers>
 
 export default class MemberResolver {
   @Query(() => PaginatedMembers)
@@ -29,11 +14,11 @@ export default class MemberResolver {
     @Arg("circleId", () => Int) circleId: Number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedMembers> {
-    const limit = 10;
-    const take = limit + 1;
-    const replacements: any[] = [circleId, take];
+    const limit = 10
+    const take = limit + 1
+    const replacements: any[] = [circleId, take]
     if (cursor) {
-      replacements.push(new Date(parseInt(cursor) + 1));
+      replacements.push(new Date(parseInt(cursor) + 1))
     }
     const members: any[] = await getConnection().query(
       ` SELECT m.*, u.username FROM member m INNER JOIN "user" u ON u.id = m."userId" 
@@ -42,7 +27,7 @@ export default class MemberResolver {
       ORDER BY m."createdAt" LIMIT $2
     `,
       replacements
-    );
+    )
 
     const formatedMembers: Member[] = members.map((m) => ({
       ...m,
@@ -50,11 +35,11 @@ export default class MemberResolver {
         id: m.userId,
         username: m.username,
       },
-    }));
+    }))
     return {
-      members: formatedMembers.slice(0, limit),
+      data: formatedMembers.slice(0, limit),
       hasMore: formatedMembers.length === take,
-    };
+    }
   }
 
   @Mutation(() => Boolean)
@@ -64,25 +49,25 @@ export default class MemberResolver {
     @Arg("memberId", () => Int) memberId: number,
     @Ctx() { req }: Context
   ): Promise<Boolean> {
-    const { userId } = req.session;
+    const { userId } = req.session
     try {
-      await Member.findOneOrFail({ circleId, userId, isAdmin: true });
-      const deleted = await Member.delete({ userId: memberId, circleId });
+      await Member.findOneOrFail({ circleId, userId, isAdmin: true })
+      const deleted = await Member.delete({ userId: memberId, circleId })
 
       if (deleted.affected !== 1 || !deleted.affected) {
-        return true;
+        return true
       }
 
       await getManager().query(
         `update circle set "totalMembers" = "totalMembers" - 1 where id = $1`,
         [circleId]
-      );
-      return true;
+      )
+      return true
     } catch (e) {
       if (e instanceof EntityNotFoundError) {
-        throw new Error("Un Authorized access");
+        throw new Error("Un Authorized access")
       }
-      throw new Error("something went wrong!");
+      throw new Error("something went wrong!")
     }
   }
 }

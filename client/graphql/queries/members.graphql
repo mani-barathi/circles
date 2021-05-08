@@ -1,7 +1,7 @@
 query Members($circleId: Int!, $cursor: String) {
   members(circleId: $circleId, cursor: $cursor) {
     hasMore
-    members {
+    data {
       userId
       isAdmin
       createdAt

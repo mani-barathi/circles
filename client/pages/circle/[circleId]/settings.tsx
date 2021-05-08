@@ -1,16 +1,14 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useEffect } from "react"
+import Members from "../../../components/Members"
 import PageNotFound from "../../../components/PageNotFound"
 import {
   MeDocument,
-  MembersDocument,
-  MembersQuery,
   MeQuery,
   useCircleQuery,
   useExitCircleMutation,
   useMembersLazyQuery,
-  useRemoveMemberMutation,
 } from "../../../generated/graphql"
 
 interface membersProps {}
@@ -29,10 +27,7 @@ const info: React.FC<membersProps> = ({}) => {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
   })
-  const [
-    removeMember,
-    { loading: removeMemberLoading },
-  ] = useRemoveMemberMutation()
+
   const [exitGroup, { loading: exitGroupLoading }] = useExitCircleMutation()
 
   useEffect(() => {
@@ -51,40 +46,6 @@ const info: React.FC<membersProps> = ({}) => {
     )
 
   if (!circleData?.circle.isMember) return <PageNotFound />
-
-  const handleRemoveMember = async (memberId: number) => {
-    if (!confirm("Are you sure to remove this person from the circle?")) return
-    const variables = { memberId, circleId }
-    try {
-      await removeMember({
-        variables,
-        update: (cache, { data }) => {
-          if (!data || !data.removeMember) return
-          // removing the member from the members list
-          const existingMembers = cache.readQuery<MembersQuery>({
-            query: MembersDocument,
-            variables: { circleId },
-          })
-
-          cache.writeQuery<MembersQuery>({
-            query: MembersDocument,
-            variables: { circleId },
-            data: {
-              members: {
-                ...existingMembers.members,
-                members: existingMembers.members.members.filter(
-                  (m) => m.userId !== memberId
-                ),
-              },
-            },
-          })
-        }, // end of update
-      }) // end of removeMember
-    } catch (e) {
-      console.log("handleRemoveMember:", e)
-      alert(e.message)
-    }
-  }
 
   const handleExitGroup = async () => {
     if (!confirm("Are you sure to exit the circle?")) return
@@ -124,23 +85,12 @@ const info: React.FC<membersProps> = ({}) => {
           <h3>{circleData.circle.name}</h3>
         </a>
       </Link>
-      <button disabled={exitGroupLoading} onClick={handleExitGroup}>
-        Exit Group
-      </button>
-      <h4>Members:{data?.members.members.length}</h4>
-      {data?.members.members.map((m) => (
-        <li key={m.userId}>
-          {m.user.username} &nbsp;
-          {circleData?.circle.isAdmin && !m.isAdmin && (
-            <button
-              onClick={() => handleRemoveMember(m.userId)}
-              disabled={removeMemberLoading}
-            >
-              Remove
-            </button>
-          )}
-        </li>
-      ))}
+      {!circleData.circle.isAdmin && (
+        <button disabled={exitGroupLoading} onClick={handleExitGroup}>
+          Exit Group
+        </button>
+      )}
+      <Members circleId={circleId} isAdmin={circleData.circle.isAdmin} />
     </div>
   )
 }

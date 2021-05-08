@@ -1,9 +1,9 @@
-import Circle from "../entities/Circle";
-import Member from "../entities/Member";
-import User from "../entities/User";
-import Invitation from "../entities/Invitation";
-import { isAuthorized } from "../middlewares/authMiddlewares";
-import { Context, CustomError } from "../types";
+import Circle from "../entities/Circle"
+import Member from "../entities/Member"
+import User from "../entities/User"
+import Invitation from "../entities/Invitation"
+import { isAuthorized } from "../middlewares/authMiddlewares"
+import { Context, CustomError } from "../types"
 import {
   Arg,
   Ctx,
@@ -14,18 +14,17 @@ import {
   Query,
   Resolver,
   UseMiddleware,
-} from "type-graphql";
-import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm";
-
-const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
+} from "type-graphql"
+import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm"
+import { UNIQUE_CONSTRAINT_ERROR_CODE } from "../constants"
 
 @ObjectType()
 class InvitationResponse {
   @Field(() => Invitation, { nullable: true })
-  invitation?: Invitation;
+  invitation?: Invitation
 
   @Field(() => [CustomError], { nullable: true })
-  errors?: CustomError[];
+  errors?: CustomError[]
 }
 
 @Resolver()
@@ -44,8 +43,8 @@ export default class InivitationResolver {
       .orderBy("i.createdAt", "DESC")
       .where("i.recipientId =:id", { id: req.session.userId })
       .andWhere("i.active = true")
-      .getMany();
-    return invitations;
+      .getMany()
+    return invitations
   }
 
   @Query(() => [Invitation])
@@ -59,8 +58,8 @@ export default class InivitationResolver {
       .addSelect(["r.id", "r.username"])
       .where("i.circleId = :circleId", { circleId })
       .orderBy("i.createdAt", "DESC")
-      .getMany();
-    return invitations;
+      .getMany()
+    return invitations
   }
 
   @Mutation(() => Circle)
@@ -75,30 +74,30 @@ export default class InivitationResolver {
         circleId,
         senderId,
         recipientId: req.session.userId,
-      });
+      })
       if (deleted.affected !== 1 || !deleted.affected) {
-        throw new EntityNotFoundError(Invitation, {});
+        throw new EntityNotFoundError(Invitation, {})
       }
 
       await Member.insert({
         circleId,
         userId: req.session.userId,
         isAdmin: false,
-      });
+      })
 
       const circle = await getManager().query(
         `update circle set "totalMembers" = "totalMembers" + 1 where id = $1 returning id,name`,
         [circleId]
-      );
-      return circle[0][0];
+      )
+      return circle[0][0]
     } catch (e) {
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
-        throw new Error("your are already a member of the circle");
+        throw new Error("your are already a member of the circle")
       }
       if (e instanceof EntityNotFoundError) {
-        throw new Error("no invitation found");
+        throw new Error("no invitation found")
       }
-      throw new Error("something went wrong");
+      throw new Error("something went wrong")
     }
   }
 
@@ -114,15 +113,15 @@ export default class InivitationResolver {
         circleId,
         senderId,
         recipientId: req.session.userId,
-      });
+      })
       if (deleted.affected !== 1 || !deleted.affected) {
         throw new Error(
           "Unable to reject.. either the invitation do not exist or you don't have permission"
-        );
+        )
       }
-      return true;
+      return true
     } catch (e) {
-      throw e;
+      throw e
     }
   }
 
@@ -137,13 +136,13 @@ export default class InivitationResolver {
       circleId,
       recipientId,
       senderId: req.session.userId,
-    });
+    })
     if (deleted.affected !== 1 || !deleted.affected) {
       throw new Error(
         "Unable to cancel.. either the invitation do not exist or you don't have permission"
-      );
+      )
     }
-    return true;
+    return true
   }
 
   @Mutation(() => InvitationResponse)
@@ -156,29 +155,29 @@ export default class InivitationResolver {
     try {
       const recipientPromise = User.findOneOrFail({
         where: { username: recipiantName },
-      });
+      })
       const circlePromise = Circle.findOneOrFail({
         where: { id: circleId, creatorId: req.session.userId },
-      });
+      })
       const [recipient, circle] = await Promise.all([
         recipientPromise,
         circlePromise,
-      ]);
+      ])
 
       const invitation = await Invitation.create({
         senderId: req.session.userId,
         recipientId: recipient.id,
         circleId: circle.id,
         active: true,
-      }).save();
+      }).save()
 
-      return { invitation };
+      return { invitation }
     } catch (e) {
       if (e instanceof EntityNotFoundError) {
         if (e.toString().includes("User")) {
           return {
             errors: [{ path: "username", message: `recipient not found` }],
-          };
+          }
         }
         return {
           errors: [
@@ -187,9 +186,9 @@ export default class InivitationResolver {
               message: `circle not found or you don't have permission`,
             },
           ],
-        };
+        }
       }
-      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+      return { errors: [{ path: "unkown", message: "something went wrong" }] }
     }
   }
 }

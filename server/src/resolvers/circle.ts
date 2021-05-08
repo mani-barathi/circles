@@ -1,7 +1,3 @@
-import Circle from "../entities/Circle";
-import Invitation from "../entities/Invitation";
-import { isAuthorized } from "../middlewares/authMiddlewares";
-import { Context, CustomError } from "../types";
 import {
   Arg,
   Ctx,
@@ -14,28 +10,33 @@ import {
   Resolver,
   Root,
   UseMiddleware,
-} from "type-graphql";
-import { checkCircleInputValid } from "../utils/validations";
-import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm";
-import Member from "../entities/Member";
-
-const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
-const FOREIGN_KEY_CONSTRAINT_ERROR_CODE = "23503";
+} from "type-graphql"
+import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm"
+import { checkCircleInputValid } from "../utils/validations"
+import {
+  FOREIGN_KEY_CONSTRAINT_ERROR_CODE,
+  UNIQUE_CONSTRAINT_ERROR_CODE,
+} from "../constants"
+import Member from "../entities/Member"
+import Circle from "../entities/Circle"
+import Invitation from "../entities/Invitation"
+import { isAuthorized } from "../middlewares/authMiddlewares"
+import { Context, CustomError } from "../types"
 
 @ObjectType()
 class CircleResponse {
   @Field(() => Circle, { nullable: true })
-  circle?: Circle;
+  circle?: Circle
 
   @Field(() => [CustomError], { nullable: true })
-  errors?: CustomError[];
+  errors?: CustomError[]
 }
 
 @Resolver(Circle)
 export default class CircleResolver {
   @FieldResolver()
   isAdmin(@Root() circle: Circle, @Ctx() { req }: Context): Boolean {
-    return req.session.userId === circle.creatorId;
+    return req.session.userId === circle.creatorId
   }
 
   @FieldResolver()
@@ -43,12 +44,12 @@ export default class CircleResolver {
     @Root() circle: Circle,
     @Ctx() { req }: Context
   ): Promise<Boolean> {
-    if (!req.session.userId) return false;
+    if (!req.session.userId) return false
     const member = await getManager().query(
       `select exists(select 1 from member where "userId" = $1 and "circleId" = $2)`,
       [req.session.userId, circle.id]
-    );
-    return member[0].exists;
+    )
+    return member[0].exists
   }
 
   @FieldResolver()
@@ -59,8 +60,8 @@ export default class CircleResolver {
       .addSelect(["u.id", "u.username"])
       .where("m.circleId = :circleId", { circleId: circle.id })
       .orderBy("m.createdAt", "ASC")
-      .getMany();
-    return members;
+      .getMany()
+    return members
   }
 
   @FieldResolver()
@@ -71,8 +72,8 @@ export default class CircleResolver {
       .addSelect(["r.id", "r.username"])
       .where("i.circleId = :circleId", { circleId: circle.id })
       .orderBy("i.createdAt", "DESC")
-      .getMany();
-    return invitations;
+      .getMany()
+    return invitations
   }
 
   @Query(() => [Circle])
@@ -92,8 +93,8 @@ export default class CircleResolver {
       // .where("c.createdAt < :cursor", {
       //   cursor: new Date(parseInt("1619793415482")),
       // })
-      .getMany();
-    return circles;
+      .getMany()
+    return circles
   }
 
   @Query(() => Circle)
@@ -111,13 +112,13 @@ export default class CircleResolver {
         ])
         .addSelect(["creator.id", "creator.username"])
         .where("c.id = :circleId", { circleId })
-        .getOneOrFail();
-      return circle;
+        .getOneOrFail()
+      return circle
     } catch (e) {
       if (e instanceof EntityNotFoundError) {
-        throw new Error("No Circle Found!");
+        throw new Error("No Circle Found!")
       }
-      throw new Error("Something went wrong");
+      throw new Error("Something went wrong")
     }
   }
 
@@ -129,9 +130,9 @@ export default class CircleResolver {
     @Ctx() { req }: Context
   ): Promise<CircleResponse> {
     try {
-      const errors = checkCircleInputValid(name);
+      const errors = checkCircleInputValid(name)
       if (errors.length > 0) {
-        return { errors };
+        return { errors }
       }
 
       const circle = await Circle.create({
@@ -139,23 +140,23 @@ export default class CircleResolver {
         description,
         creatorId: req.session.userId,
         // totalMembers:1
-      }).save();
+      }).save()
 
       await Member.create({
         circleId: circle.id,
         isAdmin: true,
         userId: req.session.userId,
-      }).save();
-      return { circle };
+      }).save()
+      return { circle }
     } catch (e) {
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
-        return { errors: [{ path: name, message: `name is taken` }] };
+        return { errors: [{ path: name, message: `name is taken` }] }
       }
 
       if (e.code === FOREIGN_KEY_CONSTRAINT_ERROR_CODE) {
-        return { errors: [{ path: name, message: `invalid creator` }] };
+        return { errors: [{ path: name, message: `invalid creator` }] }
       }
-      return { errors: [{ path: "unkown", message: "something went wrong" }] };
+      return { errors: [{ path: "unkown", message: "something went wrong" }] }
     }
   }
 
@@ -165,21 +166,21 @@ export default class CircleResolver {
     @Arg("circleId", () => Int) circleId: number,
     @Ctx() { req }: Context
   ): Promise<Boolean> {
-    const { userId } = req.session;
+    const { userId } = req.session
     try {
-      const deleted = await Member.delete({ userId, circleId });
+      const deleted = await Member.delete({ userId, circleId })
 
       if (deleted.affected !== 1 || !deleted.affected) {
-        return true;
+        return true
       }
 
       await getManager().query(
         `update circle set "totalMembers" = "totalMembers" - 1 where id = $1`,
         [circleId]
-      );
-      return true;
+      )
+      return true
     } catch (e) {
-      throw new Error("something went wrong!");
+      throw new Error("something went wrong!")
     }
   }
 }

@@ -164,15 +164,15 @@ export type MutationSendMemberRequestArgs = {
   circleId: Scalars['Int'];
 };
 
-export type PaginatedMemberRequests = {
-  __typename?: 'PaginatedMemberRequests';
-  requests: Array<MemberRequest>;
+export type PaginatedMember = {
+  __typename?: 'PaginatedMember';
+  data: Array<Member>;
   hasMore: Scalars['Boolean'];
 };
 
-export type PaginatedMembers = {
-  __typename?: 'PaginatedMembers';
-  members: Array<Member>;
+export type PaginatedMemberRequest = {
+  __typename?: 'PaginatedMemberRequest';
+  data: Array<MemberRequest>;
   hasMore: Scalars['Boolean'];
 };
 
@@ -183,9 +183,9 @@ export type Query = {
   circle: Circle;
   getIntivations: Array<Invitation>;
   getSentInvitationOfCircle: Array<Invitation>;
-  members: PaginatedMembers;
+  members: PaginatedMember;
   isMemberRequestExists: Scalars['Boolean'];
-  memberRequests: PaginatedMemberRequests;
+  memberRequests: PaginatedMemberRequest;
 };
 
 
@@ -479,9 +479,9 @@ export type MemberRequestsQueryVariables = Exact<{
 export type MemberRequestsQuery = (
   { __typename?: 'Query' }
   & { memberRequests: (
-    { __typename?: 'PaginatedMemberRequests' }
-    & Pick<PaginatedMemberRequests, 'hasMore'>
-    & { requests: Array<(
+    { __typename?: 'PaginatedMemberRequest' }
+    & Pick<PaginatedMemberRequest, 'hasMore'>
+    & { data: Array<(
       { __typename?: 'MemberRequest' }
       & Pick<MemberRequest, 'userId' | 'circleId' | 'createdAt'>
       & { user: (
@@ -501,9 +501,9 @@ export type MembersQueryVariables = Exact<{
 export type MembersQuery = (
   { __typename?: 'Query' }
   & { members: (
-    { __typename?: 'PaginatedMembers' }
-    & Pick<PaginatedMembers, 'hasMore'>
-    & { members: Array<(
+    { __typename?: 'PaginatedMember' }
+    & Pick<PaginatedMember, 'hasMore'>
+    & { data: Array<(
       { __typename?: 'Member' }
       & Pick<Member, 'userId' | 'isAdmin' | 'createdAt'>
       & { user?: Maybe<(
@@ -1162,7 +1162,7 @@ export const MemberRequestsDocument = gql`
     query MemberRequests($circleId: Int!, $cursor: String) {
   memberRequests(circleId: $circleId, cursor: $cursor) {
     hasMore
-    requests {
+    data {
       userId
       circleId
       user {
@@ -1207,7 +1207,7 @@ export const MembersDocument = gql`
     query Members($circleId: Int!, $cursor: String) {
   members(circleId: $circleId, cursor: $cursor) {
     hasMore
-    members {
+    data {
       userId
       isAdmin
       createdAt

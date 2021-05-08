@@ -1,5 +1,5 @@
 import { useRouter } from "next/router"
-import React, { useState } from "react"
+import React from "react"
 import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
 import { useCircleQuery, useMeQuery } from "../../../generated/graphql"
 
@@ -7,10 +7,6 @@ interface circlePageProps {}
 
 const circlePage: React.FC<circlePageProps> = ({}) => {
   const router = useRouter()
-  const [toggle, setToggle] = useState({
-    showMembers: false,
-    showSentInvitations: false,
-  })
   const { data: me } = useMeQuery()
   const { circleId } = router.query
   const { data, loading, error } = useCircleQuery({
@@ -22,7 +18,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
 
   if (loading) return <h3>Loading...</h3>
 
-  const goToMembersPage = () => router.push(`/circle/${circleId}/members`)
+  const goToSettingsPage = () => router.push(`/circle/${circleId}/settings`)
   const goToAdminPage = () => router.push(`/circle/${circleId}/admin`)
 
   return (
@@ -40,7 +36,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
             Members: {data.circle.totalMembers}
           </h4>
           {data.circle.isMember && (
-            <button onClick={goToMembersPage}>Members</button>
+            <button onClick={goToSettingsPage}>Settings</button>
           )}
           {data.circle.isAdmin && (
             <>
