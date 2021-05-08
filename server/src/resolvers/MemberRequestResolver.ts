@@ -1,19 +1,30 @@
-import { isAuthorized } from "../middlewares/authMiddlewares"
-import { Context } from "../types"
 import {
   Arg,
   Ctx,
+  Field,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql"
-import MemberRequest from "../entities/MemberRequest"
 import { EntityNotFoundError, getManager } from "typeorm"
+import MemberRequest from "../entities/MemberRequest"
+import { isAuthorized } from "../middlewares/authMiddlewares"
+import { Context } from "../types"
 
 const UNIQUE_CONSTRAINT_ERROR_CODE = "23505"
 const FOREIGN_KEY_CONSTRAINT_ERROR_CODE = "23503"
+
+@ObjectType()
+class PaginatedMemberRequests {
+  @Field(() => [MemberRequest])
+  requests: MemberRequest[]
+
+  @Field(() => Boolean)
+  hasMore: Boolean
+}
 
 @Resolver()
 export default class MemberRequestResolver {
@@ -37,6 +48,54 @@ export default class MemberRequestResolver {
       }
       throw new Error("something went wrong")
     }
+  }
+
+  @Query(() => PaginatedMemberRequests)
+  @UseMiddleware(isAuthorized)
+  async memberRequests(
+    @Arg("circleId", () => Int) circleId: number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<PaginatedMemberRequests> {
+    try {
+      const limit = 25
+      const limitPlusOne = limit + 1
+      const replacements: any[] = [circleId, limitPlusOne]
+      if (cursor) {
+        replacements.push(new Date(parseInt(cursor)))
+      }
+
+      const requests: any[] = await getManager().query(
+        `
+        select mr.*,
+          json_build_object(
+            'id',u.id,
+            'username',u.username
+        ) as "user"
+        from member_request mr inner join "user" u on u.id = mr."userId"
+        where mr."circleId" = $1 
+        ${cursor ? 'and mr."createdAt" < $3' : ""}
+        order by mr."createdAt" DESC LIMIt $2
+      `,
+        replacements
+      )
+      return {
+        hasMore: requests.length === limitPlusOne,
+        requests: requests.slice(0, limit),
+      }
+    } catch (e) {
+      throw new Error("something went wrong")
+    }
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async cancelMemberRequest(
+    @Arg("circleId", () => Int) circleId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const { userId } = req.session
+    await MemberRequest.delete({ circleId, userId })
+    return true
   }
 
   @Mutation(() => Boolean)

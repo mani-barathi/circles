@@ -1,6 +1,6 @@
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import MemberRequest from "../../../components/MemberRequest"
+import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
 import { useCircleQuery, useMeQuery } from "../../../generated/graphql"
 
 interface circlePageProps {}
@@ -32,7 +32,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
           <div>
             <h1>{data.circle.name}</h1>
             {me?.me?.id && !data.circle.isMember && (
-              <MemberRequest circleId={circleId} />
+              <SendCancelMemberRequest circleId={circleId} />
             )}
           </div>
           <h4>

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
+import MemberRequests from "../../../components/MemberRequests"
 import PageNotFound from "../../../components/PageNotFound"
 import SentInvitations from "../../../components/SentInvitations"
 import {
@@ -54,6 +55,7 @@ const admin: React.FC<adminProps> = () => {
       </Link>
       <h4>Admin Page</h4>
       <button onClick={handleInvite}>Invite New Member</button> &nbsp;
+      <MemberRequests circleId={circleId} />
       <SentInvitations circleId={circleId.toString()} />
     </div>
   )

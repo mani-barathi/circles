@@ -1,0 +1,14 @@
+query MemberRequests($circleId: Int!, $cursor: String) {
+  memberRequests(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    requests {
+      userId
+      circleId
+      user {
+        id
+        username
+      }
+      createdAt
+    }
+  }
+}

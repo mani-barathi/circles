@@ -164,6 +164,12 @@ export type MutationSendMemberRequestArgs = {
   circleId: Scalars['Int'];
 };
 
+export type PaginatedMemberRequests = {
+  __typename?: 'PaginatedMemberRequests';
+  requests: Array<MemberRequest>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type PaginatedMembers = {
   __typename?: 'PaginatedMembers';
   members: Array<Member>;
@@ -179,6 +185,7 @@ export type Query = {
   getSentInvitationOfCircle: Array<Invitation>;
   members: PaginatedMembers;
   isMemberRequestExists: Scalars['Boolean'];
+  memberRequests: PaginatedMemberRequests;
 };
 
 
@@ -199,6 +206,12 @@ export type QueryMembersArgs = {
 
 
 export type QueryIsMemberRequestExistsArgs = {
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryMemberRequestsArgs = {
+  cursor?: Maybe<Scalars['String']>;
   circleId: Scalars['Int'];
 };
 
@@ -455,6 +468,28 @@ export type MeQuery = (
       & Pick<Circle, 'id' | 'name'>
     )> }
   )> }
+);
+
+export type MemberRequestsQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type MemberRequestsQuery = (
+  { __typename?: 'Query' }
+  & { memberRequests: (
+    { __typename?: 'PaginatedMemberRequests' }
+    & Pick<PaginatedMemberRequests, 'hasMore'>
+    & { requests: Array<(
+      { __typename?: 'MemberRequest' }
+      & Pick<MemberRequest, 'userId' | 'circleId' | 'createdAt'>
+      & { user: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ) }
+    )> }
+  ) }
 );
 
 export type MembersQueryVariables = Exact<{
@@ -1123,6 +1158,51 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const MemberRequestsDocument = gql`
+    query MemberRequests($circleId: Int!, $cursor: String) {
+  memberRequests(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    requests {
+      userId
+      circleId
+      user {
+        id
+        username
+      }
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useMemberRequestsQuery__
+ *
+ * To run a query within a React component, call `useMemberRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMemberRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMemberRequestsQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useMemberRequestsQuery(baseOptions: Apollo.QueryHookOptions<MemberRequestsQuery, MemberRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MemberRequestsQuery, MemberRequestsQueryVariables>(MemberRequestsDocument, options);
+      }
+export function useMemberRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MemberRequestsQuery, MemberRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MemberRequestsQuery, MemberRequestsQueryVariables>(MemberRequestsDocument, options);
+        }
+export type MemberRequestsQueryHookResult = ReturnType<typeof useMemberRequestsQuery>;
+export type MemberRequestsLazyQueryHookResult = ReturnType<typeof useMemberRequestsLazyQuery>;
+export type MemberRequestsQueryResult = Apollo.QueryResult<MemberRequestsQuery, MemberRequestsQueryVariables>;
 export const MembersDocument = gql`
     query Members($circleId: Int!, $cursor: String) {
   members(circleId: $circleId, cursor: $cursor) {
