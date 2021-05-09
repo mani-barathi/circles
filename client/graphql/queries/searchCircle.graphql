@@ -1,0 +1,13 @@
+query SearchCircle($query: String!, $cursor: String) {
+  searchCircle(query: $query, cursor: $cursor) {
+    hasMore
+    data {
+      id
+      name
+      totalMembers
+      creator {
+        username
+      }
+    }
+  }
+}

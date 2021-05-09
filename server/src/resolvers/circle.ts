@@ -21,7 +21,7 @@ import Member from "../entities/Member"
 import Circle from "../entities/Circle"
 import Invitation from "../entities/Invitation"
 import { isAuthorized } from "../middlewares/authMiddlewares"
-import { Context, CustomError } from "../types"
+import { Context, createPaginatedResponse, CustomError } from "../types"
 
 @ObjectType()
 class CircleResponse {
@@ -31,6 +31,9 @@ class CircleResponse {
   @Field(() => [CustomError], { nullable: true })
   errors?: CustomError[]
 }
+
+const PaginatedCircles = createPaginatedResponse(Circle)
+type PaginatedCircles = InstanceType<typeof PaginatedCircles>
 
 @Resolver(Circle)
 export default class CircleResolver {
@@ -89,12 +92,50 @@ export default class CircleResolver {
         "c.totalMembers",
       ])
       .addSelect(["creator.id", "creator.username"])
-      .orderBy("c.createdAt", "DESC")
-      // .where("c.createdAt < :cursor", {
-      //   cursor: new Date(parseInt("1619793415482")),
-      // })
+      .orderBy("c.updatedAt", "DESC")
       .getMany()
     return circles
+  }
+
+  @Query(() => PaginatedCircles)
+  async searchCircle(
+    @Arg("query", () => String) query: string,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<PaginatedCircles> {
+    try {
+      const limit = 2
+      const limitPlusOne = limit + 1
+      const qb = createQueryBuilder<Circle>("circle", "c")
+        .innerJoin("c.creator", "u")
+        .select([
+          "c.id",
+          "c.name",
+          "c.createdAt",
+          "c.updatedAt",
+          "c.creatorId",
+          "c.totalMembers",
+        ])
+        .addSelect(["u.id", "u.username"])
+        .where(`c.name like :term`, { term: `%${query}%` })
+
+      if (cursor) {
+        console.log("########added cursor######")
+        qb.andWhere(`c.updatedAt < :cursor`, {
+          cursor: new Date(parseInt(cursor)),
+        })
+      }
+      qb.orderBy("c.totalMembers", "DESC")
+      qb.addOrderBy("c.updatedAt", "DESC")
+      const data = await qb.take(limitPlusOne).getMany()
+
+      return {
+        data: data.slice(0, limit),
+        hasMore: data.length === limitPlusOne,
+      }
+    } catch (e) {
+      console.log(e)
+      throw new Error("Something went wrong")
+    }
   }
 
   @Query(() => Circle)
