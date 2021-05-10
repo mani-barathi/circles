@@ -1,16 +1,26 @@
 import Link from "next/link"
 import Invitations from "../components/Invitations"
-import Welcome from "../components/Welcome"
+import MyCircles from "../components/MyCircles"
 import { useMeQuery } from "../generated/graphql"
 
 export default function Home() {
-  const { data: user, loading: userLoading } = useMeQuery({
-    fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-first",
-  })
+  const { data: meData, loading: meLoading } = useMeQuery()
 
-  if (userLoading) return <h3>Loading...</h3>
-  if (!user || !user.me) return <Welcome />
+  if (meLoading) return <h3>Loading...</h3>
+  if (!meData || !meData.me)
+    return (
+      <div>
+        <h2>Welcome to Circles</h2>
+        <h4>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, neque.
+        </h4>
+        <Link href="/login">
+          <a>
+            <strong>Join</strong>
+          </a>
+        </Link>
+      </div>
+    )
 
   return (
     <div>
@@ -18,20 +28,7 @@ export default function Home() {
 
       <Invitations />
       <hr />
-
-      <div>
-        <h3>My Circles</h3>
-        {user.me.myCircles.length === 0 && (
-          <h4>
-            You are not part of a circle, either join a cirle or create a circle
-          </h4>
-        )}
-        {user.me.myCircles.map((circle) => (
-          <strong style={{ display: "block" }} key={circle.name}>
-            <Link href={`/circle/${circle.id}`}>{circle.name}</Link>
-          </strong>
-        ))}
-      </div>
+      <MyCircles />
     </div>
   )
 }

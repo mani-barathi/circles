@@ -1,67 +1,54 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react"
+import { useRouter } from "next/router"
 import {
   CustomError,
-  MeDocument,
-  MeQuery,
   useCreateCircleMutation,
-} from "../generated/graphql";
-import useAuth from "../hooks/useAuth";
+  useMeQuery,
+} from "../generated/graphql"
 
 interface createCircleProps {}
 
 const createCircle: React.FC<createCircleProps> = ({}) => {
-  const { user, userLoading } = useAuth();
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [err, setErr] = useState<CustomError[]>([]);
-  const [createCircle, { loading }] = useCreateCircleMutation();
+  const { data: meData, loading: meLoading } = useMeQuery()
+  const router = useRouter()
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
+  const [err, setErr] = useState<CustomError[]>([])
+  const [createCircle, { loading }] = useCreateCircleMutation()
 
-  if (!user || userLoading) return <h3>Loading...</h3>;
+  useEffect(() => {
+    if (!meData) return
+    if (!meData.me) {
+      router.replace("/login?next=/createCircle")
+    }
+  }, [meData])
+
+  if (meLoading) return <h3>Loading...</h3>
+  if (!meData || !meData.me) return <h3>UnAuthorized</h3>
 
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
     e
   ) => {
-    e.preventDefault();
-    setErr(null);
-    const variables = { name, description };
+    e.preventDefault()
+    setErr(null)
+    const variables = { name, description }
     try {
-      const { data, errors } = await createCircle({
+      const { data } = await createCircle({
         variables,
-        update: (cache, { data }) => {
-          if (data.createCircle?.errors?.length > 0) return;
-
-          const existingMe = cache.readQuery<MeQuery>({
-            query: MeDocument,
-          });
-          cache.writeQuery<MeQuery>({
-            query: MeDocument,
-            data: {
-              me: {
-                ...existingMe.me,
-                myCircles: [
-                  data.createCircle.circle,
-                  ...existingMe.me.myCircles,
-                ],
-              },
-            },
-          });
-        },
-      });
+      })
       if (data.createCircle.errors) {
-        setErr(data.createCircle.errors);
+        setErr(data.createCircle.errors)
       } else {
-        setErr([{ path: "succes", message: "circle created!" }]);
-        setName("");
-        setDescription("");
-        router.push(`/circle/${data.createCircle.circle?.id}`);
+        setErr([{ path: "succes", message: "circle created!" }])
+        setName("")
+        setDescription("")
+        router.push(`/circle/${data.createCircle.circle?.id}`)
       }
     } catch (error) {
-      alert(error);
-      console.log(error);
+      alert(error)
+      console.log(error)
     }
-  };
+  }
   return (
     <div>
       <h1>New Circle</h1>
@@ -94,7 +81,7 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
         </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default createCircle;
+export default createCircle

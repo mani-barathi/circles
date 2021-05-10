@@ -101,7 +101,7 @@ export default class MemberRequestResolver {
         await tm.insert(Member, { circleId, userId: memberId, isAdmin: false })
 
         await tm.query(
-          `update circle set "totalMembers" = "totalMembers" + 1 where id = $1 returning id,name`,
+          `update circle set "totalMembers" = "totalMembers" + 1, "updatedAt" = now() where id = $1`,
           [circleId]
         )
       }) // end of transaction

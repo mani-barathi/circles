@@ -1,0 +1,11 @@
+query MyCircles($cursor: String) {
+  myCircles(cursor: $cursor) {
+    hasMore
+    data {
+      id
+      name
+      isAdmin
+      updatedAt
+    }
+  }
+}

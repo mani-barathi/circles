@@ -2,7 +2,8 @@ query GetCircles {
   getCircles {
     id
     name
-    description
+    totalMembers
+    updatedAt
     createdAt
     creator {
       username

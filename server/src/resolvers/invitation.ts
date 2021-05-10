@@ -62,34 +62,36 @@ export default class InivitationResolver {
     return invitations
   }
 
-  @Mutation(() => Circle)
+  @Mutation(() => Boolean)
   @UseMiddleware(isAuthorized)
   async acceptInvitation(
     @Arg("senderId", () => Int) senderId: number,
     @Arg("circleId", () => Int) circleId: number,
     @Ctx() { req }: Context
-  ): Promise<Circle> {
+  ): Promise<Boolean> {
     try {
-      const deleted = await Invitation.delete({
-        circleId,
-        senderId,
-        recipientId: req.session.userId,
-      })
-      if (deleted.affected !== 1 || !deleted.affected) {
-        throw new EntityNotFoundError(Invitation, {})
-      }
+      await getManager().transaction(async (tm) => {
+        const deleted = await tm.delete(Invitation, {
+          circleId,
+          senderId,
+          recipientId: req.session.userId,
+        })
+        if (deleted.affected !== 1 || !deleted.affected) {
+          throw new EntityNotFoundError(Invitation, {})
+        }
 
-      await Member.insert({
-        circleId,
-        userId: req.session.userId,
-        isAdmin: false,
-      })
+        await tm.insert(Member, {
+          circleId,
+          userId: req.session.userId,
+          isAdmin: false,
+        })
 
-      const circle = await getManager().query(
-        `update circle set "totalMembers" = "totalMembers" + 1 where id = $1 returning id,name`,
-        [circleId]
-      )
-      return circle[0][0]
+        await tm.query(
+          `update circle set "totalMembers" = "totalMembers" + 1, "updatedAt" = now() where id = $1`,
+          [circleId]
+        )
+      }) // end of transaction
+      return true
     } catch (e) {
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
         throw new Error("your are already a member of the circle")

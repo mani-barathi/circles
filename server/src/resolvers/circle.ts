@@ -79,20 +79,51 @@ export default class CircleResolver {
     return invitations
   }
 
+  @Query(() => PaginatedCircles)
+  @UseMiddleware(isAuthorized)
+  async myCircles(
+    @Ctx() { req }: Context,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<PaginatedCircles> {
+    const limit = 10
+    const limitPlusOne = limit + 1
+    const replacements: any[] = [req.session.userId, limitPlusOne]
+    if (cursor) {
+      replacements.push(new Date(parseInt(cursor)))
+    }
+
+    const data: Circle[] = await getManager().query(
+      `
+      SELECT c.* from circle as c INNER JOIN member as m on c.id = m."circleId"
+      WHERE m."userId" = $1
+      ${cursor ? ` and c."updatedAt" < $3` : ""}
+      ORDER BY c."updatedAt" DESC LIMIT $2;
+    `,
+      replacements
+    )
+    return {
+      data: data.slice(0, limit),
+      hasMore: data.length === limitPlusOne,
+    }
+  }
+
   @Query(() => [Circle])
   async getCircles(): Promise<Circle[]> {
+    const limit = 10
     const circles = await createQueryBuilder<Circle>("circle", "c")
       .innerJoin("c.creator", "creator")
       .select([
         "c.id",
         "c.name",
-        "c.description",
         "c.createdAt",
+        "c.updatedAt",
         "c.creatorId",
         "c.totalMembers",
       ])
       .addSelect(["creator.id", "creator.username"])
-      .orderBy("c.updatedAt", "DESC")
+      .orderBy("c.totalMembers", "DESC")
+      .addOrderBy("c.updatedAt", "DESC")
+      .limit(limit)
       .getMany()
     return circles
   }
@@ -119,12 +150,11 @@ export default class CircleResolver {
         .where(`c.name like :term`, { term: `%${query}%` })
 
       if (cursor) {
-        console.log("########added cursor######")
         qb.andWhere(`c.updatedAt < :cursor`, {
           cursor: new Date(parseInt(cursor)),
         })
       }
-      qb.orderBy("c.totalMembers", "DESC")
+
       qb.addOrderBy("c.updatedAt", "DESC")
       const data = await qb.take(limitPlusOne).getMany()
 

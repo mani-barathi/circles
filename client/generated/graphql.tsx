@@ -91,7 +91,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   createCircle: CircleResponse;
   exitCircle: Scalars['Boolean'];
-  acceptInvitation: Circle;
+  acceptInvitation: Scalars['Boolean'];
   rejectInvitation: Scalars['Boolean'];
   cancelInvitation: Scalars['Boolean'];
   sendInvitation: InvitationResponse;
@@ -199,6 +199,7 @@ export type PaginatedMemberRequest = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
+  myCircles: PaginatedCircle;
   getCircles: Array<Circle>;
   searchCircle: PaginatedCircle;
   circle: Circle;
@@ -207,6 +208,11 @@ export type Query = {
   members: PaginatedMember;
   isMemberRequestExists: Scalars['Boolean'];
   memberRequests: PaginatedMemberRequest;
+};
+
+
+export type QueryMyCirclesArgs = {
+  cursor?: Maybe<Scalars['String']>;
 };
 
 
@@ -264,10 +270,7 @@ export type AcceptInviteMutationVariables = Exact<{
 
 export type AcceptInviteMutation = (
   { __typename?: 'Mutation' }
-  & { acceptInvitation: (
-    { __typename?: 'Circle' }
-    & Pick<Circle, 'id' | 'name'>
-  ) }
+  & Pick<Mutation, 'acceptInvitation'>
 );
 
 export type AcceptMemberRequestMutationVariables = Exact<{
@@ -468,7 +471,7 @@ export type GetCirclesQuery = (
   { __typename?: 'Query' }
   & { getCircles: Array<(
     { __typename?: 'Circle' }
-    & Pick<Circle, 'id' | 'name' | 'description' | 'createdAt'>
+    & Pick<Circle, 'id' | 'name' | 'totalMembers' | 'updatedAt' | 'createdAt'>
     & { creator?: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'username'>
@@ -512,10 +515,6 @@ export type MeQuery = (
   & { me?: Maybe<(
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username' | 'email'>
-    & { myCircles: Array<(
-      { __typename?: 'Circle' }
-      & Pick<Circle, 'id' | 'name'>
-    )> }
   )> }
 );
 
@@ -563,6 +562,23 @@ export type MembersQuery = (
   ) }
 );
 
+export type MyCirclesQueryVariables = Exact<{
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type MyCirclesQuery = (
+  { __typename?: 'Query' }
+  & { myCircles: (
+    { __typename?: 'PaginatedCircle' }
+    & Pick<PaginatedCircle, 'hasMore'>
+    & { data: Array<(
+      { __typename?: 'Circle' }
+      & Pick<Circle, 'id' | 'name' | 'isAdmin' | 'updatedAt'>
+    )> }
+  ) }
+);
+
 export type SearchCircleQueryVariables = Exact<{
   query: Scalars['String'];
   cursor?: Maybe<Scalars['String']>;
@@ -605,10 +621,7 @@ export type SentInvitaionsQuery = (
 
 export const AcceptInviteDocument = gql`
     mutation AcceptInvite($circleId: Int!, $senderId: Int!) {
-  acceptInvitation(circleId: $circleId, senderId: $senderId) {
-    id
-    name
-  }
+  acceptInvitation(circleId: $circleId, senderId: $senderId)
 }
     `;
 export type AcceptInviteMutationFn = Apollo.MutationFunction<AcceptInviteMutation, AcceptInviteMutationVariables>;
@@ -1142,7 +1155,8 @@ export const GetCirclesDocument = gql`
   getCircles {
     id
     name
-    description
+    totalMembers
+    updatedAt
     createdAt
     creator {
       username
@@ -1259,10 +1273,6 @@ export const MeDocument = gql`
     id
     username
     email
-    myCircles {
-      id
-      name
-    }
   }
 }
     `;
@@ -1382,6 +1392,47 @@ export function useMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Me
 export type MembersQueryHookResult = ReturnType<typeof useMembersQuery>;
 export type MembersLazyQueryHookResult = ReturnType<typeof useMembersLazyQuery>;
 export type MembersQueryResult = Apollo.QueryResult<MembersQuery, MembersQueryVariables>;
+export const MyCirclesDocument = gql`
+    query MyCircles($cursor: String) {
+  myCircles(cursor: $cursor) {
+    hasMore
+    data {
+      id
+      name
+      isAdmin
+      updatedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useMyCirclesQuery__
+ *
+ * To run a query within a React component, call `useMyCirclesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyCirclesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyCirclesQuery({
+ *   variables: {
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useMyCirclesQuery(baseOptions?: Apollo.QueryHookOptions<MyCirclesQuery, MyCirclesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyCirclesQuery, MyCirclesQueryVariables>(MyCirclesDocument, options);
+      }
+export function useMyCirclesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyCirclesQuery, MyCirclesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyCirclesQuery, MyCirclesQueryVariables>(MyCirclesDocument, options);
+        }
+export type MyCirclesQueryHookResult = ReturnType<typeof useMyCirclesQuery>;
+export type MyCirclesLazyQueryHookResult = ReturnType<typeof useMyCirclesLazyQuery>;
+export type MyCirclesQueryResult = Apollo.QueryResult<MyCirclesQuery, MyCirclesQueryVariables>;
 export const SearchCircleDocument = gql`
     query SearchCircle($query: String!, $cursor: String) {
   searchCircle(query: $query, cursor: $cursor) {

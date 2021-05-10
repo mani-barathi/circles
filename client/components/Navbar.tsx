@@ -9,13 +9,15 @@ interface NavbarProps {}
 const Navbar: React.FC<NavbarProps> = ({}) => {
   const router = useRouter()
   const client = useApolloClient()
-  const { data, loading, error } = useMeQuery()
+  const { data, error, loading } = useMeQuery({
+    fetchPolicy: "cache-first",
+  })
   const [logoutUser, { loading: logoutLoading }] = useLogoutMutation()
 
   const handleLogout = async () => {
     const { data } = await logoutUser()
     if (data?.logout) {
-      router.replace("/")
+      router.push("/")
       client.cache.reset()
     } else {
       alert("something went wrong try refreshing")

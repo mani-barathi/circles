@@ -19,6 +19,11 @@ const index: React.FC<exploreProps> = ({}) => {
   ] = useSearchCircleLazyQuery({ fetchPolicy: "no-cache" })
 
   useEffect(() => {
+    if (!data || !data?.getCircles) return
+    setCircles(data.getCircles)
+  }, [data])
+
+  useEffect(() => {
     if (!searchData || !searchData?.searchCircle) return
     setCircles(searchData.searchCircle.data)
     setHasMore(searchData.searchCircle.hasMore)

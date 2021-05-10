@@ -1,99 +1,100 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
+import React, { useState } from "react"
+import { useRouter } from "next/router"
 import {
   MeDocument,
   MeQuery,
   useLoginMutation,
   useRegisterMutation,
-} from "../generated/graphql";
+} from "../generated/graphql"
 
 interface loginProps {}
 
 const login: React.FC<loginProps> = ({}) => {
-  const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [err, setErr] = useState([]);
-  const [feedback, setFeedback] = useState(null);
-  const [loginUser, { loading: loginLoading }] = useLoginMutation();
-  const [registerUser, { loading: registerLoading }] = useRegisterMutation();
+  const router = useRouter()
+  const [isLogin, setIsLogin] = useState(true)
+  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [err, setErr] = useState<any[]>([])
+  const [feedback, setFeedback] = useState(null)
+  const [loginUser, { loading: loginLoading }] = useLoginMutation()
+  const [registerUser, { loading: registerLoading }] = useRegisterMutation()
 
   const clearFields = () => {
-    setUsername("");
-    setEmail("");
-    setPassword("");
-    setFeedback(null);
-    setErr([]);
-  };
+    setUsername("")
+    setEmail("")
+    setPassword("")
+    setFeedback(null)
+    setErr([])
+  }
 
   const toggleIsLogin = () => {
-    clearFields();
-    setIsLogin((prev) => !prev);
-  };
+    clearFields()
+    setIsLogin((prev) => !prev)
+  }
 
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    isLogin ? handleLogin() : handleSignup();
-  };
+    e.preventDefault()
+    isLogin ? handleLogin() : handleSignup()
+  }
 
   const handleLogin = async () => {
     try {
       const { data, errors } = await loginUser({
         variables: { email, password },
         update: (cache, response) => {
+          if (!response.data || !response.data.login.user) return
+
           cache.writeQuery<MeQuery>({
             query: MeDocument,
             data: {
               __typename: "Query",
-              me: response.data?.login?.user,
+              me: response.data.login.user,
             },
-          });
+          })
         },
-      });
+      })
+
       if (errors) {
-        console.log("handleSignup", errors);
-        alert("somthing went wrong");
+        console.log("handleSignup", errors)
+        alert("somthing went wrong")
       } else {
         if (data.login?.user) {
           const path =
-            typeof router.query.next === "string" ? router.query.next : "/";
-          router.push(path);
+            typeof router.query.next === "string" ? router.query.next : "/"
+          router.push(path)
         } else {
-          setErr(data.login.errors);
-          setPassword("");
+          setErr(data.login.errors)
+          setPassword("")
         }
       }
     } catch (error) {
-      console.log("handleLogin: ", error);
-      alert(error);
+      console.log("handleLogin: ", error)
+      alert(error)
     }
-  };
+  }
 
   const handleSignup = async () => {
-    setErr([]);
+    setErr([])
     try {
-      const { data, errors } = await registerUser({
+      const { data } = await registerUser({
         variables: { username, email, password },
-      });
-      if (errors) {
-        console.log("handleSignup", errors);
-        alert("somthing went wrong");
-      } else {
-        if (data.register?.errors) {
-          setErr(data.register.errors);
-          setPassword("");
-        } else {
-          setFeedback(`Account created for ${data.register.user.username}`);
-          clearFields();
-          console.log(data.register.user);
+      })
+      if (data) {
+        if (data.register?.errors?.length > 0) {
+          setErr(data.register.errors)
+          setPassword("")
+        }
+        if (data.register?.user) {
+          clearFields()
+          setFeedback(`Account created for ${data.register?.user.username}`)
         }
       }
-    } catch (error) {
-      alert(error);
+    } catch (e) {
+      console.log("handleSignup: ", e)
+      alert(e)
     }
-  };
+  }
 
   return (
     <div>
@@ -162,7 +163,7 @@ const login: React.FC<loginProps> = ({}) => {
         </h4>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default login;
+export default login
