@@ -15,6 +15,7 @@ import User from "./User"
 import Invitation from "./Invitation"
 import MemberRequest from "./MemberRequest"
 import Member from "./Member"
+import Post from "./Post"
 
 @ObjectType()
 @Entity()
@@ -48,6 +49,9 @@ export default class Circle extends BaseEntity {
   @JoinColumn({ name: "creatorId", referencedColumnName: "id" })
   @Field(() => User, { nullable: true })
   creator: User
+
+  @OneToMany(() => Post, (post) => post.circle)
+  posts: Post[]
 
   @OneToMany(() => Invitation, (invitation) => invitation.circle)
   @Field(() => [Invitation], { nullable: true })

@@ -10,6 +10,7 @@ import Circle from "./Circle"
 import Invitation from "./Invitation"
 import Member from "./Member"
 import MemberRequest from "./MemberRequest"
+import Post from "./Post"
 
 @ObjectType()
 @Entity()
@@ -31,6 +32,9 @@ export default class User extends BaseEntity {
 
   @OneToMany(() => Circle, (circle) => circle.creator)
   circles: Circle[]
+
+  @OneToMany(() => Post, (post) => post.creator)
+  posts: Post[]
 
   @OneToMany(() => Invitation, (invitation) => invitation.sender)
   sentInvitations: Invitation[]

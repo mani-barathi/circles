@@ -13,6 +13,8 @@ import CircleResolver from "./resolvers/circle"
 import InvitationResolver from "./resolvers/invitation"
 import MemberResolver from "./resolvers/member"
 import MemberRequestResolver from "./resolvers/MemberRequest"
+import PostResolver from "./resolvers/post"
+
 import { COOKIE_NAME } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
 
@@ -31,6 +33,7 @@ const main = async () => {
       InvitationResolver,
       MemberResolver,
       MemberRequestResolver,
+      PostResolver,
     ],
     authChecker: customAuthChecker,
   })
