@@ -1,23 +1,8 @@
-import "../styles/globals.css";
-import {
-  ApolloClient,
-  ApolloProvider,
-  createHttpLink,
-  InMemoryCache,
-} from "@apollo/client";
-import Navbar from "../components/Navbar";
-import Head from "next/head";
-
-const httpLink = createHttpLink({
-  uri: "http://localhost:4000/graphql",
-  credentials: "include",
-});
-
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-  connectToDevTools: true,
-});
+import "../styles/globals.css"
+import { ApolloProvider } from "@apollo/client"
+import client from "../apollo"
+import Navbar from "../components/Navbar"
+import Head from "next/head"
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -32,7 +17,7 @@ function MyApp({ Component, pageProps }) {
         <Component {...pageProps} />
       </div>
     </ApolloProvider>
-  );
+  )
 }
 
-export default MyApp;
+export default MyApp

@@ -4,6 +4,8 @@ import React, { useEffect } from "react"
 import Members from "../../../components/Members"
 import PageNotFound from "../../../components/PageNotFound"
 import {
+  MyCirclesDocument,
+  MyCirclesQuery,
   useCircleQuery,
   useExitCircleMutation,
   useMembersLazyQuery,
@@ -51,29 +53,15 @@ const info: React.FC<membersProps> = ({}) => {
     try {
       await exitGroup({
         variables: { circleId },
-        // update: (cache, { data }) => {
-        //   if (!data || !data.exitCircle) return
-
-        //   const existingCircles = cache.readQuery<MyCirclesQuery>({
-        //     query: MyCirclesDocument,
-        //   })
-        //   cache.writeQuery<MyCirclesQuery>({
-        //     query: MyCirclesDocument,
-        //     data: {
-        //       myCircles: {
-        //         ...existingCircles.myCircles,
-        //         data: existingCircles.myCircles.data.filter(
-        //           (c) => c.id !== circleId.toString()
-        //         ),
-        //       },
-        //     },
-        //   })
-        // },
+        update: (cache, { data }) => {
+          if (!data || !data.exitCircle) return
+          cache.evict({ fieldName: "myCircles" })
+        },
       })
       router.push("/")
     } catch (e) {
       console.log("handleExitGroup", e)
-      alert(e)
+      router.push("/")
     }
   }
 

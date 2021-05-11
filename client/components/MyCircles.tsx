@@ -1,24 +1,33 @@
 import Link from "next/link"
-import React from "react"
+import React, { useState } from "react"
 import { useMyCirclesQuery } from "../generated/graphql"
 
 interface MyCirclesProps {}
 
 const MyCircles: React.FC<MyCirclesProps> = ({}) => {
-  const { data, loading, error } = useMyCirclesQuery({
+  const { data, loading, error, fetchMore } = useMyCirclesQuery({
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
   })
 
-  if (loading) return <h3>Loading...</h3>
+  if (loading && !data) return <h3>Loading...</h3>
   if (error) return <p>{error.message}</p>
+
+  const handleLoadMore = async () => {
+    const cursor = data.myCircles.data[data.myCircles.data.length - 1].updatedAt
+    try {
+      await fetchMore({ variables: { cursor } })
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   return (
     <div>
       <h3>My Circles</h3>
       {data.myCircles.data.length === 0 && (
         <h4>
-          You are not part of a circle, either join a cirle or create a circle
+          You are not part of a circle, either join a cirle or create a circle{" "}
         </h4>
       )}
       {data.myCircles.data.map((circle) => (
@@ -28,7 +37,12 @@ const MyCircles: React.FC<MyCirclesProps> = ({}) => {
           </strong>
         </li>
       ))}
-      <button disabled={!data.myCircles.hasMore}>Load More</button>
+      <button
+        disabled={!data.myCircles.hasMore || loading}
+        onClick={handleLoadMore}
+      >
+        Load More
+      </button>
     </div>
   )
 }

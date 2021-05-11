@@ -1,53 +1,53 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import {
-  MemberRequestsDocument,
-  MemberRequestsQuery,
+  MemberRequest,
   useAcceptMemberRequestMutation,
   useDeclineMemberRequestMutation,
   useMemberRequestsQuery,
+  User,
 } from "../generated/graphql"
 
 interface MemberRequestsProps {
   circleId: number
 }
+type CMemberRequest = {
+  __typename?: "MemberRequest"
+} & Pick<MemberRequest, "circleId" | "userId" | "createdAt"> & {
+    user: {
+      __typename?: "User"
+    } & Pick<User, "id" | "username">
+  }
 
 const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
-  const { data, loading, error } = useMemberRequestsQuery({
+  const [memberRequests, setMemberRequests] = useState<CMemberRequest[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const { data, loading, error, fetchMore } = useMemberRequestsQuery({
     variables: { circleId },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "no-cache",
     nextFetchPolicy: "cache-first",
   })
+
+  useEffect(() => {
+    if (!data) return
+    setMemberRequests(data.memberRequests.data)
+    setHasMore(data.memberRequests.hasMore)
+  }, [data])
+
   const [acceptRequest] = useAcceptMemberRequestMutation()
   const [declineRequest] = useDeclineMemberRequestMutation()
 
   if (loading) return <h4>Loading...</h4>
   if (error) return <h4>Error: {error.message} </h4>
-  if (!data) return null
 
   const handleAcceptRequest = async (memberId: number) => {
     try {
       await acceptRequest({
         variables: { circleId, memberId },
-        update: (cache, { data }) => {
+        update: (_, { data }) => {
           if (!data || !data.acceptMemberRequest) return
-
-          const existingRequests = cache.readQuery<MemberRequestsQuery>({
-            query: MemberRequestsDocument,
-            variables: { circleId },
-          })
-          console.log(existingRequests)
-          cache.writeQuery<MemberRequestsQuery>({
-            query: MemberRequestsDocument,
-            variables: { circleId },
-            data: {
-              memberRequests: {
-                ...existingRequests.memberRequests,
-                data: existingRequests.memberRequests.data.filter(
-                  (mr) => mr.userId !== memberId
-                ),
-              },
-            },
-          })
+          setMemberRequests((prev) =>
+            prev.filter((mr) => mr.userId !== memberId)
+          )
         },
       })
     } catch (e) {
@@ -62,26 +62,11 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
     try {
       await declineRequest({
         variables: { circleId, memberId },
-        update: (cache, { data }) => {
+        update: (_, { data }) => {
           if (!data || !data.declineMemberRequest) return
-
-          const existingRequests = cache.readQuery<MemberRequestsQuery>({
-            query: MemberRequestsDocument,
-            variables: { circleId },
-          })
-          console.log(existingRequests)
-          cache.writeQuery<MemberRequestsQuery>({
-            query: MemberRequestsDocument,
-            variables: { circleId },
-            data: {
-              memberRequests: {
-                ...existingRequests.memberRequests,
-                data: existingRequests.memberRequests.data.filter(
-                  (mr) => mr.userId !== memberId
-                ),
-              },
-            },
-          })
+          setMemberRequests((prev) =>
+            prev.filter((mr) => mr.userId !== memberId)
+          )
         },
       })
     } catch (e) {
@@ -90,13 +75,25 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
     }
   }
 
+  const handleLoadMore = async () => {
+    const cursor = memberRequests[memberRequests.length - 1].createdAt
+    try {
+      const { data } = await fetchMore({ variables: { cursor } })
+      const newMemberRequests: any = data.memberRequests.data
+      setMemberRequests((prev) => [...prev, ...newMemberRequests])
+      setHasMore(data.memberRequests.hasMore)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div>
       <h4>Member Requests</h4>
-      {data?.memberRequests.data.length === 0 && <p>No Member Request</p>}
-      {data?.memberRequests.data.map((request) => (
+      {memberRequests.length === 0 && <p>No Member Request</p>}
+      {memberRequests.map((request) => (
         <li key={request.userId}>
-          {request.user.username} &nbsp;
+          {request.user?.username} &nbsp;
           <button onClick={() => handleAcceptRequest(request.userId)}>
             Accept
           </button>
@@ -106,7 +103,9 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
           </button>
         </li>
       ))}
-      <button disabled={!data.memberRequests.hasMore}>Load More</button>
+      <button onClick={handleLoadMore} disabled={!hasMore}>
+        Load More
+      </button>
     </div>
   )
 }

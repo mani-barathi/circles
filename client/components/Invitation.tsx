@@ -64,9 +64,14 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
             data: {
               myCircles: {
                 ...existingCircles.myCircles,
-                data: existingCircles.myCircles.data.filter(
-                  (c) => c.id !== invitation.circle.id
-                ),
+                data: [
+                  {
+                    ...invitation.circle,
+                    isAdmin: false,
+                    updatedAt: new Date().getTime().toString(),
+                  },
+                  ...existingCircles.myCircles.data,
+                ],
               },
             },
           })
@@ -86,7 +91,6 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
           const existingInvitations = cache.readQuery<GetIntivationsQuery>({
             query: GetIntivationsDocument,
           })
-          console.log(existingInvitations)
           cache.writeQuery<GetIntivationsQuery>({
             query: GetIntivationsDocument,
             data: {

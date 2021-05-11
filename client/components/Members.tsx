@@ -1,7 +1,5 @@
 import React from "react"
 import {
-  CircleDocument,
-  CircleQuery,
   MembersDocument,
   MembersQuery,
   useMembersQuery,
@@ -14,7 +12,7 @@ interface MembersProps {
 }
 
 const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
-  const { data, error, loading } = useMembersQuery({
+  const { data, error, loading, fetchMore } = useMembersQuery({
     variables: { circleId },
   })
   const [
@@ -52,22 +50,6 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
               },
             },
           })
-
-          // reducing the count of the totalMembers in circle Query
-          const existingCircle = cache.readQuery<CircleQuery>({
-            query: CircleDocument,
-            variables: { circleId },
-          })
-          cache.writeQuery<CircleQuery>({
-            query: CircleDocument,
-            variables: { circleId },
-            data: {
-              circle: {
-                ...existingCircle.circle,
-                totalMembers: existingCircle.circle.totalMembers - 1,
-              },
-            },
-          })
         }, // end of update
       }) // end of removeMember
     } catch (e) {
@@ -76,12 +58,35 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
     }
   }
 
+  const handleLoadMore = async () => {
+    const cursor = data.members.data[data.members.data.length - 1].createdAt
+    try {
+      await fetchMore({
+        query: MembersDocument,
+        variables: { circleId, cursor },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previousResult
+          return {
+            members: {
+              ...fetchMoreResult.members,
+              data: [
+                ...previousResult.members.data,
+                ...fetchMoreResult.members.data,
+              ],
+            },
+          }
+        },
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
   return (
     <div>
       <h4>Members:</h4>
       {data.members.data.map((m) => (
         <li key={m.userId}>
-          {m.user.username} &nbsp;
+          {m.user?.username} &nbsp;
           {isAdmin && !m.isAdmin && (
             <button
               onClick={() => handleRemoveMember(m.userId)}
@@ -92,7 +97,9 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
           )}
         </li>
       ))}
-      <button disabled={!data.members.hasMore}>Load More</button>
+      <button disabled={!data.members.hasMore} onClick={handleLoadMore}>
+        Load More
+      </button>
     </div>
   )
 }
