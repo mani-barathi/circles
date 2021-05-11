@@ -14,7 +14,7 @@ export default class MemberResolver {
     @Arg("circleId", () => Int) circleId: Number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedMembers> {
-    const limit = 10
+    const limit = 2
     const take = limit + 1
     const replacements: any[] = [circleId, take]
     if (cursor) {

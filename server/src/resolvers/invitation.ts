@@ -1,9 +1,3 @@
-import Circle from "../entities/Circle"
-import Member from "../entities/Member"
-import User from "../entities/User"
-import Invitation from "../entities/Invitation"
-import { isAuthorized } from "../middlewares/authMiddlewares"
-import { Context, CustomError } from "../types"
 import {
   Arg,
   Ctx,
@@ -17,6 +11,11 @@ import {
 } from "type-graphql"
 import { createQueryBuilder, EntityNotFoundError, getManager } from "typeorm"
 import { UNIQUE_CONSTRAINT_ERROR_CODE } from "../constants"
+import Invitation from "../entities/Invitation"
+import Member from "../entities/Member"
+import User from "../entities/User"
+import { isAuthorized } from "../middlewares/authMiddlewares"
+import { Context, CustomError } from "../types"
 
 @ObjectType()
 class InvitationResponse {
@@ -154,31 +153,51 @@ export default class InivitationResolver {
     @Arg("circleId", () => Int) circleId: number,
     @Ctx() { req }: Context
   ): Promise<InvitationResponse> {
+    const { userId } = req.session
     try {
-      const recipientPromise = User.findOneOrFail({
+      await Member.findOneOrFail({
+        where: { circleId, userId },
+      })
+
+      const recipient = await User.findOneOrFail({
         where: { username: recipiantName },
       })
-      const circlePromise = Circle.findOneOrFail({
-        where: { id: circleId, creatorId: req.session.userId },
-      })
-      const [recipient, circle] = await Promise.all([
-        recipientPromise,
-        circlePromise,
-      ])
 
-      const invitation = await Invitation.create({
+      const isAlreadyMember = await getManager().query(
+        `select exists(select 1 from member where "userId" = $1 and "circleId" = $2)`,
+        [recipient.id, circleId]
+      )
+      if (isAlreadyMember[0].exists) {
+        return {
+          errors: [
+            {
+              path: "username",
+              message: `user already is member of the circle`,
+            },
+          ],
+        }
+      }
+
+      const invitation = await Invitation.insert({
         senderId: req.session.userId,
         recipientId: recipient.id,
-        circleId: circle.id,
+        circleId,
         active: true,
-      }).save()
+      })
 
-      return { invitation }
+      return {
+        invitation: {
+          ...invitation.raw[0],
+          senderId: userId,
+          recipientId: recipient.id,
+          circleId,
+        },
+      }
     } catch (e) {
       if (e instanceof EntityNotFoundError) {
         if (e.toString().includes("User")) {
           return {
-            errors: [{ path: "username", message: `recipient not found` }],
+            errors: [{ path: "username", message: `user not found` }],
           }
         }
         return {
@@ -188,6 +207,11 @@ export default class InivitationResolver {
               message: `circle not found or you don't have permission`,
             },
           ],
+        }
+      }
+      if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
+        return {
+          errors: [{ path: "unkown", message: "invitation already sent" }],
         }
       }
       return { errors: [{ path: "unkown", message: "something went wrong" }] }
