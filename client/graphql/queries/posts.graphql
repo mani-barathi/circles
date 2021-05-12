@@ -1,0 +1,15 @@
+query Posts($circleId: Int!, $cursor: String) {
+  posts(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    data {
+      id
+      creatorId
+      createdAt
+      text
+      creator {
+        id
+        username
+      }
+    }
+  }
+}

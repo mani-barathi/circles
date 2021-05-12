@@ -1,5 +1,5 @@
 import { InMemoryCache } from "@apollo/client"
-import { PaginatedCircle } from "../generated/graphql"
+import { PaginatedCircle, PaginatedPost } from "../generated/graphql"
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -25,6 +25,31 @@ const cache = new InMemoryCache({
             )
             return {
               ...incomingCircles,
+              data,
+            }
+          },
+        }, // end of myCircles
+        posts: {
+          keyArgs: ["circleId"],
+          merge(
+            existingPosts: PaginatedPost,
+            incomingPosts: PaginatedPost,
+            { readField }
+          ): PaginatedPost {
+            if (!existingPosts) return incomingPosts
+            if (!incomingPosts) return existingPosts
+            const data = removeDuplicatesAndMerge(
+              existingPosts.data,
+              incomingPosts.data
+            )
+            data.sort(
+              (p1, p2) =>
+                (readField("createdAt", p2) as number) -
+                (readField("createdAt", p1) as number)
+            )
+            return {
+              __typename: incomingPosts.__typename,
+              hasMore: incomingPosts.hasMore,
               data,
             }
           },

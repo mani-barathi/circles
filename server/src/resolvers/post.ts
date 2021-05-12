@@ -1,10 +1,57 @@
 import Post from "../entities/Post"
-import { Arg, Authorized, Ctx, Int, Mutation, Resolver } from "type-graphql"
-import { Context } from "../types"
-import { getManager } from "typeorm"
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql"
+import { Context, createPaginatedResponse } from "../types"
+import { getConnection, getManager } from "typeorm"
+import { isAuthorized } from "../middlewares/authMiddlewares"
+
+const PaginatedPosts = createPaginatedResponse(Post)
+type PaginatedPosts = InstanceType<typeof PaginatedPosts>
 
 @Resolver()
 export default class PostResolver {
+  @Query(() => PaginatedPosts)
+  @UseMiddleware(isAuthorized)
+  async posts(
+    @Arg("circleId", () => Int) circleId: Number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<PaginatedPosts> {
+    const limit = 10
+    const take = limit + 1
+    const replacements: any[] = [circleId, take]
+    if (cursor) {
+      replacements.push(new Date(parseInt(cursor)))
+    }
+    const posts: any[] = await getConnection().query(
+      ` SELECT p.*, u.username FROM post p INNER JOIN "user" u ON u.id = p."creatorId" 
+      WHERE p."circleId" = $1  
+      ${cursor ? `AND p."createdAt" < $3` : ""} 
+      ORDER BY p."createdAt" DESC LIMIT $2
+    `,
+      replacements
+    )
+
+    const formatedPosts: Post[] = posts.map((post) => ({
+      ...post,
+      creator: {
+        id: post.creatorId,
+        username: post.username,
+      },
+    }))
+    return {
+      data: formatedPosts.slice(0, limit),
+      hasMore: formatedPosts.length === take,
+    }
+  }
+
   @Mutation(() => Post)
   @Authorized(["MEMBER"])
   async createPost(

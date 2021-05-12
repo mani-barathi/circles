@@ -100,6 +100,7 @@ export type Mutation = {
   declineMemberRequest: Scalars['Boolean'];
   cancelMemberRequest: Scalars['Boolean'];
   sendMemberRequest: Scalars['Boolean'];
+  createPost: Post;
 };
 
 
@@ -178,6 +179,12 @@ export type MutationSendMemberRequestArgs = {
   circleId: Scalars['Int'];
 };
 
+
+export type MutationCreatePostArgs = {
+  circleId: Scalars['Int'];
+  text: Scalars['String'];
+};
+
 export type PaginatedCircle = {
   __typename?: 'PaginatedCircle';
   data: Array<Circle>;
@@ -196,6 +203,24 @@ export type PaginatedMemberRequest = {
   hasMore: Scalars['Boolean'];
 };
 
+export type PaginatedPost = {
+  __typename?: 'PaginatedPost';
+  data: Array<Post>;
+  hasMore: Scalars['Boolean'];
+};
+
+export type Post = {
+  __typename?: 'Post';
+  id: Scalars['ID'];
+  creatorId: Scalars['Int'];
+  creator?: Maybe<User>;
+  circleId: Scalars['Int'];
+  circle?: Maybe<Circle>;
+  text: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
@@ -208,6 +233,7 @@ export type Query = {
   members: PaginatedMember;
   isMemberRequestExists: Scalars['Boolean'];
   memberRequests: PaginatedMemberRequest;
+  posts: PaginatedPost;
 };
 
 
@@ -244,6 +270,12 @@ export type QueryIsMemberRequestExistsArgs = {
 
 
 export type QueryMemberRequestsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryPostsArgs = {
   cursor?: Maybe<Scalars['String']>;
   circleId: Scalars['Int'];
 };
@@ -303,6 +335,20 @@ export type CancelMemberRequestMutationVariables = Exact<{
 export type CancelMemberRequestMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'cancelMemberRequest'>
+);
+
+export type CreatePostMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  text: Scalars['String'];
+}>;
+
+
+export type CreatePostMutation = (
+  { __typename?: 'Mutation' }
+  & { createPost: (
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'text' | 'creatorId' | 'circleId' | 'updatedAt'>
+  ) }
 );
 
 export type CreateCircleMutationVariables = Exact<{
@@ -579,6 +625,28 @@ export type MyCirclesQuery = (
   ) }
 );
 
+export type PostsQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type PostsQuery = (
+  { __typename?: 'Query' }
+  & { posts: (
+    { __typename?: 'PaginatedPost' }
+    & Pick<PaginatedPost, 'hasMore'>
+    & { data: Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'creatorId' | 'createdAt' | 'text'>
+      & { creator?: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      )> }
+    )> }
+  ) }
+);
+
 export type SearchCircleQueryVariables = Exact<{
   query: Scalars['String'];
   cursor?: Maybe<Scalars['String']>;
@@ -746,6 +814,44 @@ export function useCancelMemberRequestMutation(baseOptions?: Apollo.MutationHook
 export type CancelMemberRequestMutationHookResult = ReturnType<typeof useCancelMemberRequestMutation>;
 export type CancelMemberRequestMutationResult = Apollo.MutationResult<CancelMemberRequestMutation>;
 export type CancelMemberRequestMutationOptions = Apollo.BaseMutationOptions<CancelMemberRequestMutation, CancelMemberRequestMutationVariables>;
+export const CreatePostDocument = gql`
+    mutation CreatePost($circleId: Int!, $text: String!) {
+  createPost(circleId: $circleId, text: $text) {
+    id
+    text
+    creatorId
+    circleId
+    updatedAt
+  }
+}
+    `;
+export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, CreatePostMutationVariables>;
+
+/**
+ * __useCreatePostMutation__
+ *
+ * To run a mutation, you first call `useCreatePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, options);
+      }
+export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
+export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
+export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
 export const CreateCircleDocument = gql`
     mutation CreateCircle($name: String!, $description: String!) {
   createCircle(name: $name, description: $description) {
@@ -1433,6 +1539,52 @@ export function useMyCirclesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type MyCirclesQueryHookResult = ReturnType<typeof useMyCirclesQuery>;
 export type MyCirclesLazyQueryHookResult = ReturnType<typeof useMyCirclesLazyQuery>;
 export type MyCirclesQueryResult = Apollo.QueryResult<MyCirclesQuery, MyCirclesQueryVariables>;
+export const PostsDocument = gql`
+    query Posts($circleId: Int!, $cursor: String) {
+  posts(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    data {
+      id
+      creatorId
+      createdAt
+      text
+      creator {
+        id
+        username
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __usePostsQuery__
+ *
+ * To run a query within a React component, call `usePostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostsQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function usePostsQuery(baseOptions: Apollo.QueryHookOptions<PostsQuery, PostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options);
+      }
+export function usePostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostsQuery, PostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options);
+        }
+export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>;
+export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>;
+export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>;
 export const SearchCircleDocument = gql`
     query SearchCircle($query: String!, $cursor: String) {
   searchCircle(query: $query, cursor: $cursor) {

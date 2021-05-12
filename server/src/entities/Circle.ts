@@ -65,8 +65,8 @@ export default class Circle extends BaseEntity {
   @Field(() => [Member], { nullable: true })
   members: Member[]
 
-  @Field(() => String)
-  @Column({ type: "text" })
+  @Field(() => String,{nullable:true})
+  @Column({ type: "varchar", nullable: true, length: 250 })
   description: string
 
   @Field(() => String)

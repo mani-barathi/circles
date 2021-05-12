@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
+import CreatePost from "../../../components/CreatePost"
+import Posts from "../../../components/Posts"
 import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
 import { useCircleQuery, useMeQuery } from "../../../generated/graphql"
 
@@ -32,14 +34,24 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
               <SendCancelMemberRequest circleId={circleId} />
             )}
           </div>
-          <h4>
+          <h5>
             Creator: {data.circle.creator.username} &nbsp;&nbsp; | &nbsp;&nbsp;
             Members: {data.circle.totalMembers}&nbsp;&nbsp; | &nbsp;&nbsp;
-            {data.circle.isMember && (
-              <Link href={`/circle/${circleId}/settings`}>Settings</Link>
-            )}
-          </h4>
+          </h5>
           <p>{data.circle.description}</p>
+          {data.circle.isMember && (
+            <>
+              <h3>
+                <Link href={`/circle/${circleId}`}>Feed</Link> &nbsp;&nbsp; |
+                &nbsp;&nbsp;
+                <Link href={`/circle/${circleId}/chat`}>Chat</Link> &nbsp;&nbsp;
+                | &nbsp;&nbsp;
+                <Link href={`/circle/${circleId}/settings`}>Settings</Link>
+              </h3>
+              <CreatePost circleId={circleId} />
+              <Posts circleId={circleId} />
+            </>
+          )}
         </div>
       ) : (
         <p>{error?.message}</p>

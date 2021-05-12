@@ -1,0 +1,9 @@
+mutation CreatePost($circleId: Int!, $text: String!) {
+  createPost(circleId: $circleId, text: $text) {
+    id
+    text
+    creatorId
+    circleId
+    updatedAt
+  }
+}
