@@ -1,5 +1,6 @@
 import {
   Arg,
+  Authorized,
   Ctx,
   Field,
   Int,
@@ -147,7 +148,7 @@ export default class InivitationResolver {
   }
 
   @Mutation(() => InvitationResponse)
-  @UseMiddleware(isAuthorized)
+  @Authorized(["ADMIN"])
   async sendInvitation(
     @Arg("recipiantName") recipiantName: string,
     @Arg("circleId", () => Int) circleId: number,
@@ -155,58 +156,48 @@ export default class InivitationResolver {
   ): Promise<InvitationResponse> {
     const { userId } = req.session
     try {
-      await Member.findOneOrFail({
-        where: { circleId, userId },
-      })
+      const invitationOrError = await getManager().transaction(async (tm) => {
+        // check if a user exists with a name of the recipient
+        const recipient = await tm.findOneOrFail(User, {
+          where: { username: recipiantName },
+        })
 
-      const recipient = await User.findOneOrFail({
-        where: { username: recipiantName },
-      })
-
-      const isAlreadyMember = await getManager().query(
-        `select exists(select 1 from member where "userId" = $1 and "circleId" = $2)`,
-        [recipient.id, circleId]
-      )
-      if (isAlreadyMember[0].exists) {
-        return {
-          errors: [
-            {
-              path: "username",
-              message: `user already is member of the circle`,
-            },
-          ],
-        }
-      }
-
-      const invitation = await Invitation.insert({
-        senderId: req.session.userId,
-        recipientId: recipient.id,
-        circleId,
-        active: true,
-      })
-
-      return {
-        invitation: {
-          ...invitation.raw[0],
-          senderId: userId,
-          recipientId: recipient.id,
-          circleId,
-        },
-      }
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        if (e.toString().includes("User")) {
+        // check if the recipient is already a member of the circle, if so return error
+        const isAlreadyMember = await tm.query(
+          `select exists(select 1 from member where "userId" = $1 and "circleId" = $2)`,
+          [recipient.id, circleId]
+        )
+        if (isAlreadyMember[0].exists) {
           return {
-            errors: [{ path: "username", message: `user not found` }],
+            errors: [
+              {
+                path: "username",
+                message: `user already is member of the circle`,
+              },
+            ],
           }
         }
+        // create and return an invitation if control passes all the previous checks
+        const invitation = await tm.insert(Invitation, {
+          senderId: req.session.userId,
+          recipientId: recipient.id,
+          circleId,
+          active: true,
+        })
         return {
-          errors: [
-            {
-              path: "circle",
-              message: `circle not found or you don't have permission`,
-            },
-          ],
+          invitation: {
+            ...invitation.raw[0],
+            senderId: userId,
+            recipientId: recipient.id,
+            circleId,
+          },
+        }
+      })
+      return invitationOrError
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        return {
+          errors: [{ path: "username", message: `user not found` }],
         }
       }
       if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {

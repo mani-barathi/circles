@@ -1,28 +1,27 @@
 import Post from "../entities/Post"
-import { Arg, Ctx, Int, Mutation, Resolver, UseMiddleware } from "type-graphql"
+import { Arg, Authorized, Ctx, Int, Mutation, Resolver } from "type-graphql"
 import { Context } from "../types"
-import { isAuthorized } from "../middlewares/authMiddlewares"
 import { getManager } from "typeorm"
 
 @Resolver()
-export default class CircleResponse {
+export default class PostResolver {
   @Mutation(() => Post)
-  @UseMiddleware(isAuthorized)
+  @Authorized(["MEMBER"])
   async createPost(
     @Arg("text", () => String) text: string,
     @Arg("circleId", () => Int) circleId: number,
     @Ctx() { req }: Context
   ): Promise<Post> {
-    const { userId: creatorId } = req.session
+    const { userId } = req.session
 
     if (text.length < 0 || text.length > 2000)
-      throw new Error("text should be between 1 and 200 characters")
+      throw new Error("text should be between 1 and 2000 characters")
 
     const post = await getManager().transaction(async (tm) => {
       const newPost = await tm
         .create(Post, {
           circleId,
-          creatorId,
+          creatorId: userId,
           text,
         })
         .save()

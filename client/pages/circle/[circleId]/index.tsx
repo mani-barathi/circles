@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
 import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
@@ -8,18 +9,18 @@ interface circlePageProps {}
 const circlePage: React.FC<circlePageProps> = ({}) => {
   const router = useRouter()
   const { data: me } = useMeQuery()
-  const { circleId } = router.query
+  const circleId =
+    typeof router.query.circleId === "string"
+      ? parseInt(router.query.circleId)
+      : null
   const { data, loading, error } = useCircleQuery({
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
-    skip: typeof circleId !== "string",
-    variables: { circleId: parseInt(circleId as string) },
+    skip: typeof circleId !== "number",
+    variables: { circleId },
   })
 
   if (loading) return <h3>Loading...</h3>
-
-  const goToSettingsPage = () => router.push(`/circle/${circleId}/settings`)
-  const goToAdminPage = () => router.push(`/circle/${circleId}/admin`)
 
   return (
     <div>
@@ -33,17 +34,11 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
           </div>
           <h4>
             Creator: {data.circle.creator.username} &nbsp;&nbsp; | &nbsp;&nbsp;
-            Members: {data.circle.totalMembers}
+            Members: {data.circle.totalMembers}&nbsp;&nbsp; | &nbsp;&nbsp;
+            {data.circle.isMember && (
+              <Link href={`/circle/${circleId}/settings`}>Settings</Link>
+            )}
           </h4>
-          {data.circle.isMember && (
-            <button onClick={goToSettingsPage}>Settings</button>
-          )}
-          {data.circle.isAdmin && (
-            <>
-              &nbsp;&nbsp;
-              <button onClick={goToAdminPage}>Admin</button>
-            </>
-          )}
           <p>{data.circle.description}</p>
         </div>
       ) : (

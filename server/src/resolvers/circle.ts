@@ -85,7 +85,7 @@ export default class CircleResolver {
     @Ctx() { req }: Context,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedCircles> {
-    const limit = 1
+    const limit = 25
     const limitPlusOne = limit + 1
     const replacements: any[] = [req.session.userId, limitPlusOne]
     if (cursor) {
@@ -134,7 +134,7 @@ export default class CircleResolver {
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedCircles> {
     try {
-      const limit = 2
+      const limit = 10
       const limitPlusOne = limit + 1
       const qb = createQueryBuilder<Circle>("circle", "c")
         .innerJoin("c.creator", "u")

@@ -8,12 +8,12 @@ import {
 } from "../generated/graphql"
 
 interface MemberRequestProps {
-  circleId: string | string[]
+  circleId: number
 }
 
 const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
   const { data, loading, error } = useIsMemberRequestExistsQuery({
-    variables: { circleId: parseInt(circleId as string) },
+    variables: { circleId },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
   })
@@ -21,13 +21,13 @@ const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
     sendRequest,
     { loading: sendRequsetLoading },
   ] = useSendMemberRequestMutation({
-    variables: { circleId: parseInt(circleId as string) },
+    variables: { circleId },
   })
   const [
     cancelRequest,
     { loading: cancelRequestLoading },
   ] = useCancelMemberRequestMutation({
-    variables: { circleId: parseInt(circleId as string) },
+    variables: { circleId },
   })
 
   if (loading) return null
@@ -39,7 +39,7 @@ const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
         update: (cache, { data }) => {
           if (!data || !data.sendMemberRequest) return
           cache.writeQuery<IsMemberRequestExistsQuery>({
-            variables: { circleId: parseInt(circleId as string) },
+            variables: { circleId },
             query: IsMemberRequestExistsDocument,
             data: {
               isMemberRequestExists: data.sendMemberRequest,
@@ -60,7 +60,7 @@ const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
         update: (cache, { data }) => {
           if (!data || !data.cancelMemberRequest) return
           cache.writeQuery<IsMemberRequestExistsQuery>({
-            variables: { circleId: parseInt(circleId as string) },
+            variables: { circleId },
             query: IsMemberRequestExistsDocument,
             data: {
               isMemberRequestExists: !data.cancelMemberRequest,

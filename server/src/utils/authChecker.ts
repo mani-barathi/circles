@@ -20,5 +20,16 @@ export const customAuthChecker: AuthChecker<Context> = async (
     return result.exists
   }
 
+  // Check if the user is the member of the circle
+  if (roles.includes("MEMBER")) {
+    const [result] = await getManager().query(
+      `
+    select exists (select 1 from member where "userId" = $1 and "circleId" = $2 )  
+    `,
+      [userId, args.circleId]
+    )
+    return result.exists
+  }
+
   return true
 }

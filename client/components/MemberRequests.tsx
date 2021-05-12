@@ -1,6 +1,10 @@
+import { gql } from "@apollo/client"
 import React, { useEffect, useState } from "react"
+import client from "../apollo"
 import {
   MemberRequest,
+  MembersDocument,
+  MembersQuery,
   useAcceptMemberRequestMutation,
   useDeclineMemberRequestMutation,
   useMemberRequestsQuery,
@@ -43,11 +47,26 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
     try {
       await acceptRequest({
         variables: { circleId, memberId },
-        update: (_, { data }) => {
+        update: (cache, { data }) => {
           if (!data || !data.acceptMemberRequest) return
           setMemberRequests((prev) =>
             prev.filter((mr) => mr.userId !== memberId)
           )
+          const existingMembers = cache.readQuery<MembersQuery>({
+            query: MembersDocument,
+            variables: { circleId },
+          })
+
+          cache.writeQuery<MembersQuery>({
+            query: MembersDocument,
+            variables: { circleId },
+            data: {
+              members: {
+                ...existingMembers.members,
+                hasMore: true,
+              },
+            },
+          })
         },
       })
     } catch (e) {
