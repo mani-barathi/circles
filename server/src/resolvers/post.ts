@@ -1,4 +1,3 @@
-import Post from "../entities/Post"
 import {
   Arg,
   Authorized,
@@ -9,9 +8,10 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql"
-import { Context, createPaginatedResponse } from "../types"
 import { getConnection, getManager } from "typeorm"
+import Post from "../entities/Post"
 import { isAuthorized } from "../middlewares/authMiddlewares"
+import { Context, createPaginatedResponse } from "../types"
 
 const PaginatedPosts = createPaginatedResponse(Post)
 type PaginatedPosts = InstanceType<typeof PaginatedPosts>
@@ -32,8 +32,7 @@ export default class PostResolver {
     }
     const posts: any[] = await getConnection().query(
       ` SELECT p.*, u.username FROM post p INNER JOIN "user" u ON u.id = p."creatorId" 
-      WHERE p."circleId" = $1  
-      ${cursor ? `AND p."createdAt" < $3` : ""} 
+      WHERE p."circleId" = $1 ${cursor ? `AND p."createdAt" < $3` : ""} 
       ORDER BY p."createdAt" DESC LIMIT $2
     `,
       replacements
@@ -61,7 +60,7 @@ export default class PostResolver {
   ): Promise<Post> {
     const { userId } = req.session
 
-    if (text.length < 0 || text.length > 2000)
+    if (text.length < 1 || text.length > 2000)
       throw new Error("text should be between 1 and 2000 characters")
 
     const post = await getManager().transaction(async (tm) => {

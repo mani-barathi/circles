@@ -16,6 +16,7 @@ import Invitation from "./Invitation"
 import MemberRequest from "./MemberRequest"
 import Member from "./Member"
 import Post from "./Post"
+import Like from "./Like"
 
 @ObjectType()
 @Entity()
@@ -53,6 +54,9 @@ export default class Circle extends BaseEntity {
   @OneToMany(() => Post, (post) => post.circle)
   posts: Post[]
 
+  @OneToMany(() => Like, (like) => like.circle)
+  likes: Like[]
+
   @OneToMany(() => Invitation, (invitation) => invitation.circle)
   @Field(() => [Invitation], { nullable: true })
   invitations: Invitation[]
@@ -65,7 +69,7 @@ export default class Circle extends BaseEntity {
   @Field(() => [Member], { nullable: true })
   members: Member[]
 
-  @Field(() => String,{nullable:true})
+  @Field(() => String, { nullable: true })
   @Column({ type: "varchar", nullable: true, length: 250 })
   description: string
 

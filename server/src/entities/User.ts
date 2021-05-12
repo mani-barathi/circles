@@ -8,6 +8,7 @@ import {
 } from "typeorm"
 import Circle from "./Circle"
 import Invitation from "./Invitation"
+import Like from "./Like"
 import Member from "./Member"
 import MemberRequest from "./MemberRequest"
 import Post from "./Post"
@@ -27,6 +28,10 @@ export default class User extends BaseEntity {
   @Column({ type: "varchar", unique: true })
   email?: string
 
+  @Column()
+  password: string
+
+  // includes all the circles where the user is either a creator or a member
   @Field(() => [Circle])
   myCircles: Circle[]
 
@@ -48,6 +53,6 @@ export default class User extends BaseEntity {
   @OneToMany(() => Member, (member) => member.user)
   members: Member[]
 
-  @Column()
-  password: string
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[]
 }

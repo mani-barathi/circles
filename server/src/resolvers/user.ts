@@ -1,15 +1,17 @@
 import argon2 from "argon2"
+import Circle from "src/entities/Circle"
 import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   Mutation,
   ObjectType,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql"
-import { EntityNotFoundError } from "typeorm"
+import { EntityNotFoundError, getManager } from "typeorm"
 import { COOKIE_NAME, UNIQUE_CONSTRAINT_ERROR_CODE } from "../constants"
 import User from "../entities/User"
 import { isUnAuthorized } from "../middlewares/authMiddlewares"
@@ -27,18 +29,18 @@ class UserResponse {
 
 @Resolver(User)
 export default class UserResolver {
-  // @FieldResolver()
-  // async myCircles(@Ctx() { req }: Context): Promise<Circle[]> {
-  //   const entityManager = getManager()
-  //   const query: Circle[] = await entityManager.query(
-  //     `
-  //     SELECT c.* from circle as c INNER JOIN member as m on c.id = m."circleId"
-  //     WHERE m."userId" = $1 ORDER BY c."updatedAt" DESC;
-  //   `,
-  //     [req.session.userId]
-  //   )
-  //   return query
-  // }
+  @FieldResolver()
+  async myCircles(@Ctx() { req }: Context): Promise<Circle[]> {
+    const entityManager = getManager()
+    const query: Circle[] = await entityManager.query(
+      `
+      SELECT c.* from circle as c INNER JOIN member as m on c.id = m."circleId"
+      WHERE m."userId" = $1 ORDER BY c."updatedAt" DESC;
+    `,
+      [req.session.userId]
+    )
+    return query
+  }
 
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: Context) {
