@@ -1,10 +1,10 @@
-import { Field, ID, ObjectType } from "type-graphql"
+import { Field, Int, ObjectType } from "type-graphql"
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
   BaseEntity,
+  Column,
+  Entity,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from "typeorm"
 import Circle from "./Circle"
 import Invitation from "./Invitation"
@@ -16,7 +16,7 @@ import Post from "./Post"
 @ObjectType()
 @Entity()
 export default class User extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id: number
 

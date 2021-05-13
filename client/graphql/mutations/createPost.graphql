@@ -4,6 +4,6 @@ mutation CreatePost($circleId: Int!, $text: String!) {
     text
     creatorId
     circleId
-    updatedAt
+    createdAt
   }
 }

@@ -1,11 +1,6 @@
-import { ApolloCache } from "@apollo/client"
 import gql from "graphql-tag"
 import React from "react"
-import {
-  LikeOrDislikeMutation,
-  Post,
-  useLikeOrDislikeMutation,
-} from "../generated/graphql"
+import { useLikeOrDislikeMutation } from "../generated/graphql"
 
 interface LikeButtonProps {
   circleId: number
@@ -26,7 +21,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
     try {
       await likeOrDislike({
         variables: { circleId, postId, isDislike: hasLiked },
-        update: (cache: ApolloCache<LikeOrDislikeMutation>, { data }) => {
+        update: (cache, { data }) => {
           if (!data.likeOrDislike) return
           // const previousData = cache.readFragment({
           //   id: "Post:" + postId,
@@ -58,7 +53,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   }
   return (
     <button disabled={loading} onClick={handleLikeDislike}>
-      {hasLiked ? "Liked" : "Like"} : {likesCount}
+      {hasLiked ? "Liked" : "Like"} : <strong>{likesCount}</strong>
     </button>
   )
 }

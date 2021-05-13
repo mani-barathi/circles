@@ -292,7 +292,7 @@ export type QueryPostsArgs = {
 
 export type User = {
   __typename?: 'User';
-  id: Scalars['ID'];
+  id: Scalars['Int'];
   username: Scalars['String'];
   email?: Maybe<Scalars['String']>;
   myCircles: Array<Circle>;
@@ -357,7 +357,7 @@ export type CreatePostMutation = (
   { __typename?: 'Mutation' }
   & { createPost: (
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'text' | 'creatorId' | 'circleId' | 'updatedAt'>
+    & Pick<Post, 'id' | 'text' | 'creatorId' | 'circleId' | 'createdAt'>
   ) }
 );
 
@@ -843,7 +843,7 @@ export const CreatePostDocument = gql`
     text
     creatorId
     circleId
-    updatedAt
+    createdAt
   }
 }
     `;
