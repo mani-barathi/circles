@@ -1,5 +1,6 @@
 import React from "react"
 import { usePostsQuery } from "../generated/graphql"
+import LikeButton from "./LikeButton"
 
 interface PostsProps {
   circleId: number
@@ -33,6 +34,12 @@ const Posts: React.FC<PostsProps> = ({ circleId }) => {
         <div key={p.id}>
           <strong>{p.creator.username}</strong>
           <p>{p.text}</p>
+          <LikeButton
+            circleId={circleId}
+            postId={p.id}
+            hasLiked={p.hasLiked}
+            likesCount={p.likesCount}
+          />
         </div>
       ))}
       <button

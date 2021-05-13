@@ -22,16 +22,21 @@ export default class PostResolver {
   @UseMiddleware(isAuthorized)
   async posts(
     @Arg("circleId", () => Int) circleId: Number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    @Ctx() { req }: Context
   ): Promise<PaginatedPosts> {
+    const { userId } = req.session
     const limit = 10
     const take = limit + 1
     const replacements: any[] = [circleId, take]
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)))
     }
+    // : 'null as "voteStatus"
     const posts: any[] = await getConnection().query(
-      ` SELECT p.*, u.username FROM post p INNER JOIN "user" u ON u.id = p."creatorId" 
+      ` SELECT p.*, u.username , 
+(select exists (select 1 from "like" l where l."userId" = ${userId} and l."postId" = p.id)) "hasLiked"
+      FROM post p INNER JOIN "user" u ON u.id = p."creatorId" 
       WHERE p."circleId" = $1 ${cursor ? `AND p."createdAt" < $3` : ""} 
       ORDER BY p."createdAt" DESC LIMIT $2
     `,

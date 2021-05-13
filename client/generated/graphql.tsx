@@ -26,7 +26,7 @@ export type Circle = {
   invitations?: Maybe<Array<Invitation>>;
   memberRequests?: Maybe<Array<MemberRequest>>;
   members?: Maybe<Array<Member>>;
-  description: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   createdAt: Scalars['String'];
   updatedAt?: Maybe<Scalars['String']>;
 };
@@ -101,6 +101,7 @@ export type Mutation = {
   cancelMemberRequest: Scalars['Boolean'];
   sendMemberRequest: Scalars['Boolean'];
   createPost: Post;
+  likeOrDislike: Scalars['Boolean'];
 };
 
 
@@ -185,6 +186,13 @@ export type MutationCreatePostArgs = {
   text: Scalars['String'];
 };
 
+
+export type MutationLikeOrDislikeArgs = {
+  isDislike: Scalars['Boolean'];
+  circleId: Scalars['Int'];
+  postId: Scalars['Int'];
+};
+
 export type PaginatedCircle = {
   __typename?: 'PaginatedCircle';
   data: Array<Circle>;
@@ -211,7 +219,9 @@ export type PaginatedPost = {
 
 export type Post = {
   __typename?: 'Post';
-  id: Scalars['ID'];
+  id: Scalars['Int'];
+  likesCount: Scalars['Int'];
+  hasLiked?: Maybe<Scalars['Boolean']>;
   creatorId: Scalars['Int'];
   creator?: Maybe<User>;
   circleId: Scalars['Int'];
@@ -390,6 +400,18 @@ export type ExitCircleMutationVariables = Exact<{
 export type ExitCircleMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'exitCircle'>
+);
+
+export type LikeOrDislikeMutationVariables = Exact<{
+  postId: Scalars['Int'];
+  circleId: Scalars['Int'];
+  isDislike: Scalars['Boolean'];
+}>;
+
+
+export type LikeOrDislikeMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'likeOrDislike'>
 );
 
 export type LoginMutationVariables = Exact<{
@@ -638,7 +660,7 @@ export type PostsQuery = (
     & Pick<PaginatedPost, 'hasMore'>
     & { data: Array<(
       { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'creatorId' | 'createdAt' | 'text'>
+      & Pick<Post, 'id' | 'creatorId' | 'createdAt' | 'likesCount' | 'hasLiked' | 'text'>
       & { creator?: Maybe<(
         { __typename?: 'User' }
         & Pick<User, 'id' | 'username'>
@@ -959,6 +981,39 @@ export function useExitCircleMutation(baseOptions?: Apollo.MutationHookOptions<E
 export type ExitCircleMutationHookResult = ReturnType<typeof useExitCircleMutation>;
 export type ExitCircleMutationResult = Apollo.MutationResult<ExitCircleMutation>;
 export type ExitCircleMutationOptions = Apollo.BaseMutationOptions<ExitCircleMutation, ExitCircleMutationVariables>;
+export const LikeOrDislikeDocument = gql`
+    mutation LikeOrDislike($postId: Int!, $circleId: Int!, $isDislike: Boolean!) {
+  likeOrDislike(postId: $postId, circleId: $circleId, isDislike: $isDislike)
+}
+    `;
+export type LikeOrDislikeMutationFn = Apollo.MutationFunction<LikeOrDislikeMutation, LikeOrDislikeMutationVariables>;
+
+/**
+ * __useLikeOrDislikeMutation__
+ *
+ * To run a mutation, you first call `useLikeOrDislikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeOrDislikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeOrDislikeMutation, { data, loading, error }] = useLikeOrDislikeMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *      circleId: // value for 'circleId'
+ *      isDislike: // value for 'isDislike'
+ *   },
+ * });
+ */
+export function useLikeOrDislikeMutation(baseOptions?: Apollo.MutationHookOptions<LikeOrDislikeMutation, LikeOrDislikeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LikeOrDislikeMutation, LikeOrDislikeMutationVariables>(LikeOrDislikeDocument, options);
+      }
+export type LikeOrDislikeMutationHookResult = ReturnType<typeof useLikeOrDislikeMutation>;
+export type LikeOrDislikeMutationResult = Apollo.MutationResult<LikeOrDislikeMutation>;
+export type LikeOrDislikeMutationOptions = Apollo.BaseMutationOptions<LikeOrDislikeMutation, LikeOrDislikeMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -1547,6 +1602,8 @@ export const PostsDocument = gql`
       id
       creatorId
       createdAt
+      likesCount
+      hasLiked
       text
       creator {
         id

@@ -1,14 +1,14 @@
-import { Field, ID, Int, ObjectType } from "type-graphql"
+import { Field, Int, ObjectType } from "type-graphql"
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
   BaseEntity,
-  ManyToOne,
-  JoinColumn,
+  Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm"
 import Circle from "./Circle"
 import Like from "./Like"
@@ -17,17 +17,17 @@ import User from "./User"
 @ObjectType()
 @Entity()
 export default class Post extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
-  id: string
+  id: number
 
   @Field(() => Int)
   @Column({ type: "int", default: 0 })
-  likeCount: number
+  likesCount: number
 
   // tells whether the logged in user has liked the post or not
   @Field(() => Boolean, { nullable: true })
-  isLiked: Boolean
+  hasLiked: Boolean
 
   @Field(() => Int)
   @Column()

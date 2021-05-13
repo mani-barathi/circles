@@ -36,7 +36,7 @@ export default class LikeResolver {
           if (deleted.affected === 1) {
             await tm.query(
               `
-            update post set "likeCount" = "likeCount" - 1 where id = $1 and "circleId" = $2
+            update post set "likesCount" = "likesCount" - 1 where id = $1 and "circleId" = $2
           `,
               [postId, circleId]
             )
@@ -49,7 +49,7 @@ export default class LikeResolver {
           await tm.insert(Like, { postId, userId, circleId })
           await tm.query(
             `
-            update post set "likeCount" = "likeCount" + 1 where  id = $1 and "circleId" = $2
+            update post set "likesCount" = "likesCount" + 1 where  id = $1 and "circleId" = $2
           `,
             [postId, circleId]
           )

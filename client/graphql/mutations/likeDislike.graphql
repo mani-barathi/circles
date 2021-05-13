@@ -1,0 +1,3 @@
+mutation LikeOrDislike($postId: Int!, $circleId: Int!, $isDislike: Boolean!) {
+  likeOrDislike(postId: $postId, circleId: $circleId, isDislike: $isDislike)
+}

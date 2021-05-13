@@ -5,6 +5,8 @@ query Posts($circleId: Int!, $cursor: String) {
       id
       creatorId
       createdAt
+      likesCount
+      hasLiked
       text
       creator {
         id
