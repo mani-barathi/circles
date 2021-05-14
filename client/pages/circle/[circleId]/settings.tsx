@@ -1,15 +1,13 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useEffect } from "react"
+import CircleNavigation from "../../../components/CircleNavigation"
 import MemberRequests from "../../../components/MemberRequests"
 import Members from "../../../components/Members"
 import PageNotFound from "../../../components/PageNotFound"
 import {
-  MyCirclesDocument,
-  MyCirclesQuery,
   useCircleQuery,
   useExitCircleMutation,
-  useMembersLazyQuery,
   useSendInvitationMutation,
 } from "../../../generated/graphql"
 
@@ -85,11 +83,13 @@ const info: React.FC<membersProps> = ({}) => {
 
   return (
     <div>
-      <Link href={`/circle/${circleId}`}>
-        <a>
-          <h1>{circleData.circle.name}</h1>
-        </a>
-      </Link>
+      <div>
+        <h1>{circleData.circle.name}</h1>
+        <p>{circleData.circle.description}</p>
+      </div>
+
+      <CircleNavigation circleId={circleId} section="settings" />
+
       {!circleData.circle.isAdmin && (
         <button disabled={exitGroupLoading} onClick={handleExitGroup}>
           Exit Group

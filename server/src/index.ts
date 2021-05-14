@@ -18,6 +18,7 @@ import LikeResolver from "./resolvers/like"
 
 import { COOKIE_NAME } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
+import { createUserLoader } from "./utils/dataloaders"
 
 const corsOptions = {
   origin: "http://localhost:3000",
@@ -66,7 +67,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }) => ({ req, res }),
+    context: ({ req, res }) => ({ req, res, userLoader: createUserLoader() }),
   })
 
   apolloServer.applyMiddleware({ app, cors: false })
