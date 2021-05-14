@@ -51,17 +51,9 @@ export default class PostResolver {
     `,
       replacements
     )
-
-    const formatedPosts: Post[] = posts.map((post) => ({
-      ...post,
-      creator: {
-        id: post.creatorId,
-        username: post.username,
-      },
-    }))
     return {
-      data: formatedPosts.slice(0, limit),
-      hasMore: formatedPosts.length === take,
+      data: posts.slice(0, limit),
+      hasMore: posts.length === take,
     }
   }
 
@@ -90,16 +82,9 @@ export default class PostResolver {
       replacements
     )
 
-    const formatedPosts: Post[] = posts.map((post) => ({
-      ...post,
-      // creator: {
-      //   id: post.creatorId,
-      //   username: post.username,
-      // },
-    }))
     return {
-      data: formatedPosts.slice(0, limit),
-      hasMore: formatedPosts.length === take,
+      data: posts.slice(0, limit),
+      hasMore: posts.length === take,
     }
   }
 
@@ -129,5 +114,16 @@ export default class PostResolver {
       return newPost
     })
     return post
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async deletePost(
+    @Arg("postId", () => Int) postId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const { userId } = req.session
+    await Post.delete({ id: postId, creatorId: userId })
+    return true
   }
 }
