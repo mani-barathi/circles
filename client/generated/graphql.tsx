@@ -244,6 +244,7 @@ export type Query = {
   isMemberRequestExists: Scalars['Boolean'];
   memberRequests: PaginatedMemberRequest;
   posts: PaginatedPost;
+  myPosts: PaginatedPost;
 };
 
 
@@ -286,6 +287,12 @@ export type QueryMemberRequestsArgs = {
 
 
 export type QueryPostsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryMyPostsArgs = {
   cursor?: Maybe<Scalars['String']>;
   circleId: Scalars['Int'];
 };
@@ -643,6 +650,24 @@ export type MyCirclesQuery = (
     & { data: Array<(
       { __typename?: 'Circle' }
       & Pick<Circle, 'id' | 'name' | 'isAdmin' | 'updatedAt'>
+    )> }
+  ) }
+);
+
+export type MyPostsQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type MyPostsQuery = (
+  { __typename?: 'Query' }
+  & { myPosts: (
+    { __typename?: 'PaginatedPost' }
+    & Pick<PaginatedPost, 'hasMore'>
+    & { data: Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'circleId' | 'createdAt' | 'likesCount' | 'hasLiked' | 'text'>
     )> }
   ) }
 );
@@ -1594,6 +1619,50 @@ export function useMyCirclesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type MyCirclesQueryHookResult = ReturnType<typeof useMyCirclesQuery>;
 export type MyCirclesLazyQueryHookResult = ReturnType<typeof useMyCirclesLazyQuery>;
 export type MyCirclesQueryResult = Apollo.QueryResult<MyCirclesQuery, MyCirclesQueryVariables>;
+export const MyPostsDocument = gql`
+    query MyPosts($circleId: Int!, $cursor: String) {
+  myPosts(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    data {
+      id
+      circleId
+      createdAt
+      likesCount
+      hasLiked
+      text
+    }
+  }
+}
+    `;
+
+/**
+ * __useMyPostsQuery__
+ *
+ * To run a query within a React component, call `useMyPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyPostsQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useMyPostsQuery(baseOptions: Apollo.QueryHookOptions<MyPostsQuery, MyPostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyPostsQuery, MyPostsQueryVariables>(MyPostsDocument, options);
+      }
+export function useMyPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyPostsQuery, MyPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyPostsQuery, MyPostsQueryVariables>(MyPostsDocument, options);
+        }
+export type MyPostsQueryHookResult = ReturnType<typeof useMyPostsQuery>;
+export type MyPostsLazyQueryHookResult = ReturnType<typeof useMyPostsLazyQuery>;
+export type MyPostsQueryResult = Apollo.QueryResult<MyPostsQuery, MyPostsQueryVariables>;
 export const PostsDocument = gql`
     query Posts($circleId: Int!, $cursor: String) {
   posts(circleId: $circleId, cursor: $cursor) {

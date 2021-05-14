@@ -53,7 +53,32 @@ const cache = new InMemoryCache({
               data,
             }
           },
-        }, // end of myCircles
+        }, // end of posts
+        myPosts: {
+          keyArgs: ["circleId"],
+          merge(
+            existingPosts: PaginatedPost,
+            incomingPosts: PaginatedPost,
+            { readField }
+          ): PaginatedPost {
+            if (!existingPosts) return incomingPosts
+            if (!incomingPosts) return existingPosts
+            const data = removeDuplicatesAndMerge(
+              existingPosts.data,
+              incomingPosts.data
+            )
+            data.sort(
+              (p1, p2) =>
+                (readField("createdAt", p2) as number) -
+                (readField("createdAt", p1) as number)
+            )
+            return {
+              __typename: incomingPosts.__typename,
+              hasMore: incomingPosts.hasMore,
+              data,
+            }
+          },
+        }, // end of myPosts
       }, // end of fields
     },
   },
