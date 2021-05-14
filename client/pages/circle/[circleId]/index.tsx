@@ -45,6 +45,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
           {data.circle.isMember && (
             <>
               <CircleNavigation circleId={circleId} section="feed" />
+              <CreatePost circleId={circleId} />
               <Posts circleId={circleId} />
             </>
           )}

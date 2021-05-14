@@ -3,12 +3,17 @@ import React, { useEffect } from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
 import MyPost from "../../../components/MyPost"
 import PageNotFound from "../../../components/PageNotFound"
-import { useCircleQuery, useMyPostsLazyQuery } from "../../../generated/graphql"
+import {
+  useCircleQuery,
+  useMeQuery,
+  useMyPostsLazyQuery,
+} from "../../../generated/graphql"
 
 interface mypostsProps {}
 
 const myposts: React.FC<mypostsProps> = ({}) => {
   const router = useRouter()
+  const { data: meData } = useMeQuery()
   const circleId =
     typeof router.query.circleId === "string"
       ? parseInt(router.query.circleId)
@@ -60,7 +65,7 @@ const myposts: React.FC<mypostsProps> = ({}) => {
       <CircleNavigation circleId={circleId} section="myposts" />
       <h3>My Posts</h3>
       {data.myPosts.data.map((p) => (
-        <MyPost post={p} />
+        <MyPost post={p} username={meData.me.username} />
       ))}
       <button
         disabled={!data.myPosts.hasMore || loading}
