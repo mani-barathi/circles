@@ -1,3 +1,4 @@
+import Link from "next/link"
 import React from "react"
 import {
   Circle,
@@ -26,7 +27,7 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
   const [acceptInvite, { loading: acceptLoading }] = useAcceptInviteMutation({
     variables: {
       circleId: parseInt(invitation.circle.id),
-      senderId: parseInt(invitation.sender.id),
+      senderId: invitation.sender.id,
     },
   })
   const [
@@ -35,7 +36,7 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
   ] = useRejectInvitationMutation({
     variables: {
       circleId: parseInt(invitation.circle.id),
-      senderId: parseInt(invitation.sender.id),
+      senderId: invitation.sender.id,
     },
   })
   const handleAcceptInvitation = async () => {
@@ -107,15 +108,28 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
     }
   }
   return (
-    <div>
-      <strong>{invitation.circle.name}</strong> &nbsp;
-      <span>{invitation.sender.username}</span> &nbsp;
-      <button onClick={handleAcceptInvitation} disabled={acceptLoading}>
-        accept
+    <div className="">
+      <div>
+        <Link href={`/circle/${invitation.circle.id}`}>
+          <a className="text-primary font-weight-bold">
+            {invitation.circle.name}
+          </a>
+        </Link>
+        <p className="m-0">{invitation.sender.username}</p>
+      </div>
+      <button
+        className="btn btn-sm btn-info mr-2"
+        onClick={handleAcceptInvitation}
+        disabled={acceptLoading}
+      >
+        Accept
       </button>
-      &nbsp;
-      <button onClick={handleRejectInvitation} disabled={rejectLoading}>
-        reject
+      <button
+        className="btn btn-sm btn-secondary"
+        onClick={handleRejectInvitation}
+        disabled={rejectLoading}
+      >
+        Decline
       </button>
     </div>
   )

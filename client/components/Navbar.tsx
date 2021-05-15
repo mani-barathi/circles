@@ -24,39 +24,37 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     }
   }
 
-  const getContent = () => {
-    if (loading) {
-      return <h4>Loading...</h4>
-    } else if (error || !data?.me) {
-      // No User
-      return (
-        <>
-          <Link href="/">Home</Link> &nbsp; &nbsp;
-          <Link href="/explore">Explore</Link> &nbsp; &nbsp;
-          <Link href="/login">Login</Link>
-        </>
-      )
-    } else {
-      // User logged in
-      return (
-        <>
-          <span>
-            <strong>{data.me.username}</strong>
-          </span>
-          &nbsp; &nbsp;
-          <Link href="/">Home</Link> &nbsp; &nbsp;
-          <Link href="/createCircle">New Circle</Link> &nbsp; &nbsp;
-          <Link href="/explore">Explore</Link> &nbsp; &nbsp;
-          <button onClick={handleLogout} disabled={logoutLoading}>
+  return (
+    <nav className="navbar navbar-dark bg-dark sticky-top">
+      <a className="navbar-brand ">Circles</a>
+      <div className="d-flex ml-auto ">
+        <Link href="/">
+          <a className="nav-link active ">Home </a>
+        </Link>
+        {data?.me && (
+          <Link href="/createCircle">
+            <a className="nav-link active ">New Circle </a>
+          </Link>
+        )}
+        <Link href="/explore">
+          <a className="nav-link active ">Explore </a>
+        </Link>
+        {data?.me ? (
+          <button
+            disabled={logoutLoading}
+            onClick={handleLogout}
+            className="btn text-white"
+          >
             Logout
           </button>
-          &nbsp; &nbsp;
-        </>
-      )
-    }
-  }
-
-  return <div style={{ padding: "1rem" }}>{getContent()}</div>
+        ) : (
+          <Link href="/login">
+            <a className="nav-link active ">Login </a>
+          </Link>
+        )}
+      </div>
+    </nav>
+  )
 }
 
 export default Navbar

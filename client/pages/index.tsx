@@ -9,23 +9,19 @@ export default function Home() {
   if (meLoading) return <h3>Loading...</h3>
   if (!meData || !meData.me)
     return (
-      <div>
+      <div className="py-2">
         <h2>Welcome to Circles</h2>
         <h4>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, neque.
         </h4>
         <Link href="/login">
-          <a>
-            <strong>Join</strong>
-          </a>
+          <a className="btn btn-outline-info">Join</a>
         </Link>
       </div>
     )
 
   return (
     <div>
-      <h2>Circles</h2>
-
       <Invitations />
       <hr />
       <MyCircles />

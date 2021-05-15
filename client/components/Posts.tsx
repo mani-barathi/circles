@@ -29,20 +29,23 @@ const Posts: React.FC<PostsProps> = ({ circleId }) => {
   }
 
   return (
-    <div>
+    <div className="mt-1">
       {data.posts.data.map((p) => (
-        <div key={p.id}>
-          <strong>{p.creator.username}</strong>
-          <p>{p.text}</p>
-          <LikeButton
-            circleId={circleId}
-            postId={p.id}
-            hasLiked={p.hasLiked}
-            likesCount={p.likesCount}
-          />
+        <div key={p.id} className="card mb-1 shadow-sm">
+          <div className="card-body">
+            <h5 className="card-title">{p.creator.username}</h5>
+            <p className="card-text">{p.text}</p>
+            <LikeButton
+              circleId={circleId}
+              postId={p.id}
+              hasLiked={p.hasLiked}
+              likesCount={p.likesCount}
+            />
+          </div>
         </div>
       ))}
       <button
+        className="btn btn-secondary btn-sm mt-3 mb-5"
         disabled={!data.posts.hasMore || loading}
         onClick={handleLoadMore}
       >

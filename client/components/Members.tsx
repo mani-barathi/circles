@@ -84,22 +84,34 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
   return (
     <div>
       <h4>Members:</h4>
-      {data.members.data.map((m) => (
-        <li key={m.userId}>
-          {m.user?.username} &nbsp;
-          {isAdmin && !m.isAdmin && (
-            <button
-              onClick={() => handleRemoveMember(m.userId)}
-              disabled={removeMemberLoading}
-            >
-              Remove
-            </button>
-          )}
-        </li>
-      ))}
-      <button disabled={!data.members.hasMore} onClick={handleLoadMore}>
-        Load More
-      </button>
+      <ul className="list-group">
+        {data.members.data.map((m) => (
+          <li
+            className="list-group-item d-flex justify-content-between align-items-center"
+            key={m.userId}
+          >
+            <p className="m-0">{m.user?.username}</p>
+            {isAdmin && !m.isAdmin && (
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => handleRemoveMember(m.userId)}
+                disabled={removeMemberLoading}
+              >
+                Remove
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      {data.members.data.length > 0 && (
+        <button
+          className="btn btn-secondary btn-sm mt-2 mb-5"
+          disabled={!data.members.hasMore}
+          onClick={handleLoadMore}
+        >
+          Load More
+        </button>
+      )}
     </div>
   )
 }

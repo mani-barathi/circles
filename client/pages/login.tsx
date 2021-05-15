@@ -97,70 +97,85 @@ const login: React.FC<loginProps> = ({}) => {
   }
 
   return (
-    <div>
-      <h1> {isLogin ? "Login" : "Sign Up"} </h1>
+    <div className="d-flex justify-content-center">
+      <div style={{ width: "100%", maxWidth: "500px" }}>
+        <h1 className="text-center mt-3"> {isLogin ? "Login" : "Sign Up"} </h1>
 
-      <form onSubmit={handleFormSubmit}>
-        {!isLogin && (
-          <>
+        <form onSubmit={handleFormSubmit} className="mt-4 w-100">
+          {!isLogin && (
+            <div className="form-group">
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="Username"
+                minLength={3}
+                className="form-control"
+              />
+            </div>
+          )}
+          <div className="form-group">
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Username"
-              minLength={3}
+              placeholder="Email"
+              className="form-control"
             />
-            <br />
-          </>
-        )}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          placeholder="Email"
-        />
-        <br />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          placeholder="Password"
-        />
-        <br />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="form-control"
+              placeholder="Password"
+            />
+          </div>
 
-        <div>
           {err.map((error) => (
-            <h4 key={error.message}>{error.message}</h4>
+            <div className="alert alert-danger" key={error.message}>
+              {error.message}
+            </div>
           ))}
-        </div>
 
-        <div>{feedback && <h4>{feedback}</h4>}</div>
+          {feedback && <div className="alert alert-success">{feedback}</div>}
 
-        <button
-          disabled={isLogin ? loginLoading : registerLoading}
-          type="submit"
-        >
-          {isLogin ? "Login" : "Submit"}
-        </button>
-      </form>
+          <button
+            disabled={isLogin ? loginLoading : registerLoading}
+            type="submit"
+            className="btn btn-primary"
+          >
+            {isLogin ? "Login" : "Submit"}
+          </button>
+        </form>
 
-      <div className="item">
-        <h4>
+        <div className="">
           {isLogin ? (
             <div>
               <span> New ? Create an Account</span> &nbsp;
-              <button onClick={toggleIsLogin}>Here</button>
+              <button
+                onClick={toggleIsLogin}
+                className="btn btn-sm btn-secondary"
+              >
+                Here
+              </button>
             </div>
           ) : (
             <div>
               <span>Already have an Account?</span> &nbsp;
-              <button onClick={toggleIsLogin}>Login</button>
+              <button
+                onClick={toggleIsLogin}
+                className="btn btn-sm btn-secondary"
+              >
+                Login
+              </button>
             </div>
           )}
-        </h4>
+        </div>
       </div>
     </div>
   )

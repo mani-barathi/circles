@@ -14,6 +14,7 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [err, setErr] = useState<CustomError[]>([])
+  const [feedback, setFeedback] = useState(null)
   const [createCircle, { loading }] = useCreateCircleMutation()
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
       if (data.createCircle.errors) {
         setErr(data.createCircle.errors)
       } else {
-        setErr([{ path: "succes", message: "circle created!" }])
+        setFeedback("circle created!")
         setName("")
         setDescription("")
         router.push(`/circle/${data.createCircle.circle?.id}`)
@@ -51,32 +52,38 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
   }
   return (
     <div>
-      <h1>New Circle</h1>
+      <h2>New Circle</h2>
       <form onSubmit={handleFormSubmit}>
-        <div>
+        <div className="form-group">
           <input
             type="text"
             placeholder="Enter Circle Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            className="form-control"
           />
         </div>
-        <div>
+        <div className="form-group">
           <textarea
             cols={30}
             rows={5}
             placeholder="description (Optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            className="form-control"
           ></textarea>
         </div>
-        <div>
-          {err?.map((error) => (
-            <h4 key={error.message}>{error.message}</h4>
-          ))}
-        </div>
-        <button disabled={loading} type="submit">
+
+        {err?.map((error) => (
+          <div className="alert alert-danger" key={error.message}>
+            {error.message}
+          </div>
+        ))}
+
+        {feedback && <div className="alert alert-success">{feedback}</div>}
+
+        <button className="btn btn-primary" disabled={loading} type="submit">
           Create
         </button>
       </form>

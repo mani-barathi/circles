@@ -63,16 +63,25 @@ const myposts: React.FC<mypostsProps> = ({}) => {
         <h1>{circleData.circle.name}</h1>
       </div>
       <CircleNavigation circleId={circleId} section="myposts" />
-      <h3>My Posts</h3>
-      {data.myPosts.data.map((p) => (
-        <MyPost post={p} username={meData.me.username} />
-      ))}
-      <button
-        disabled={!data.myPosts.hasMore || loading}
-        onClick={handleLoadMore}
-      >
-        Load More
-      </button>
+      <div className="mt-2">
+        {data.myPosts.data.length === 0 ? (
+          <p>You don't have Posts. Try sharing One</p>
+        ) : (
+          data.myPosts.data.map((p) => (
+            <MyPost post={p} username={meData.me.username} />
+          ))
+        )}
+
+        {data.myPosts.data.length > 0 && (
+          <button
+            className="btn btn-secondary btn-sm mt-2 mb-5"
+            disabled={!data.myPosts.hasMore || loading}
+            onClick={handleLoadMore}
+          >
+            Load More
+          </button>
+        )}
+      </div>
     </div>
   )
 }

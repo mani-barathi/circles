@@ -107,24 +107,43 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
   }
 
   return (
-    <div>
+    <div className="mt-2">
       <h4>Member Requests</h4>
       {memberRequests.length === 0 && <p>No Member Request</p>}
-      {memberRequests.map((request) => (
-        <li key={request.userId}>
-          {request.user?.username} &nbsp;
-          <button onClick={() => handleAcceptRequest(request.userId)}>
-            Accept
-          </button>
-          &nbsp;
-          <button onClick={() => handleDeclineRequest(request.userId)}>
-            Decline
-          </button>
-        </li>
-      ))}
-      <button onClick={handleLoadMore} disabled={!hasMore}>
-        Load More
-      </button>
+      <ul className="list-group">
+        {memberRequests.map((request) => (
+          <li
+            className="list-group-item d-flex justify-content-between align-items-center"
+            key={request.userId}
+          >
+            <p className="m-0"> {request.user?.username}</p>
+            <div className="ml-1">
+              <button
+                className="btn btn-info btn-sm"
+                onClick={() => handleAcceptRequest(request.userId)}
+              >
+                Accept
+              </button>
+              &nbsp;
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => handleDeclineRequest(request.userId)}
+              >
+                Decline
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {memberRequests.length > 0 && (
+        <button
+          className="btn btn-secondary btn-sm mt-2"
+          onClick={handleLoadMore}
+          disabled={!hasMore}
+        >
+          Load More
+        </button>
+      )}
     </div>
   )
 }

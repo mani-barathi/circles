@@ -1,4 +1,5 @@
 import "../styles/globals.css"
+import "bootstrap/dist/css/bootstrap.min.css"
 import { ApolloProvider } from "@apollo/client"
 import client from "../apollo"
 import Navbar from "../components/Navbar"
@@ -13,8 +14,10 @@ function MyApp({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
-      <div style={{ padding: "0 1rem" }}>
-        <Component {...pageProps} />
+      <div className="bg-light min-vh-100">
+        <div className="container">
+          <Component {...pageProps} />
+        </div>
       </div>
     </ApolloProvider>
   )

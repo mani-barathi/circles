@@ -5,10 +5,10 @@ interface Props {}
 
 const PageNotFound: React.FC<Props> = () => {
   return (
-    <div>
-      <h3>Page Not found (404)</h3>
+    <div className="d-flex flex-column align-items-center py-5">
+      <h2>Page Not found (404)</h2>
       <Link href={"/"}>
-        <a>Go To Home</a>
+        <a className="btn btn-outline-info">Go To Home</a>
       </Link>
     </div>
   )

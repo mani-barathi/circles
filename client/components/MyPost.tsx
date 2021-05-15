@@ -43,13 +43,19 @@ const MyPost: React.FC<MyPostProps> = ({ post, username }) => {
   }
 
   return (
-    <div>
-      <div>
-        <strong>{username}</strong>
-        <button disabled={loading} onClick={handleDelete}>
-          Delete
-        </button>
-        <p>{post.text}</p>
+    <div className="card mb-1 shadow-sm">
+      <div className="card-body">
+        <div className="d-flex justify-content-between align-items-center">
+          <h5 className="card-title">{username}</h5>
+          <button
+            className="btn btn-danger btn-sm"
+            disabled={loading}
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
+        </div>
+        <p className="card-text">{post.text}</p>
         <LikeButton
           circleId={post.circleId}
           postId={post.id}

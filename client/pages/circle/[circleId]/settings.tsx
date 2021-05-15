@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
-import React, { useEffect } from "react"
+import React from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
 import MemberRequests from "../../../components/MemberRequests"
 import Members from "../../../components/Members"
@@ -84,22 +84,30 @@ const info: React.FC<membersProps> = ({}) => {
   return (
     <div>
       <div>
-        <h1>{circleData.circle.name}</h1>
+        <div className="d-flex justify-content-between align-items-center">
+          <h1>{circleData.circle.name}</h1>
+          {!circleData.circle.isAdmin && (
+            <button
+              className="btn btn-danger"
+              disabled={exitGroupLoading}
+              onClick={handleExitGroup}
+            >
+              Exit Group
+            </button>
+          )}
+        </div>
         <p>{circleData.circle.description}</p>
       </div>
 
       <CircleNavigation circleId={circleId} section="settings" />
 
-      {!circleData.circle.isAdmin && (
-        <button disabled={exitGroupLoading} onClick={handleExitGroup}>
-          Exit Group
-        </button>
-      )}
-
       {circleData.circle.isAdmin && (
         <>
-          <button onClick={handleInvite}> Invite Member </button>
+          <button className="btn btn-info mt-2" onClick={handleInvite}>
+            Invite Member
+          </button>
           <MemberRequests circleId={circleId} />
+          <hr />
         </>
       )}
       <Members circleId={circleId} isAdmin={circleData.circle.isAdmin} />

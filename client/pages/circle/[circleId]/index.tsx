@@ -30,15 +30,17 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
       {data ? (
         <div>
           <div>
-            <h1>{data.circle.name}</h1>
-            {me?.me?.id && !data.circle.isMember && (
-              <SendCancelMemberRequest circleId={circleId} />
-            )}
+            <div className="d-flex justify-content-between align-items-center">
+              <h1>{data.circle.name}</h1>
+              {me?.me?.id && !data.circle.isMember && (
+                <SendCancelMemberRequest circleId={circleId} />
+              )}
+            </div>
+            <p className="font-weight-bold">
+              <span> Creator: {data.circle.creator.username}</span>
+              <span className="ml-3">Members: {data.circle.totalMembers}</span>
+            </p>
           </div>
-          <h5>
-            Creator: {data.circle.creator.username} &nbsp;&nbsp; | &nbsp;&nbsp;
-            Members: {data.circle.totalMembers}&nbsp;&nbsp; | &nbsp;&nbsp;
-          </h5>
 
           {!data.circle.isMember && <p>{data.circle.description}</p>}
 

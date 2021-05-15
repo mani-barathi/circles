@@ -24,7 +24,11 @@ const CreatePost: React.FC<CreatePostProps> = ({ circleId }) => {
   }
 
   if (!isOpen) {
-    return <button onClick={handleOpen}>Create Post</button>
+    return (
+      <button className="btn btn-info btn-sm mt-1" onClick={handleOpen}>
+        Create Post
+      </button>
+    )
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -72,23 +76,29 @@ const CreatePost: React.FC<CreatePostProps> = ({ circleId }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="mt-1">
       <textarea
-        cols={30}
+        className="form-control"
         rows={5}
         onChange={(e) => setText(e.target.value)}
         value={text}
         placeholder="Type something"
       ></textarea>
-      <br />
       {errors.map((e) => (
         <h4 key={e.message}>{e.message}</h4>
       ))}
-      <button type="button" onClick={handleClose}>
+      <button
+        className="btn btn-secondary btn-sm mt-1"
+        type="button"
+        onClick={handleClose}
+      >
         Cancel
       </button>
-      &nbsp; &nbsp;
-      <button disabled={loading} type="submit">
+      <button
+        className="btn btn-primary ml-2 btn-sm mt-1"
+        disabled={loading}
+        type="submit"
+      >
         Submit
       </button>
     </form>

@@ -26,18 +26,21 @@ const MyCircles: React.FC<MyCirclesProps> = ({}) => {
     <div>
       <h3>My Circles</h3>
       {data.myCircles.data.length === 0 && (
-        <h4>
+        <p className="text-bold">
           You are not part of a circle, either join a cirle or create a circle{" "}
-        </h4>
+        </p>
       )}
-      {data.myCircles.data.map((circle) => (
-        <li key={circle.name}>
-          <strong>
-            <Link href={`/circle/${circle.id}`}>{circle.name}</Link>
-          </strong>
-        </li>
-      ))}
+      <ul className="list-group">
+        {data.myCircles.data.map((circle) => (
+          <Link href={`/circle/${circle.id}`} key={circle.name}>
+            <a className="list-group-item list-group-item-action font-weight-bold">
+              {circle.name}
+            </a>
+          </Link>
+        ))}
+      </ul>
       <button
+        className="btn btn-sm btn-primary mt-1"
         disabled={!data.myCircles.hasMore || loading}
         onClick={handleLoadMore}
       >

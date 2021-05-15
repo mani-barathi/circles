@@ -11,14 +11,32 @@ const CircleNavigation: React.FC<CircleNavigationProps> = ({
   section,
 }) => {
   return (
-    <h3>
-      <Link href={`/circle/${circleId}`}>Feed</Link> &nbsp;&nbsp; | &nbsp;&nbsp;
-      <Link href={`/circle/${circleId}/chat`}>Chat</Link> &nbsp;&nbsp; |
-      &nbsp;&nbsp;
-      <Link href={`/circle/${circleId}/myposts`}>My Posts</Link>
-      &nbsp;&nbsp; | &nbsp;&nbsp;
-      <Link href={`/circle/${circleId}/settings`}>Settings</Link>
-    </h3>
+    <ul className="nav nav-tabs">
+      <li className="nav-item">
+        <Link href={`/circle/${circleId}`}>
+          <a className={`nav-link ${section === "feed" && "active"}`}>Feed</a>
+        </Link>
+      </li>
+      <li className="nav-item">
+        <Link href={`/circle/${circleId}/chat`}>
+          <a className={`nav-link ${section === "chat" && "active"}`}>Chat</a>
+        </Link>
+      </li>
+      <li className="nav-item">
+        <Link href={`/circle/${circleId}/myposts`}>
+          <a className={`nav-link ${section === "myposts" && "active"}`}>
+            My Posts
+          </a>
+        </Link>
+      </li>
+      <li className="nav-item">
+        <Link href={`/circle/${circleId}/settings`}>
+          <a className={`nav-link ${section === "settings" && "active"}`}>
+            Settings
+          </a>
+        </Link>
+      </li>
+    </ul>
   )
 }
 

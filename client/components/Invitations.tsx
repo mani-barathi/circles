@@ -10,11 +10,11 @@ const Invitations: React.FC<InvitationsProps> = ({}) => {
     nextFetchPolicy: "cache-first",
   })
   return (
-    <div>
+    <div className="mt-3">
       <h3>Invitations</h3>
-      {loading && <h4>loading Invitations...</h4>}
-      {error && <h4>Something went wrong unable to get your Invitations</h4>}
-      {data?.getIntivations.length === 0 && <h4>No Invitations</h4>}
+      {loading && <h6>loading Invitations...</h6>}
+      {error && <h6>Something went wrong unable to get your Invitations</h6>}
+      {data?.getIntivations.length === 0 && <h6>No Invitations</h6>}
       {data?.getIntivations.map((invitation) => (
         <Invitation key={invitation.createdAt} invitation={invitation} />
       ))}

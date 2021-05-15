@@ -9,7 +9,7 @@ import {
 interface exploreProps {}
 
 const index: React.FC<exploreProps> = ({}) => {
-  const { data, loading, error } = useGetCirclesQuery()
+  const { data } = useGetCirclesQuery()
   const [circles, setCircles] = useState([])
   const [hasMore, setHasMore] = useState(true)
   const [isNoResultsFound, setIsNoResultsFound] = useState(false)
@@ -54,49 +54,44 @@ const index: React.FC<exploreProps> = ({}) => {
 
   return (
     <div>
-      <h3>Circles</h3>
-      <p>
-        <input type="text" onChange={handleOnChange} placeholder="search" />
+      <p className="d-flex align-items-center mt-2">
+        <input
+          type="text"
+          className="form-control form-control-lg"
+          onChange={handleOnChange}
+          placeholder="search"
+        />
+        <button className="ml-2 btn btn-info btn-lg">Search</button>
       </p>
 
       {searchLoading && <p>Loading...</p>}
       {isNoResultsFound && <p>No Results Found</p>}
 
-      {circles.map((circle) => (
-        <div key={circle.id}>
-          <Link href={`/circle/${circle.id}`}>
-            <a>
-              <h3 style={{ margin: "0" }}>{circle.name}</h3>
-            </a>
-          </Link>
-          <strong>
-            creator: {circle.creator.username} &nbsp;|&nbsp; members:
-            {circle.totalMembers}
-          </strong>
-        </div>
-      ))}
+      <div className="list-group">
+        {circles.map((circle) => (
+          <div key={circle.id} className="list-group-item">
+            <Link href={`/circle/${circle.id}`}>
+              <a>
+                <h5>{circle.name}</h5>
+              </a>
+            </Link>
+            <strong>
+              <span> Creator: {circle.creator.username}</span>
+              <span className="ml-3">Members: {circle.totalMembers}</span>
+            </strong>
+          </div>
+        ))}
+      </div>
 
-      <br />
       {circles.length > 0 && (
-        <div>
-          <button disabled={!hasMore} onClick={handleLoadMore}>
-            Load More
-          </button>
-        </div>
+        <button
+          className="btn btn-primary btn-sm mt-2"
+          disabled={!hasMore}
+          onClick={handleLoadMore}
+        >
+          Load More
+        </button>
       )}
-
-      {/* 
-      {data?.getCircles.map((circle) => (
-        <div key={circle.id}>
-          <Link href={`/circle/${circle.id}`}>
-            <a>
-              <h3>{circle.name}</h3>
-            </a>
-          </Link>
-          <h4>Creator : {circle.creator.username}</h4>
-          <hr />
-        </div>
-      ))} */}
     </div>
   )
 }

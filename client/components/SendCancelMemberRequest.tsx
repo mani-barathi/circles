@@ -78,11 +78,19 @@ const MemberRequest: React.FC<MemberRequestProps> = ({ circleId }) => {
   return (
     <>
       {data.isMemberRequestExists ? (
-        <button onClick={handleCancelRequest} disabled={cancelRequestLoading}>
+        <button
+          className="btn btn-secondary btn-sm"
+          onClick={handleCancelRequest}
+          disabled={cancelRequestLoading}
+        >
           Cancel Member Request
         </button>
       ) : (
-        <button onClick={handleSendRequest} disabled={sendRequsetLoading}>
+        <button
+          className="btn btn-info btn-sm"
+          onClick={handleSendRequest}
+          disabled={sendRequsetLoading}
+        >
           Send Member Request
         </button>
       )}
