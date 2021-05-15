@@ -1,6 +1,7 @@
 import Link from "next/link"
 import React, { useState } from "react"
 import { useMyCirclesQuery } from "../generated/graphql"
+import Spinner from "./Spinner"
 
 interface MyCirclesProps {}
 
@@ -10,7 +11,7 @@ const MyCircles: React.FC<MyCirclesProps> = ({}) => {
     nextFetchPolicy: "cache-first",
   })
 
-  if (loading && !data) return <h3>Loading...</h3>
+  if (loading && !data) return <Spinner center={false} />
   if (error) return <p>{error.message}</p>
 
   const handleLoadMore = async () => {

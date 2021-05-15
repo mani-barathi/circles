@@ -5,6 +5,7 @@ import {
   useGetCirclesQuery,
   useSearchCircleLazyQuery,
 } from "../generated/graphql"
+import Spinner from "../components/Spinner"
 
 interface exploreProps {}
 
@@ -29,6 +30,8 @@ const index: React.FC<exploreProps> = ({}) => {
     setHasMore(searchData.searchCircle.hasMore)
     if (searchData.searchCircle.data.length === 0) {
       setIsNoResultsFound(true)
+    } else {
+      setIsNoResultsFound(false)
     }
   }, [searchData])
 
@@ -64,7 +67,7 @@ const index: React.FC<exploreProps> = ({}) => {
         <button className="ml-2 btn btn-info btn-lg">Search</button>
       </p>
 
-      {searchLoading && <p>Loading...</p>}
+      {searchLoading && <Spinner center={false} />}
       {isNoResultsFound && <p>No Results Found</p>}
 
       <div className="list-group">
@@ -85,7 +88,7 @@ const index: React.FC<exploreProps> = ({}) => {
 
       {circles.length > 0 && (
         <button
-          className="btn btn-primary btn-sm mt-2"
+          className="btn btn-primary btn-sm mt-2 mb-5"
           disabled={!hasMore}
           onClick={handleLoadMore}
         >

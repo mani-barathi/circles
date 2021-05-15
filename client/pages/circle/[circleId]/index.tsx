@@ -5,6 +5,7 @@ import CircleNavigation from "../../../components/CircleNavigation"
 import CreatePost from "../../../components/CreatePost"
 import Posts from "../../../components/Posts"
 import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
+import Spinner from "../../../components/Spinner"
 import { useCircleQuery, useMeQuery } from "../../../generated/graphql"
 
 interface circlePageProps {}
@@ -23,7 +24,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
     variables: { circleId },
   })
 
-  if (loading) return <h3>Loading...</h3>
+  if (loading) return <Spinner center={true} large={true} />
 
   return (
     <div>
@@ -36,10 +37,10 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
                 <SendCancelMemberRequest circleId={circleId} />
               )}
             </div>
-            <p className="font-weight-bold">
+            <div className="font-weight-bold">
               <span> Creator: {data.circle.creator.username}</span>
               <span className="ml-3">Members: {data.circle.totalMembers}</span>
-            </p>
+            </div>
           </div>
 
           {!data.circle.isMember && <p>{data.circle.description}</p>}

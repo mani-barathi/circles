@@ -54,10 +54,11 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   return (
     <button
       disabled={loading}
-      className="btn btn-sm btn-info"
+      className={`btn btn-sm ${hasLiked ? "btn-info" : "btn-outline-info"}`}
       onClick={handleLikeDislike}
+      title={!hasLiked ? "like" : "dislike"}
     >
-      {hasLiked ? "Liked" : "Like"} : <span>{likesCount}</span>
+      Likes : <span>{likesCount}</span>
     </button>
   )
 }

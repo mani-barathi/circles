@@ -3,6 +3,7 @@ import React, { useEffect } from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
 import MyPost from "../../../components/MyPost"
 import PageNotFound from "../../../components/PageNotFound"
+import Spinner from "../../../components/Spinner"
 import {
   useCircleQuery,
   useMeQuery,
@@ -40,12 +41,15 @@ const myposts: React.FC<mypostsProps> = ({}) => {
     getMyPosts()
   }, [circleData])
 
-  if (circleLoading || (loading && !data)) return <h4>Loading...</h4>
+  if (circleLoading || (loading && !data)) {
+    return <Spinner center={true} large={true} />
+  }
   if (circleError) return <p>{circleError.message}</p>
   if (error) return <p>{error.message}</p>
 
-  if (!circleData || !data) return null
-  if (!circleData?.circle.isMember) return <PageNotFound />
+  if (!circleData) return null
+  if (!circleData.circle.isMember) return <PageNotFound />
+  if (!data) return null
 
   const handleLoadMore = async () => {
     const cursor = data.myPosts.data[data.myPosts.data.length - 1].createdAt
@@ -78,7 +82,10 @@ const myposts: React.FC<mypostsProps> = ({}) => {
             disabled={!data.myPosts.hasMore || loading}
             onClick={handleLoadMore}
           >
-            Load More
+            {loading && (
+              <span className="spinner-border spinner-border-sm mr-2"></span>
+            )}
+            {loading ? "Loading..." : "Load More"}
           </button>
         )}
       </div>

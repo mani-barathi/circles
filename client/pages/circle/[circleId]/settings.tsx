@@ -1,14 +1,13 @@
-import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
 import MemberRequests from "../../../components/MemberRequests"
 import Members from "../../../components/Members"
 import PageNotFound from "../../../components/PageNotFound"
+import Spinner from "../../../components/Spinner"
 import {
   useCircleQuery,
   useExitCircleMutation,
-  useSendInvitationMutation,
 } from "../../../generated/graphql"
 
 interface membersProps {}
@@ -29,9 +28,8 @@ const info: React.FC<membersProps> = ({}) => {
   })
 
   const [exitGroup, { loading: exitGroupLoading }] = useExitCircleMutation()
-  const [sendInvitation] = useSendInvitationMutation()
 
-  if (circleLoading) return <h4>Loading...</h4>
+  if (circleLoading) return <Spinner center={true} large={true} />
   if (circleError)
     return (
       <h4>
@@ -59,28 +57,6 @@ const info: React.FC<membersProps> = ({}) => {
     }
   }
 
-  const handleInvite = async () => {
-    const recipiantName = prompt("Enter the username whom you want to invite")
-    if (!recipiantName) return
-    if (recipiantName.length < 3) {
-      return alert("username cannot be less than 3 characters")
-    }
-
-    try {
-      const { data } = await sendInvitation({
-        variables: { circleId: circleId, recipiantName },
-      })
-      if (data?.sendInvitation.invitation) {
-        alert("invitation sent")
-      } else {
-        alert(data?.sendInvitation.errors[0].message)
-      }
-    } catch (error) {
-      console.log(error)
-      alert(error.message)
-    }
-  }
-
   return (
     <div>
       <div>
@@ -96,16 +72,20 @@ const info: React.FC<membersProps> = ({}) => {
             </button>
           )}
         </div>
-        <p>{circleData.circle.description}</p>
+        <div className="font-weight-bold">
+          <span> Creator: {circleData.circle.creator.username}</span>
+          <span className="ml-3">
+            Members: {circleData.circle.totalMembers}
+          </span>
+        </div>
       </div>
 
       <CircleNavigation circleId={circleId} section="settings" />
 
+      {circleData.circle.description && <p>{circleData.circle.description}</p>}
+
       {circleData.circle.isAdmin && (
         <>
-          <button className="btn btn-info mt-2" onClick={handleInvite}>
-            Invite Member
-          </button>
           <MemberRequests circleId={circleId} />
           <hr />
         </>

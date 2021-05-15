@@ -5,6 +5,7 @@ import {
   useMembersQuery,
   useRemoveMemberMutation,
 } from "../generated/graphql"
+import Spinner from "./Spinner"
 
 interface MembersProps {
   circleId: number
@@ -20,7 +21,7 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
     { loading: removeMemberLoading },
   ] = useRemoveMemberMutation()
 
-  if (loading) return <h4>Loading...</h4>
+  if (loading) return <Spinner center={false} />
   if (error) return <h4>Somethin went wrong {error.message}</h4>
   if (!data) return null
 
@@ -83,7 +84,7 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
   }
   return (
     <div>
-      <h4>Members:</h4>
+      <h4 className="mt-1 mb-2">Members: {data.members.data.length}</h4>
       <ul className="list-group">
         {data.members.data.map((m) => (
           <li
@@ -109,7 +110,10 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
           disabled={!data.members.hasMore}
           onClick={handleLoadMore}
         >
-          Load More
+          {loading && (
+            <span className="spinner-border spinner-border-sm mr-2"></span>
+          )}
+          {loading ? "Loading..." : "Load More"}
         </button>
       )}
     </div>

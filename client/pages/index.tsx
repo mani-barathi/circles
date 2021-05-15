@@ -1,12 +1,13 @@
 import Link from "next/link"
 import Invitations from "../components/Invitations"
 import MyCircles from "../components/MyCircles"
+import Spinner from "../components/Spinner"
 import { useMeQuery } from "../generated/graphql"
 
 export default function Home() {
   const { data: meData, loading: meLoading } = useMeQuery()
 
-  if (meLoading) return <h3>Loading...</h3>
+  if (meLoading) return <Spinner center={true} large={true} />
   if (!meData || !meData.me)
     return (
       <div className="py-2">

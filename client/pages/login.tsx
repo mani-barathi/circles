@@ -149,6 +149,9 @@ const login: React.FC<loginProps> = ({}) => {
             type="submit"
             className="btn btn-primary"
           >
+            {(loginLoading || registerLoading) && (
+              <span className="spinner-border spinner-border-sm mr-2"></span>
+            )}
             {isLogin ? "Login" : "Submit"}
           </button>
         </form>

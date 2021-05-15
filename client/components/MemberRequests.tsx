@@ -9,7 +9,9 @@ import {
   useDeclineMemberRequestMutation,
   useMemberRequestsQuery,
   User,
+  useSendInvitationMutation,
 } from "../generated/graphql"
+import Spinner from "./Spinner"
 
 interface MemberRequestsProps {
   circleId: number
@@ -25,6 +27,7 @@ type CMemberRequest = {
 const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
   const [memberRequests, setMemberRequests] = useState<CMemberRequest[]>([])
   const [hasMore, setHasMore] = useState(true)
+  const [sendInvitation] = useSendInvitationMutation()
   const { data, loading, error, fetchMore } = useMemberRequestsQuery({
     variables: { circleId },
     fetchPolicy: "no-cache",
@@ -40,7 +43,7 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
   const [acceptRequest] = useAcceptMemberRequestMutation()
   const [declineRequest] = useDeclineMemberRequestMutation()
 
-  if (loading) return <h4>Loading...</h4>
+  if (loading) return <Spinner center={false} />
   if (error) return <h4>Error: {error.message} </h4>
 
   const handleAcceptRequest = async (memberId: number) => {
@@ -105,10 +108,36 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
       console.log(e)
     }
   }
+  const handleInvite = async () => {
+    const recipiantName = prompt("Enter the username whom you want to invite")
+    if (!recipiantName) return
+    if (recipiantName.length < 3) {
+      return alert("username cannot be less than 3 characters")
+    }
 
+    try {
+      const { data } = await sendInvitation({
+        variables: { circleId: circleId, recipiantName },
+      })
+      if (data?.sendInvitation.invitation) {
+        alert("invitation sent")
+      } else {
+        alert(data?.sendInvitation.errors[0].message)
+      }
+    } catch (error) {
+      console.log(error)
+      alert(error.message)
+    }
+  }
   return (
     <div className="mt-2">
-      <h4>Member Requests</h4>
+      <div className="d-flex justify-content-between align-items-center">
+        <h4>Member Requests</h4>
+        <button className="btn btn-info mt-2 btn-sm" onClick={handleInvite}>
+          Invite Member
+        </button>
+      </div>
+
       {memberRequests.length === 0 && <p>No Member Request</p>}
       <ul className="list-group">
         {memberRequests.map((request) => (

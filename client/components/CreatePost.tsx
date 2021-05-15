@@ -84,9 +84,13 @@ const CreatePost: React.FC<CreatePostProps> = ({ circleId }) => {
         value={text}
         placeholder="Type something"
       ></textarea>
+
       {errors.map((e) => (
-        <h4 key={e.message}>{e.message}</h4>
+        <div className="alert alert-danger mt-1 mb-0" key={e.message}>
+          {e.message}
+        </div>
       ))}
+
       <button
         className="btn btn-secondary btn-sm mt-1"
         type="button"

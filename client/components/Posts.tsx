@@ -49,7 +49,10 @@ const Posts: React.FC<PostsProps> = ({ circleId }) => {
         disabled={!data.posts.hasMore || loading}
         onClick={handleLoadMore}
       >
-        Load More
+        {loading && (
+          <span className="spinner-border spinner-border-sm mr-2"></span>
+        )}
+        {loading ? "Loading..." : "Load More"}
       </button>
     </div>
   )
