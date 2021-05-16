@@ -35,13 +35,6 @@ class Like extends BaseEntity {
 
   @CreateDateColumn()
   createdAt: string
-
-  // @PrimaryColumn()
-  // circleId : number
-
-  // @ManyToOne(Circle,(circle) => circle.likes,{onDelete:"CASCADE"})
-  // @JoinColumn({name:"circleId",referencedColumnName:"id"})
-  // circle: Circle
 }
 
 export default Like

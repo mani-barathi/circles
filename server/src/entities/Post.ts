@@ -48,7 +48,7 @@ export default class Post extends BaseEntity {
   circle: Circle
 
   @OneToMany(() => Like, (like) => like.post)
-  likes: Like
+  likes: Like[]
 
   @Field(() => String)
   @Column({ type: "text" })

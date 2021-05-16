@@ -17,6 +17,7 @@ import MemberRequest from "./MemberRequest"
 import Member from "./Member"
 import Post from "./Post"
 import Like from "./Like"
+import Message from "./Message"
 
 @ObjectType()
 @Entity()
@@ -56,6 +57,9 @@ export default class Circle extends BaseEntity {
 
   @OneToMany(() => Like, (like) => like.circle)
   likes: Like[]
+
+  @OneToMany(() => Message, (message) => message.circle)
+  messages: Message[]
 
   @OneToMany(() => Invitation, (invitation) => invitation.circle)
   @Field(() => [Invitation], { nullable: true })

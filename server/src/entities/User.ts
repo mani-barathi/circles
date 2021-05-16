@@ -12,6 +12,7 @@ import Like from "./Like"
 import Member from "./Member"
 import MemberRequest from "./MemberRequest"
 import Post from "./Post"
+import Message from "./Message"
 
 @ObjectType()
 @Entity()
@@ -55,4 +56,7 @@ export default class User extends BaseEntity {
 
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[]
+
+  @OneToMany(() => Message, (message) => message.author)
+  messages: Message[]
 }
