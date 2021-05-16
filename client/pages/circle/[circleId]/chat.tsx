@@ -1,7 +1,9 @@
 import { useRouter } from "next/router"
 import React from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
+import MessageInput from "../../../components/MessageInput"
 import PageNotFound from "../../../components/PageNotFound"
+import Spinner from "../../../components/Spinner"
 import { useCircleQuery } from "../../../generated/graphql"
 
 interface mypostsProps {}
@@ -20,7 +22,7 @@ const chat: React.FC<mypostsProps> = ({}) => {
     variables: { circleId },
     skip: typeof circleId !== "number",
   })
-  if (circleLoading) return <h4>Loading...</h4>
+  if (circleLoading) return <Spinner center={true} large={true} />
   if (circleError)
     return (
       <h4>
@@ -32,12 +34,11 @@ const chat: React.FC<mypostsProps> = ({}) => {
   if (!circleData?.circle.isMember) return <PageNotFound />
 
   return (
-    <div>
-      <div>
-        <h1>{circleData.circle.name}</h1>
-      </div>
+    <div className="h-100 d-flex flex-column flex-grow-1">
+      <h1>{circleData.circle.name}</h1>
       <CircleNavigation circleId={circleId} section="chat" />
-      <h3>Chat</h3>
+      <div className="flex-grow-1 py-2">messages</div>
+      <MessageInput circleId={circleId} />
     </div>
   )
 }

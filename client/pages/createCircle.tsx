@@ -5,6 +5,8 @@ import {
   useCreateCircleMutation,
   useMeQuery,
 } from "../generated/graphql"
+import Spinner from "../components/Spinner"
+import PageNotFound from "../components/PageNotFound"
 
 interface createCircleProps {}
 
@@ -24,8 +26,8 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
     }
   }, [meData])
 
-  if (meLoading) return <h3>Loading...</h3>
-  if (!meData || !meData.me) return <h3>UnAuthorized</h3>
+  if (meLoading) return <Spinner large={true} center={true} />
+  if (!meData || !meData.me) return <PageNotFound />
 
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
     e
@@ -51,8 +53,8 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
     }
   }
   return (
-    <div>
-      <h2>New Circle</h2>
+    <div className="py-3">
+      <h2 className="text-center mb-4">New Circle</h2>
       <form onSubmit={handleFormSubmit}>
         <div className="form-group">
           <input

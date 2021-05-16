@@ -1,0 +1,3 @@
+mutation SendMessage($circleId: Int!, $text: String!) {
+  sendMessage(circleId: $circleId, text: $text)
+}

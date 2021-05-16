@@ -103,6 +103,7 @@ export type Mutation = {
   createPost: Post;
   deletePost: Scalars['Boolean'];
   likeOrDislike: Scalars['Boolean'];
+  sendMessage: Scalars['Boolean'];
 };
 
 
@@ -197,6 +198,12 @@ export type MutationLikeOrDislikeArgs = {
   isDislike: Scalars['Boolean'];
   circleId: Scalars['Int'];
   postId: Scalars['Int'];
+};
+
+
+export type MutationSendMessageArgs = {
+  circleId: Scalars['Int'];
+  text: Scalars['String'];
 };
 
 export type PaginatedCircle = {
@@ -536,6 +543,17 @@ export type SendMemberRequestMutationVariables = Exact<{
 export type SendMemberRequestMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'sendMemberRequest'>
+);
+
+export type SendMessageMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  text: Scalars['String'];
+}>;
+
+
+export type SendMessageMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'sendMessage'>
 );
 
 export type CircleQueryVariables = Exact<{
@@ -1339,6 +1357,38 @@ export function useSendMemberRequestMutation(baseOptions?: Apollo.MutationHookOp
 export type SendMemberRequestMutationHookResult = ReturnType<typeof useSendMemberRequestMutation>;
 export type SendMemberRequestMutationResult = Apollo.MutationResult<SendMemberRequestMutation>;
 export type SendMemberRequestMutationOptions = Apollo.BaseMutationOptions<SendMemberRequestMutation, SendMemberRequestMutationVariables>;
+export const SendMessageDocument = gql`
+    mutation SendMessage($circleId: Int!, $text: String!) {
+  sendMessage(circleId: $circleId, text: $text)
+}
+    `;
+export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation, SendMessageMutationVariables>;
+
+/**
+ * __useSendMessageMutation__
+ *
+ * To run a mutation, you first call `useSendMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendMessageMutation, { data, loading, error }] = useSendMessageMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendMessageMutation, SendMessageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, options);
+      }
+export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
+export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
+export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
 export const CircleDocument = gql`
     query Circle($circleId: Int!) {
   circle(circleId: $circleId) {

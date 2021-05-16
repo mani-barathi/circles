@@ -15,6 +15,7 @@ import MemberResolver from "./resolvers/member"
 import MemberRequestResolver from "./resolvers/MemberRequest"
 import PostResolver from "./resolvers/post"
 import LikeResolver from "./resolvers/like"
+import MessageResolver from "./resolvers/message"
 
 import { COOKIE_NAME } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
@@ -37,6 +38,7 @@ const main = async () => {
       MemberRequestResolver,
       PostResolver,
       LikeResolver,
+      MessageResolver,
     ],
     authChecker: customAuthChecker,
   })
