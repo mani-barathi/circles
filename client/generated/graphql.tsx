@@ -84,6 +84,17 @@ export type MemberRequest = {
   updatedAt?: Maybe<Scalars['String']>;
 };
 
+export type Message = {
+  __typename?: 'Message';
+  id: Scalars['String'];
+  authorId: Scalars['Int'];
+  author?: Maybe<User>;
+  circleId: Scalars['Int'];
+  circle?: Maybe<Circle>;
+  text: Scalars['String'];
+  createdAt: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   register: UserResponse;
@@ -224,6 +235,12 @@ export type PaginatedMemberRequest = {
   hasMore: Scalars['Boolean'];
 };
 
+export type PaginatedMessage = {
+  __typename?: 'PaginatedMessage';
+  data: Array<Message>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type PaginatedPost = {
   __typename?: 'PaginatedPost';
   data: Array<Post>;
@@ -258,6 +275,7 @@ export type Query = {
   memberRequests: PaginatedMemberRequest;
   posts: PaginatedPost;
   myPosts: PaginatedPost;
+  messages: PaginatedMessage;
 };
 
 
@@ -306,6 +324,12 @@ export type QueryPostsArgs = {
 
 
 export type QueryMyPostsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  circleId: Scalars['Int'];
+};
+
+
+export type QueryMessagesArgs = {
   cursor?: Maybe<Scalars['String']>;
   circleId: Scalars['Int'];
 };
@@ -666,6 +690,28 @@ export type MembersQuery = (
       & { user?: Maybe<(
         { __typename?: 'User' }
         & Pick<User, 'username'>
+      )> }
+    )> }
+  ) }
+);
+
+export type MessagesQueryVariables = Exact<{
+  circleId: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
+
+
+export type MessagesQuery = (
+  { __typename?: 'Query' }
+  & { messages: (
+    { __typename?: 'PaginatedMessage' }
+    & Pick<PaginatedMessage, 'hasMore'>
+    & { data: Array<(
+      { __typename?: 'Message' }
+      & Pick<Message, 'id' | 'text' | 'authorId' | 'circleId' | 'createdAt'>
+      & { author?: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
       )> }
     )> }
   ) }
@@ -1675,6 +1721,53 @@ export function useMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Me
 export type MembersQueryHookResult = ReturnType<typeof useMembersQuery>;
 export type MembersLazyQueryHookResult = ReturnType<typeof useMembersLazyQuery>;
 export type MembersQueryResult = Apollo.QueryResult<MembersQuery, MembersQueryVariables>;
+export const MessagesDocument = gql`
+    query Messages($circleId: Int!, $cursor: String) {
+  messages(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    data {
+      id
+      text
+      authorId
+      author {
+        id
+        username
+      }
+      circleId
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useMessagesQuery__
+ *
+ * To run a query within a React component, call `useMessagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMessagesQuery({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useMessagesQuery(baseOptions: Apollo.QueryHookOptions<MessagesQuery, MessagesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MessagesQuery, MessagesQueryVariables>(MessagesDocument, options);
+      }
+export function useMessagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MessagesQuery, MessagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MessagesQuery, MessagesQueryVariables>(MessagesDocument, options);
+        }
+export type MessagesQueryHookResult = ReturnType<typeof useMessagesQuery>;
+export type MessagesLazyQueryHookResult = ReturnType<typeof useMessagesLazyQuery>;
+export type MessagesQueryResult = Apollo.QueryResult<MessagesQuery, MessagesQueryVariables>;
 export const MyCirclesDocument = gql`
     query MyCircles($cursor: String) {
   myCircles(cursor: $cursor) {

@@ -1,0 +1,16 @@
+query Messages($circleId: Int!, $cursor: String) {
+  messages(circleId: $circleId, cursor: $cursor) {
+    hasMore
+    data {
+      id
+      text
+      authorId
+      author {
+        id
+        username
+      }
+      circleId
+      createdAt
+    }
+  }
+}

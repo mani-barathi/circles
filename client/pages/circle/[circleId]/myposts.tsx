@@ -72,7 +72,7 @@ const myposts: React.FC<mypostsProps> = ({}) => {
           <p>You don't have Posts. Try sharing One</p>
         ) : (
           data.myPosts.data.map((p) => (
-            <MyPost post={p} username={meData.me.username} />
+            <MyPost key={p.id} post={p} username={meData.me.username} />
           ))
         )}
 

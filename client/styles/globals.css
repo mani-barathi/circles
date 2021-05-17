@@ -1,19 +1,22 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+/* .chat-window::-webkit-scrollbar {
+  display: none;
 }
 
-a {
-  color: rgb(0, 128, 128);
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
+.chat-window {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+} */
+.chat-window {
+  /* Custom Scroll Bar for firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(146, 145, 145, 0.705) #292929;
 }
 
-* {
-  box-sizing: border-box;
+.chat-window::-webkit-scrollbar {
+  width: 4px;
+  background-color: #292929;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+  background-color: rgba(146, 145, 145, 0.705);
 }
