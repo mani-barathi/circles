@@ -22,7 +22,7 @@ export default function Home() {
     )
 
   return (
-    <div>
+    <div className="app__window">
       <Invitations />
       <hr />
       <MyCircles />

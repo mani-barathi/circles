@@ -2,6 +2,8 @@ import { gql } from "@apollo/client"
 import React, { useEffect, useState } from "react"
 import client from "../apollo"
 import {
+  CircleDocument,
+  CircleQuery,
   MemberRequest,
   MembersDocument,
   MembersQuery,
@@ -55,6 +57,23 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
           setMemberRequests((prev) =>
             prev.filter((mr) => mr.userId !== memberId)
           )
+
+          const existingCircle = cache.readQuery<CircleQuery>({
+            query: CircleDocument,
+            variables: { circleId },
+          })
+
+          cache.writeQuery<CircleQuery>({
+            query: CircleDocument,
+            variables: { circleId },
+            data: {
+              circle: {
+                ...existingCircle.circle,
+                totalMembers: existingCircle.circle.totalMembers + 1,
+              },
+            },
+          })
+
           const existingMembers = cache.readQuery<MembersQuery>({
             query: MembersDocument,
             variables: { circleId },
@@ -70,7 +89,7 @@ const MemberRequests: React.FC<MemberRequestsProps> = ({ circleId }) => {
               },
             },
           })
-        },
+        }, // end of update
       })
     } catch (e) {
       console.log(e)

@@ -1,5 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import {
+  CircleDocument,
+  CircleQuery,
   MembersDocument,
   MembersQuery,
   useMembersQuery,
@@ -10,9 +12,14 @@ import Spinner from "./Spinner"
 interface MembersProps {
   circleId: number
   isAdmin: Boolean
+  totalMembers: number
 }
 
-const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
+const Members: React.FC<MembersProps> = ({
+  circleId,
+  totalMembers,
+  isAdmin,
+}) => {
   const { data, error, loading, fetchMore } = useMembersQuery({
     variables: { circleId },
   })
@@ -51,6 +58,22 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
               },
             },
           })
+
+          const existingCircle = cache.readQuery<CircleQuery>({
+            query: CircleDocument,
+            variables: { circleId },
+          })
+
+          cache.writeQuery<CircleQuery>({
+            query: CircleDocument,
+            variables: { circleId },
+            data: {
+              circle: {
+                ...existingCircle.circle,
+                totalMembers: existingCircle.circle.totalMembers - 1,
+              },
+            },
+          }) // end of circle update
         }, // end of update
       }) // end of removeMember
     } catch (e) {
@@ -84,7 +107,7 @@ const Members: React.FC<MembersProps> = ({ circleId, isAdmin }) => {
   }
   return (
     <div>
-      <h4 className="mt-1 mb-2">Members: {data.members.data.length}</h4>
+      <h4 className="mt-1 mb-2">Members: {totalMembers}</h4>
       <ul className="list-group">
         {data.members.data.map((m) => (
           <li

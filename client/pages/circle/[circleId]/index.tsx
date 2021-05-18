@@ -27,7 +27,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
   if (loading) return <Spinner center={true} large={true} />
 
   return (
-    <div>
+    <div className="app__window">
       {data ? (
         <div>
           <div>

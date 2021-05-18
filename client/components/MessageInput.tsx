@@ -24,7 +24,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ circleId }) => {
     }
   }
   return (
-    <form onSubmit={handleSendMessage} className="d-flex mt-2 mb-2 shadow">
+    <form
+      onSubmit={handleSendMessage}
+      className="d-flex mt-2 mb-2 w-100 px-2"
+      style={{ maxWidth: "1000px" }}
+    >
       <input
         type="text"
         className="form-control flex-grow-1"

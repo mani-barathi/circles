@@ -35,19 +35,14 @@ const chat: React.FC<mypostsProps> = ({}) => {
   if (!circleData?.circle.isMember) return <PageNotFound />
 
   return (
-    <div
-      className="d-flex flex-column flex-grow-1"
-      style={{ maxHeight: "90vh" }}
-    >
-      <h1>{circleData.circle.name}</h1>
-      <CircleNavigation circleId={circleId} section="chat" />
-      <div className="d-flex flex-column flex-grow-1">
-        <div className="flex-grow-1 py-2 overflow-auto chat-window">
-          <Chat circleId={circleId} />
-        </div>
-        <MessageInput circleId={circleId} />
+    <>
+      <div className="w-100" style={{ maxWidth: "1000px" }}>
+        <h1 className="px-2">{circleData.circle.name}</h1>
+        <CircleNavigation circleId={circleId} section="chat" />
       </div>
-    </div>
+      <Chat circleId={circleId} />
+      <MessageInput circleId={circleId} />
+    </>
   )
 }
 

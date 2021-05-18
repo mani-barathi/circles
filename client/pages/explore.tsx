@@ -56,7 +56,7 @@ const index: React.FC<exploreProps> = ({}) => {
   const handleLoadMore = () => {}
 
   return (
-    <div>
+    <div className="app__window">
       <p className="d-flex align-items-center mt-2">
         <input
           type="text"
@@ -67,7 +67,7 @@ const index: React.FC<exploreProps> = ({}) => {
         <button className="ml-2 btn btn-info btn-lg">Search</button>
       </p>
 
-      {searchLoading && <Spinner center={false} />}
+      {searchLoading && <Spinner center={true} />}
       {isNoResultsFound && <p>No Results Found</p>}
 
       <div className="list-group">

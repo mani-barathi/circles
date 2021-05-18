@@ -58,7 +58,7 @@ const info: React.FC<membersProps> = ({}) => {
   }
 
   return (
-    <div>
+    <div className="app__window">
       <div>
         <div className="d-flex justify-content-between align-items-center">
           <h1>{circleData.circle.name}</h1>
@@ -68,7 +68,7 @@ const info: React.FC<membersProps> = ({}) => {
               disabled={exitGroupLoading}
               onClick={handleExitGroup}
             >
-              Exit Group
+              Exit Circle
             </button>
           )}
         </div>
@@ -90,7 +90,11 @@ const info: React.FC<membersProps> = ({}) => {
           <hr />
         </>
       )}
-      <Members circleId={circleId} isAdmin={circleData.circle.isAdmin} />
+      <Members
+        circleId={circleId}
+        totalMembers={circleData.circle.totalMembers}
+        isAdmin={circleData.circle.isAdmin}
+      />
     </div>
   )
 }

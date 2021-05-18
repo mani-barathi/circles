@@ -97,7 +97,7 @@ const login: React.FC<loginProps> = ({}) => {
   }
 
   return (
-    <div className="d-flex justify-content-center">
+    <div className="app__window d-flex justify-content-center">
       <div style={{ width: "100%", maxWidth: "500px" }}>
         <h1 className="text-center mt-3"> {isLogin ? "Login" : "Sign Up"} </h1>
 

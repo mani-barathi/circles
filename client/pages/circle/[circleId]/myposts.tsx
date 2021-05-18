@@ -62,7 +62,7 @@ const myposts: React.FC<mypostsProps> = ({}) => {
   }
 
   return (
-    <div>
+    <div className="app__window">
       <div>
         <h1>{circleData.circle.name}</h1>
       </div>

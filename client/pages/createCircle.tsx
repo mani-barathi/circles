@@ -53,7 +53,7 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
     }
   }
   return (
-    <div className="py-3">
+    <div className="py-3 app__window">
       <h2 className="text-center mb-4">New Circle</h2>
       <form onSubmit={handleFormSubmit}>
         <div className="form-group">

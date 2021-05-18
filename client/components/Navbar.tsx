@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   }
 
   return (
-    <nav className="navbar navbar-dark bg-dark sticky-top">
+    <nav className="navbar navbar-dark bg-dark sticky-top w-100">
       <a className="navbar-brand ">Circles</a>
       <div className="d-flex ml-auto ">
         <Link href="/">

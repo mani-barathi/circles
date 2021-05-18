@@ -22,18 +22,20 @@ const Messages: React.FC<MessagesProps> = ({ circleId }) => {
   }
 
   return (
-    <>
+    <div className="chat__container">
       {data.messages.hasMore && (
-        <button
-          onClick={handleLoadMore}
-          className="mb-2 ml-2 btn btn-secondary btn-sm"
-          disabled={loading}
-        >
-          {loading && (
-            <span className="spinner-border spinner-border-sm mr-2"></span>
-          )}
-          {loading ? "Loading..." : "Load More"}
-        </button>
+        <div>
+          <button
+            onClick={handleLoadMore}
+            className="mb-2 btn btn-secondary btn-sm"
+            disabled={loading}
+          >
+            {loading && (
+              <span className="spinner-border spinner-border-sm mr-2"></span>
+            )}
+            {loading ? "Loading..." : "Load More"}
+          </button>
+        </div>
       )}
 
       {data.messages.data
@@ -46,7 +48,7 @@ const Messages: React.FC<MessagesProps> = ({ circleId }) => {
             isMine={meData.me.id === message.authorId}
           />
         ))}
-    </>
+    </div>
   )
 }
 
