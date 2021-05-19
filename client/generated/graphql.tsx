@@ -213,6 +213,7 @@ export type MutationLikeOrDislikeArgs = {
 
 
 export type MutationSendMessageArgs = {
+  username: Scalars['String'];
   circleId: Scalars['Int'];
   text: Scalars['String'];
 };
@@ -331,6 +332,16 @@ export type QueryMyPostsArgs = {
 
 export type QueryMessagesArgs = {
   cursor?: Maybe<Scalars['String']>;
+  circleId: Scalars['Int'];
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  newMessage: Message;
+};
+
+
+export type SubscriptionNewMessageArgs = {
   circleId: Scalars['Int'];
 };
 
@@ -572,6 +583,7 @@ export type SendMemberRequestMutation = (
 export type SendMessageMutationVariables = Exact<{
   circleId: Scalars['Int'];
   text: Scalars['String'];
+  username: Scalars['String'];
 }>;
 
 
@@ -811,6 +823,23 @@ export type SentInvitaionsQuery = (
       & Pick<User, 'id' | 'username'>
     ) }
   )> }
+);
+
+export type NewMessageSubscriptionVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type NewMessageSubscription = (
+  { __typename?: 'Subscription' }
+  & { newMessage: (
+    { __typename?: 'Message' }
+    & Pick<Message, 'id' | 'circleId' | 'text' | 'authorId' | 'createdAt'>
+    & { author?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username'>
+    )> }
+  ) }
 );
 
 
@@ -1404,8 +1433,8 @@ export type SendMemberRequestMutationHookResult = ReturnType<typeof useSendMembe
 export type SendMemberRequestMutationResult = Apollo.MutationResult<SendMemberRequestMutation>;
 export type SendMemberRequestMutationOptions = Apollo.BaseMutationOptions<SendMemberRequestMutation, SendMemberRequestMutationVariables>;
 export const SendMessageDocument = gql`
-    mutation SendMessage($circleId: Int!, $text: String!) {
-  sendMessage(circleId: $circleId, text: $text)
+    mutation SendMessage($circleId: Int!, $text: String!, $username: String!) {
+  sendMessage(circleId: $circleId, text: $text, username: $username)
 }
     `;
 export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation, SendMessageMutationVariables>;
@@ -1425,6 +1454,7 @@ export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation,
  *   variables: {
  *      circleId: // value for 'circleId'
  *      text: // value for 'text'
+ *      username: // value for 'username'
  *   },
  * });
  */
@@ -1987,3 +2017,41 @@ export function useSentInvitaionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type SentInvitaionsQueryHookResult = ReturnType<typeof useSentInvitaionsQuery>;
 export type SentInvitaionsLazyQueryHookResult = ReturnType<typeof useSentInvitaionsLazyQuery>;
 export type SentInvitaionsQueryResult = Apollo.QueryResult<SentInvitaionsQuery, SentInvitaionsQueryVariables>;
+export const NewMessageDocument = gql`
+    subscription NewMessage($circleId: Int!) {
+  newMessage(circleId: $circleId) {
+    id
+    circleId
+    text
+    authorId
+    author {
+      id
+      username
+    }
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useNewMessageSubscription__
+ *
+ * To run a query within a React component, call `useNewMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewMessageSubscription({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useNewMessageSubscription(baseOptions: Apollo.SubscriptionHookOptions<NewMessageSubscription, NewMessageSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewMessageSubscription, NewMessageSubscriptionVariables>(NewMessageDocument, options);
+      }
+export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
+export type NewMessageSubscriptionResult = Apollo.SubscriptionResult<NewMessageSubscription>;

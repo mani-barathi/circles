@@ -1,11 +1,12 @@
 import React, { useState } from "react"
-import { useSendMessageMutation } from "../generated/graphql"
+import { useMeQuery, useSendMessageMutation } from "../generated/graphql"
 
 interface MessageInputProps {
   circleId: number
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({ circleId }) => {
+  const { data: meData } = useMeQuery()
   const [text, setText] = useState("")
   const [sendMessage, { loading }] = useSendMessageMutation()
 
@@ -13,10 +14,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ circleId }) => {
     e
   ) => {
     e.preventDefault()
-    if (!text) return
+    const { username } = meData.me
+    if (!text || !username) return
 
     try {
-      await sendMessage({ variables: { circleId, text } })
+      await sendMessage({ variables: { circleId, text, username } })
       setText("")
     } catch (e) {
       console.log(e.message)

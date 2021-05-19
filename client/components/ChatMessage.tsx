@@ -47,8 +47,13 @@ const style: React.CSSProperties = {
   borderRadius: "0.5rem",
 }
 
-const formatTime = (time: string): string => {
-  const dObj = new Date(parseInt(time))
+const formatTime = (time: any): string => {
+  let dObj
+  if (isNaN(time)) {
+    dObj = new Date(time)
+  } else {
+    dObj = new Date(parseInt(time))
+  }
   const t = dObj.toLocaleTimeString().split(" ")
   const date = dObj.toDateString().split(" ")
   const period = t[1]

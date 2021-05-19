@@ -1,0 +1,13 @@
+subscription NewMessage($circleId: Int!) {
+  newMessage(circleId: $circleId) {
+    id
+    circleId
+    text
+    authorId
+    author {
+      id
+      username
+    }
+    createdAt
+  }
+}

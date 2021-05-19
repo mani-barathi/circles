@@ -1,19 +1,44 @@
-import React from "react"
-import { useMeQuery, useMessagesQuery } from "../generated/graphql"
-import Message from "./Message"
+import { useApolloClient } from "@apollo/client"
+import React, { useEffect, useState, useRef } from "react"
+import {
+  Message,
+  NewMessageDocument,
+  NewMessageSubscription,
+  useMeQuery,
+  useMessagesQuery,
+  useNewMessageSubscription,
+} from "../generated/graphql"
+import ChatMessage from "./ChatMessage"
 
 interface MessagesProps {
   circleId: number
 }
 
 const Messages: React.FC<MessagesProps> = ({ circleId }) => {
+  // const client = useApolloClient()
+  const scrollBottomRef = useRef<HTMLDivElement>(null)
+  const [liveMessages, setLiveMessages] = useState<any[]>([])
   const { data: meData } = useMeQuery()
-  const { data, loading, error, fetchMore } = useMessagesQuery({
+  const { data, loading, fetchMore } = useMessagesQuery({
     variables: { circleId },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
   })
+  const { loading: sLoading, data: sData } = useNewMessageSubscription({
+    variables: { circleId },
+  })
+
+  useEffect(() => {
+    if (sLoading) return console.log("sLoading....")
+    if (sData) {
+      setLiveMessages((prev) => [...prev, sData.newMessage])
+      // if (sData.newMessage.authorId === meData.me.id) {
+      scrollBottomRef.current.scrollIntoView({ behavior: "smooth" })
+      // }
+    }
+  }, [sData, sLoading])
+
   if (!data || !data.messages) return null
 
   const handleLoadMore = async () => {
@@ -42,12 +67,26 @@ const Messages: React.FC<MessagesProps> = ({ circleId }) => {
         .slice()
         .reverse()
         .map((message) => (
-          <Message
+          <ChatMessage
             key={message.id}
             message={message}
             isMine={meData.me.id === message.authorId}
           />
         ))}
+
+      {/* Live Messages */}
+      {liveMessages.map((message) => (
+        <ChatMessage
+          key={message.id}
+          message={message}
+          isMine={meData.me.id === message.authorId}
+        />
+      ))}
+
+      <div
+        style={{ padding: "1rem", margin: "1rem" }}
+        ref={scrollBottomRef}
+      ></div>
     </div>
   )
 }
