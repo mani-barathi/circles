@@ -1,3 +1,4 @@
+import { withFilter } from "graphql-subscriptions"
 import {
   Arg,
   Authorized,
@@ -6,6 +7,8 @@ import {
   Mutation,
   Query,
   Resolver,
+  Root,
+  Subscription,
 } from "type-graphql"
 import { getConnection } from "typeorm"
 import Message from "../entities/Message"
@@ -13,9 +16,39 @@ import { Context, createPaginatedResponse } from "../types"
 
 const PaginatedMessages = createPaginatedResponse(Message)
 type PaginatedMessages = InstanceType<typeof PaginatedMessages>
+const NEW_MESSAGE = "NEW_MESSAGE"
 
 @Resolver(Message)
-export default class PostResolver {
+export default class MessageResolver {
+  @Subscription({
+    subscribe: withFilter(
+      (_, args, { connection, pubsub }: Context, ___) => {
+        console.log("args:", args)
+        const userId = connection.context.req.session || null
+        if (!userId) throw new Error("not authenticated !")
+        // const [result] = await getManager().query(
+        //   `
+        // select exists (select 1 from member where "userId" = $1 and "circleId" = $2 )
+        // `,
+        //   [userId, args.circleId]
+        // )
+        // if (!result.exists) throw new Error("Not authorized !")
+        return pubsub.asyncIterator(NEW_MESSAGE)
+      },
+      (payload, variables) => {
+        return variables.circleId === payload.circleId
+      }
+    ), // end of withFilter
+  })
+  newMessage(
+    @Root() message: Message,
+    // @ts-ignore
+    @Arg("circleId", () => Int) circleId: number
+  ): Message {
+    console.log(`new message by ${message.author.username}`)
+    return message
+  }
+
   @Query(() => PaginatedMessages)
   @Authorized(["MEMBER"])
   async messages(
@@ -56,12 +89,25 @@ export default class PostResolver {
   async sendMessage(
     @Arg("text", () => String) text: string,
     @Arg("circleId", () => Int) circleId: number,
-    @Ctx() { req }: Context
+    @Arg("username", () => String) username: string,
+    @Ctx() { pubsub, req }: Context
   ): Promise<Boolean> {
     const { userId } = req.session
-    if (text.length === 0) return false
+    if (text.length === 0 || username.length < 3) return false
 
-    await Message.create({ circleId, authorId: userId, text }).save()
+    const message = await Message.create({
+      authorId: userId,
+      circleId,
+      text,
+    }).save()
+    const payloadMessage = {
+      ...message,
+      author: {
+        id: userId,
+        username,
+      },
+    }
+    pubsub.publish(NEW_MESSAGE, payloadMessage)
     return true
   }
 }

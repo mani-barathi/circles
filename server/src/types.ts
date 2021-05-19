@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { Session, SessionData } from "express-session"
+import { PubSub } from "graphql-subscriptions"
 import { ObjectType, Field, ClassType } from "type-graphql"
 import { createUserLoader } from "./utils/dataloaders"
 
@@ -9,6 +10,8 @@ export type Context = {
   }
   res: Response
   userLoader: ReturnType<typeof createUserLoader>
+  pubsub: PubSub
+  connection?: any | undefined
 }
 
 export const createPaginatedResponse = <TObj>(TClass: ClassType<TObj>) => {
