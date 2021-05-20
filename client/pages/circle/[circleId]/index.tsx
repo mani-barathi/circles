@@ -3,6 +3,7 @@ import { useRouter } from "next/router"
 import React from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
 import CreatePost from "../../../components/CreatePost"
+import JoinCircle from "../../../components/JoinCircle"
 import Posts from "../../../components/Posts"
 import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
 import Spinner from "../../../components/Spinner"
@@ -34,7 +35,13 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
             <div className="d-flex justify-content-between align-items-center">
               <h1>{data.circle.name}</h1>
               {me?.me?.id && !data.circle.isMember && (
-                <SendCancelMemberRequest circleId={circleId} />
+                <>
+                  {data.circle.isPublic ? (
+                    <JoinCircle circleId={circleId} />
+                  ) : (
+                    <SendCancelMemberRequest circleId={circleId} />
+                  )}
+                </>
               )}
             </div>
             <div className="font-weight-bold">

@@ -84,7 +84,7 @@ const info: React.FC<membersProps> = ({}) => {
 
       {circleData.circle.description && <p>{circleData.circle.description}</p>}
 
-      {circleData.circle.isAdmin && (
+      {circleData.circle.isAdmin && !circleData.circle.isPublic && (
         <>
           <MemberRequests circleId={circleId} />
           <hr />

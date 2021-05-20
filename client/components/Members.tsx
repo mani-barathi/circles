@@ -22,6 +22,7 @@ const Members: React.FC<MembersProps> = ({
 }) => {
   const { data, error, loading, fetchMore } = useMembersQuery({
     variables: { circleId },
+    fetchPolicy: "cache-and-network",
   })
   const [
     removeMember,

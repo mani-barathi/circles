@@ -7,6 +7,8 @@ Developing a Social Groups web-app using typescript and graphQL
 ### Frontend
 
 - [**NextJs**](https://nextjs.org/docs/getting-started)
+- [**Apollo Client**](https://www.apollographql.com/docs/react/)
+
 ### Backend
 
 - [**Apollo-Express**](https://www.apollographql.com/blog/using-express-with-graphql-server-node-js/) as a Server
@@ -37,6 +39,7 @@ Developing a Social Groups web-app using typescript and graphQL
    ```shell
        npm run dev
    ```
+
 ### Backend
 
 1. cd into the server and install all dependencies

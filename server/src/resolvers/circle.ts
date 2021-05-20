@@ -119,6 +119,7 @@ export default class CircleResolver {
         "c.updatedAt",
         "c.creatorId",
         "c.totalMembers",
+        "c.isPublic",
       ])
       .addSelect(["creator.id", "creator.username"])
       .orderBy("c.totalMembers", "DESC")
@@ -145,6 +146,7 @@ export default class CircleResolver {
           "c.updatedAt",
           "c.creatorId",
           "c.totalMembers",
+          "c.isPublic",
         ])
         .addSelect(["u.id", "u.username"])
         .where(`c.name like :term`, { term: `%${query}%` })
@@ -180,6 +182,7 @@ export default class CircleResolver {
           "c.createdAt",
           "c.creatorId",
           "c.totalMembers",
+          "c.isPublic",
         ])
         .addSelect(["creator.id", "creator.username"])
         .where("c.id = :circleId", { circleId })
@@ -198,6 +201,7 @@ export default class CircleResolver {
   async createCircle(
     @Arg("name") name: string,
     @Arg("description") description: string,
+    @Arg("isPublic") isPublic: Boolean,
     @Ctx() { req }: Context
   ): Promise<CircleResponse> {
     try {
@@ -210,7 +214,7 @@ export default class CircleResolver {
         name: name.toLowerCase(),
         description,
         creatorId: req.session.userId,
-        // totalMembers:1
+        isPublic,
       }).save()
 
       await Member.create({
@@ -228,6 +232,37 @@ export default class CircleResolver {
         return { errors: [{ path: name, message: `invalid creator` }] }
       }
       return { errors: [{ path: "unkown", message: "something went wrong" }] }
+    }
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthorized)
+  async joinCircle(
+    @Arg("circleId", () => Int) circleId: number,
+    @Ctx() { req }: Context
+  ): Promise<Boolean> {
+    const { userId } = req.session
+    try {
+      const [isPublic] = await getManager().query(
+        `select exists(select 1 from circle where id= $1 and "isPublic" = true)`,
+        [circleId]
+      )
+      if (!isPublic.exists) return false
+
+      await getManager().transaction(async (tm) => {
+        await tm.insert(Member, { circleId, userId, isAdmin: false })
+
+        await tm.query(
+          `update circle set "totalMembers" = "totalMembers" + 1, "updatedAt" = now() where id = $1`,
+          [circleId]
+        )
+      }) // end of transaction
+      return true
+    } catch (e) {
+      if (e.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
+        throw new Error("you are already a member of the circle")
+      }
+      throw new Error("something went wrong")
     }
   }
 

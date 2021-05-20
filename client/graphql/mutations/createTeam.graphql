@@ -1,5 +1,9 @@
-mutation CreateCircle($name: String!, $description: String!) {
-  createCircle(name: $name, description: $description) {
+mutation CreateCircle(
+  $name: String!
+  $description: String!
+  $isPublic: Boolean!
+) {
+  createCircle(name: $name, description: $description, isPublic: $isPublic) {
     circle {
       id
       name

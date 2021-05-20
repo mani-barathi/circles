@@ -5,6 +5,7 @@ query GetCircles {
     totalMembers
     updatedAt
     createdAt
+    isPublic
     creator {
       username
     }

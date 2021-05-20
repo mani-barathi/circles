@@ -15,16 +15,10 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
   const router = useRouter()
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [isPublic, setIsPublic] = useState(false)
   const [err, setErr] = useState<CustomError[]>([])
   const [feedback, setFeedback] = useState(null)
   const [createCircle, { loading }] = useCreateCircleMutation()
-
-  useEffect(() => {
-    if (!meData) return
-    if (!meData.me) {
-      router.replace("/login?next=/createCircle")
-    }
-  }, [meData])
 
   if (meLoading) return <Spinner large={true} center={true} />
   if (!meData || !meData.me) return <PageNotFound />
@@ -34,7 +28,7 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
   ) => {
     e.preventDefault()
     setErr(null)
-    const variables = { name, description }
+    const variables = { name, description, isPublic }
     try {
       const { data } = await createCircle({
         variables,
@@ -75,6 +69,19 @@ const createCircle: React.FC<createCircleProps> = ({}) => {
             onChange={(e) => setDescription(e.target.value)}
             className="form-control"
           ></textarea>
+        </div>
+
+        <div className="form-group form-check">
+          <input
+            type="checkbox"
+            className="form-check-input"
+            id="exampleCheck1"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="exampleCheck1">
+            Public (Anybody can join without admin's permission)
+          </label>
         </div>
 
         {err?.map((error) => (

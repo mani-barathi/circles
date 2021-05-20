@@ -55,7 +55,7 @@ export default class MessageResolver {
     @Arg("circleId", () => Int) circleId: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string
   ): Promise<PaginatedMessages> {
-    const limit = 5
+    const limit = 15
     const take = limit + 1
     const replacements: any[] = [circleId, take]
     if (cursor) {

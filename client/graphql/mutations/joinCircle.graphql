@@ -1,0 +1,3 @@
+mutation JoinCircle($circleId: Int!) {
+  joinCircle(circleId: $circleId)
+}

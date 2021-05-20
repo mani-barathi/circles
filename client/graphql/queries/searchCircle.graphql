@@ -5,6 +5,7 @@ query SearchCircle($query: String!, $cursor: String) {
       id
       name
       totalMembers
+      isPublic
       creator {
         username
       }

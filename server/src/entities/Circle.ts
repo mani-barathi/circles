@@ -39,6 +39,10 @@ export default class Circle extends BaseEntity {
   @Column("int", { default: 1 })
   totalMembers: number
 
+  @Field(() => Boolean)
+  @Column("boolean", { default: true })
+  isPublic: Boolean
+
   // To check whether the current logged in user is a member of the circle
   @Field(() => Boolean)
   isMember: boolean

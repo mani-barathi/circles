@@ -20,6 +20,7 @@ export type Circle = {
   name: Scalars['String'];
   creatorId: Scalars['String'];
   totalMembers: Scalars['Int'];
+  isPublic: Scalars['Boolean'];
   isMember: Scalars['Boolean'];
   isAdmin: Scalars['Boolean'];
   creator?: Maybe<User>;
@@ -101,6 +102,7 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   createCircle: CircleResponse;
+  joinCircle: Scalars['Boolean'];
   exitCircle: Scalars['Boolean'];
   acceptInvitation: Scalars['Boolean'];
   rejectInvitation: Scalars['Boolean'];
@@ -132,8 +134,14 @@ export type MutationLoginArgs = {
 
 
 export type MutationCreateCircleArgs = {
+  isPublic: Scalars['Boolean'];
   description: Scalars['String'];
   name: Scalars['String'];
+};
+
+
+export type MutationJoinCircleArgs = {
+  circleId: Scalars['Int'];
 };
 
 
@@ -419,6 +427,7 @@ export type CreatePostMutation = (
 export type CreateCircleMutationVariables = Exact<{
   name: Scalars['String'];
   description: Scalars['String'];
+  isPublic: Scalars['Boolean'];
 }>;
 
 
@@ -465,6 +474,16 @@ export type ExitCircleMutationVariables = Exact<{
 export type ExitCircleMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'exitCircle'>
+);
+
+export type JoinCircleMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type JoinCircleMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'joinCircle'>
 );
 
 export type LikeOrDislikeMutationVariables = Exact<{
@@ -601,7 +620,7 @@ export type CircleQuery = (
   { __typename?: 'Query' }
   & { circle: (
     { __typename?: 'Circle' }
-    & Pick<Circle, 'id' | 'name' | 'description' | 'createdAt' | 'totalMembers' | 'isAdmin' | 'isMember'>
+    & Pick<Circle, 'id' | 'name' | 'description' | 'createdAt' | 'totalMembers' | 'isAdmin' | 'isMember' | 'isPublic'>
     & { creator?: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'username'>
@@ -616,7 +635,7 @@ export type GetCirclesQuery = (
   { __typename?: 'Query' }
   & { getCircles: Array<(
     { __typename?: 'Circle' }
-    & Pick<Circle, 'id' | 'name' | 'totalMembers' | 'updatedAt' | 'createdAt'>
+    & Pick<Circle, 'id' | 'name' | 'totalMembers' | 'updatedAt' | 'createdAt' | 'isPublic'>
     & { creator?: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'username'>
@@ -741,7 +760,7 @@ export type MyCirclesQuery = (
     & Pick<PaginatedCircle, 'hasMore'>
     & { data: Array<(
       { __typename?: 'Circle' }
-      & Pick<Circle, 'id' | 'name' | 'isAdmin' | 'updatedAt'>
+      & Pick<Circle, 'id' | 'name' | 'isAdmin' | 'updatedAt' | 'isPublic'>
     )> }
   ) }
 );
@@ -799,7 +818,7 @@ export type SearchCircleQuery = (
     & Pick<PaginatedCircle, 'hasMore'>
     & { data: Array<(
       { __typename?: 'Circle' }
-      & Pick<Circle, 'id' | 'name' | 'totalMembers'>
+      & Pick<Circle, 'id' | 'name' | 'totalMembers' | 'isPublic'>
       & { creator?: Maybe<(
         { __typename?: 'User' }
         & Pick<User, 'username'>
@@ -1009,8 +1028,8 @@ export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutati
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
 export const CreateCircleDocument = gql`
-    mutation CreateCircle($name: String!, $description: String!) {
-  createCircle(name: $name, description: $description) {
+    mutation CreateCircle($name: String!, $description: String!, $isPublic: Boolean!) {
+  createCircle(name: $name, description: $description, isPublic: $isPublic) {
     circle {
       id
       name
@@ -1042,6 +1061,7 @@ export type CreateCircleMutationFn = Apollo.MutationFunction<CreateCircleMutatio
  *   variables: {
  *      name: // value for 'name'
  *      description: // value for 'description'
+ *      isPublic: // value for 'isPublic'
  *   },
  * });
  */
@@ -1146,6 +1166,37 @@ export function useExitCircleMutation(baseOptions?: Apollo.MutationHookOptions<E
 export type ExitCircleMutationHookResult = ReturnType<typeof useExitCircleMutation>;
 export type ExitCircleMutationResult = Apollo.MutationResult<ExitCircleMutation>;
 export type ExitCircleMutationOptions = Apollo.BaseMutationOptions<ExitCircleMutation, ExitCircleMutationVariables>;
+export const JoinCircleDocument = gql`
+    mutation JoinCircle($circleId: Int!) {
+  joinCircle(circleId: $circleId)
+}
+    `;
+export type JoinCircleMutationFn = Apollo.MutationFunction<JoinCircleMutation, JoinCircleMutationVariables>;
+
+/**
+ * __useJoinCircleMutation__
+ *
+ * To run a mutation, you first call `useJoinCircleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useJoinCircleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [joinCircleMutation, { data, loading, error }] = useJoinCircleMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useJoinCircleMutation(baseOptions?: Apollo.MutationHookOptions<JoinCircleMutation, JoinCircleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<JoinCircleMutation, JoinCircleMutationVariables>(JoinCircleDocument, options);
+      }
+export type JoinCircleMutationHookResult = ReturnType<typeof useJoinCircleMutation>;
+export type JoinCircleMutationResult = Apollo.MutationResult<JoinCircleMutation>;
+export type JoinCircleMutationOptions = Apollo.BaseMutationOptions<JoinCircleMutation, JoinCircleMutationVariables>;
 export const LikeOrDislikeDocument = gql`
     mutation LikeOrDislike($postId: Int!, $circleId: Int!, $isDislike: Boolean!) {
   likeOrDislike(postId: $postId, circleId: $circleId, isDislike: $isDislike)
@@ -1475,6 +1526,7 @@ export const CircleDocument = gql`
     totalMembers
     isAdmin
     isMember
+    isPublic
     creator {
       username
     }
@@ -1517,6 +1569,7 @@ export const GetCirclesDocument = gql`
     totalMembers
     updatedAt
     createdAt
+    isPublic
     creator {
       username
     }
@@ -1807,6 +1860,7 @@ export const MyCirclesDocument = gql`
       name
       isAdmin
       updatedAt
+      isPublic
     }
   }
 }
@@ -1939,6 +1993,7 @@ export const SearchCircleDocument = gql`
       id
       name
       totalMembers
+      isPublic
       creator {
         username
       }

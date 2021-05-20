@@ -30,6 +30,11 @@ const Messages: React.FC<MessagesProps> = ({ circleId }) => {
   })
 
   useEffect(() => {
+    if (!data || data.messages.data.length > 15) return
+    scrollBottomRef.current.scrollIntoView({ behavior: "smooth" })
+  }, [data])
+
+  useEffect(() => {
     if (sLoading) return console.log("sLoading....")
     if (sData) {
       setLiveMessages((prev) => [...prev, sData.newMessage])
