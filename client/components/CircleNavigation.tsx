@@ -23,6 +23,13 @@ const CircleNavigation: React.FC<CircleNavigationProps> = ({
         </Link>
       </li>
       <li className="nav-item">
+        <Link href={`/circle/${circleId}/createpost`}>
+          <a className={`nav-link ${section === "createpost" && "active"}`}>
+            New Post
+          </a>
+        </Link>
+      </li>
+      <li className="nav-item">
         <Link href={`/circle/${circleId}/myposts`}>
           <a className={`nav-link ${section === "myposts" && "active"}`}>
             My Posts

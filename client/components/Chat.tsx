@@ -1,5 +1,5 @@
 import { useApolloClient } from "@apollo/client"
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react"
 import {
   Message,
   NewMessageDocument,
@@ -15,7 +15,8 @@ interface MessagesProps {
 }
 
 const Messages: React.FC<MessagesProps> = ({ circleId }) => {
-  // const client = useApolloClient()
+  const client = useApolloClient()
+  const [firstLoad, setFirstLoad] = useState(true)
   const scrollBottomRef = useRef<HTMLDivElement>(null)
   const [liveMessages, setLiveMessages] = useState<any[]>([])
   const { data: meData } = useMeQuery()
@@ -29,10 +30,17 @@ const Messages: React.FC<MessagesProps> = ({ circleId }) => {
     variables: { circleId },
   })
 
+  useLayoutEffect(() => {
+    client.cache.evict({ fieldName: "messages" })
+    client.cache.evict({ fieldName: "newMessage", id: "ROOT_SUBSCRIPTION" })
+    client.cache.gc()
+  }, [])
+
   useEffect(() => {
-    if (!data || data.messages.data.length > 15) return
+    if (loading || !data || !firstLoad) return
     scrollBottomRef.current.scrollIntoView({ behavior: "smooth" })
-  }, [data])
+    setFirstLoad(false)
+  }, [data, loading])
 
   useEffect(() => {
     if (sLoading) return console.log("sLoading....")

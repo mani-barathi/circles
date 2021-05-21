@@ -15,11 +15,17 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const [logoutUser, { loading: logoutLoading }] = useLogoutMutation()
 
   const handleLogout = async () => {
-    const { data } = await logoutUser()
-    if (data?.logout) {
-      await client.cache.reset()
-      await router.push("/")
-    } else {
+    if (logoutLoading) return
+    try {
+      const { data } = await logoutUser()
+      if (data?.logout) {
+        await client.cache.reset()
+        await router.push("/")
+      } else {
+        alert("something went wrong try refreshing")
+      }
+    } catch (e) {
+      console.log(e)
       alert("something went wrong try refreshing")
     }
   }
@@ -27,26 +33,26 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   return (
     <nav className="navbar navbar-dark bg-dark sticky-top w-100">
       <a className="navbar-brand ">Circles</a>
-      <div className="d-flex ml-auto ">
+      <div className="d-flex ml-auto align-items-center">
         <Link href="/">
-          <a className="nav-link active ">Home </a>
+          <a className="nav-link active">Home </a>
         </Link>
         {data?.me && (
           <Link href="/createCircle">
-            <a className="nav-link active ">New Circle </a>
+            <a className="nav-link active">New Circle </a>
           </Link>
         )}
         <Link href="/explore">
-          <a className="nav-link active ">Explore </a>
+          <a className="nav-link active">Explore </a>
         </Link>
         {data?.me ? (
-          <button
-            disabled={logoutLoading}
+          <img
+            src={` https://ui-avatars.com/api/?name=${data.me.username} `}
             onClick={handleLogout}
-            className="btn text-white"
-          >
-            Logout
-          </button>
+            className="img rounded-circle text-white"
+            title="Logout"
+            style={{ cursor: "pointer", width: "2rem", height: "2rem" }}
+          />
         ) : (
           <Link href="/login">
             <a className="nav-link active ">Login </a>
