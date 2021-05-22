@@ -1,3 +1,4 @@
+import { FileUpload, GraphQLUpload } from "graphql-upload"
 import {
   Arg,
   Authorized,
@@ -10,7 +11,7 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql"
-import { getConnection, getManager } from "typeorm"
+import { getConnection } from "typeorm"
 import Post from "../entities/Post"
 import User from "../entities/User"
 import { isAuthorized } from "../middlewares/authMiddlewares"
@@ -93,26 +94,21 @@ export default class PostResolver {
   async createPost(
     @Arg("text", () => String) text: string,
     @Arg("circleId", () => Int) circleId: number,
+    @Arg("image", () => GraphQLUpload, { nullable: true }) file: FileUpload,
     @Ctx() { req }: Context
   ): Promise<Post> {
     const { userId } = req.session
+    const image = await file
+    console.log("image:", image)
 
     if (text.length < 1 || text.length > 2000)
       throw new Error("text should be between 1 and 2000 characters")
 
-    const post = await getManager().transaction(async (tm) => {
-      const newPost = await tm
-        .create(Post, {
-          circleId,
-          creatorId: userId,
-          text,
-        })
-        .save()
-      await tm.query(`update circle set "updatedAt" = now() where id = $1`, [
-        circleId,
-      ])
-      return newPost
-    })
+    const post = await Post.create({
+      circleId,
+      creatorId: userId,
+      text,
+    }).save()
     return post
   }
 

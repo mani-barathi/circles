@@ -8,6 +8,7 @@ import connectRedis from "connect-redis"
 import session from "express-session"
 import { createConnection } from "typeorm"
 import { buildSchema } from "type-graphql"
+import { graphqlUploadExpress } from "graphql-upload"
 import { RedisPubSub } from "graphql-redis-subscriptions"
 
 import UserResolver from "./resolvers/user"
@@ -75,6 +76,7 @@ const main = async () => {
   })
 
   app.use(sessionMiddleware)
+  app.use(graphqlUploadExpress({ maxFileSize: 10000, maxFiles: 1 }))
 
   const pubsub = new RedisPubSub({
     connection: options,
@@ -100,6 +102,7 @@ const main = async () => {
       pubsub,
       connection,
     }),
+    uploads: false,
   })
 
   apolloServer.applyMiddleware({ app, cors: false })

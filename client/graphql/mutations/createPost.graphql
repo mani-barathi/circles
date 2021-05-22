@@ -1,5 +1,5 @@
-mutation CreatePost($circleId: Int!, $text: String!) {
-  createPost(circleId: $circleId, text: $text) {
+mutation CreatePost($circleId: Int!, $text: String!, $image: Upload) {
+  createPost(circleId: $circleId, text: $text, image: $image) {
     id
     text
     creatorId

@@ -1,10 +1,10 @@
-import { HttpLink } from "@apollo/client"
 import { RetryLink } from "@apollo/client/link/retry"
 import { WebSocketLink } from "@apollo/client/link/ws"
 import { getMainDefinition } from "@apollo/client/utilities"
+import { createUploadLink } from "apollo-upload-client"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 
-const httpLink = new HttpLink({
+const httpLink = createUploadLink({
   uri: "http://localhost:4000/graphql",
   credentials: "include",
 })

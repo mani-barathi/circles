@@ -1,13 +1,12 @@
 import { useRouter } from "next/router"
 import React, { useCallback, useState } from "react"
-import Dropzone, { useDropzone } from "react-dropzone"
+import { useDropzone } from "react-dropzone"
 import CircleNavigation from "../../../components/CircleNavigation"
 import PageNotFound from "../../../components/PageNotFound"
 import Spinner from "../../../components/Spinner"
 import {
   useCircleQuery,
   useCreatePostMutation,
-  useMeQuery,
 } from "../../../generated/graphql"
 
 interface createpostProps {}
@@ -15,7 +14,7 @@ interface createpostProps {}
 const createpost: React.FC<createpostProps> = ({}) => {
   const router = useRouter()
   const [text, setText] = useState("")
-  const [file, setFile] = useState<any>()
+  const [image, setImage] = useState<any>(null)
   const [errors, setErrors] = useState([])
   const [createPost, { loading }] = useCreatePostMutation()
   const circleId =
@@ -42,7 +41,7 @@ const createpost: React.FC<createpostProps> = ({}) => {
       return setErrors([{ message: "file should be an image" }])
     }
     console.log(uploadedFile)
-    setFile(uploadedFile)
+    setImage(uploadedFile)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
@@ -62,8 +61,9 @@ const createpost: React.FC<createpostProps> = ({}) => {
     e.preventDefault()
     setErrors([])
     try {
+      console.log(image)
       await createPost({
-        variables: { circleId, text },
+        variables: { circleId, text, image },
       })
       router.push(`/circle/${circleId}/`)
     } catch (e) {
@@ -75,8 +75,14 @@ const createpost: React.FC<createpostProps> = ({}) => {
   const handleRemoveImage: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    setFile(null)
+    setImage(null)
   }
+  const onChange = ({
+    target: {
+      validity,
+      files: [file],
+    },
+  }: any) => validity.valid && setImage(file)
 
   return (
     <div className="app__window">
@@ -97,9 +103,9 @@ const createpost: React.FC<createpostProps> = ({}) => {
               className="d-flex justify-content-center align-items-center"
               style={{ cursor: "default" }}
             >
-              {file ? (
+              {image ? (
                 <>
-                  <span className="mr-2 mt-1">{file.name}</span>
+                  <span className="mr-2 mt-1">{image.name}</span>
                   <button
                     onClick={handleRemoveImage}
                     type="button"
@@ -116,6 +122,7 @@ const createpost: React.FC<createpostProps> = ({}) => {
             </div>
           )}
         </div>
+        {/* <input type="file" required onChange={onChange} /> */}
 
         {errors.map((e) => (
           <div className="alert alert-danger mt-1 mb-2" key={e.message}>

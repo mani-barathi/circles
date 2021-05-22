@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
 };
 
 export type Circle = {
@@ -203,6 +205,7 @@ export type MutationSendMemberRequestArgs = {
 
 
 export type MutationCreatePostArgs = {
+  image?: Maybe<Scalars['Upload']>;
   circleId: Scalars['Int'];
   text: Scalars['String'];
 };
@@ -353,6 +356,7 @@ export type SubscriptionNewMessageArgs = {
   circleId: Scalars['Int'];
 };
 
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Int'];
@@ -413,6 +417,7 @@ export type CancelMemberRequestMutation = (
 export type CreatePostMutationVariables = Exact<{
   circleId: Scalars['Int'];
   text: Scalars['String'];
+  image?: Maybe<Scalars['Upload']>;
 }>;
 
 
@@ -990,8 +995,8 @@ export type CancelMemberRequestMutationHookResult = ReturnType<typeof useCancelM
 export type CancelMemberRequestMutationResult = Apollo.MutationResult<CancelMemberRequestMutation>;
 export type CancelMemberRequestMutationOptions = Apollo.BaseMutationOptions<CancelMemberRequestMutation, CancelMemberRequestMutationVariables>;
 export const CreatePostDocument = gql`
-    mutation CreatePost($circleId: Int!, $text: String!) {
-  createPost(circleId: $circleId, text: $text) {
+    mutation CreatePost($circleId: Int!, $text: String!, $image: Upload) {
+  createPost(circleId: $circleId, text: $text, image: $image) {
     id
     text
     creatorId
@@ -1017,6 +1022,7 @@ export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, C
  *   variables: {
  *      circleId: // value for 'circleId'
  *      text: // value for 'text'
+ *      image: // value for 'image'
  *   },
  * });
  */
