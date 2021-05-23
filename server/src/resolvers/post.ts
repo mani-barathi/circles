@@ -11,12 +11,12 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql"
-import { getConnection } from "typeorm"
+import { getConnection, getManager } from "typeorm"
 import Post from "../entities/Post"
 import User from "../entities/User"
 import { isAuthorized } from "../middlewares/authMiddlewares"
 import { Context, createPaginatedResponse, PostInput } from "../types"
-import { saveToFs } from "../utils/saveToFs"
+import { deleteFromFs, saveToFs } from "../utils/fsOperations"
 
 const PaginatedPosts = createPaginatedResponse(Post)
 type PaginatedPosts = InstanceType<typeof PaginatedPosts>
@@ -120,7 +120,15 @@ export default class PostResolver {
     @Ctx() { req }: Context
   ): Promise<Boolean> {
     const { userId } = req.session
-    await Post.delete({ id: postId, creatorId: userId })
+    const [objs, deletedCount]: any = await getManager().query(
+      `DELETE FROM post WHERE id = $1 and "creatorId" = $2 RETURNING "imageUrl"`,
+      [postId, userId]
+    )
+
+    if (deletedCount === 1 && objs[0].imageUrl) {
+      deleteFromFs(objs[0].imageUrl)
+    }
+
     return true
   }
 }

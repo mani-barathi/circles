@@ -24,3 +24,9 @@ export const saveToFs = async (
 
   return { filename, imageUrl }
 }
+
+export const deleteFromFs = (imageUrl: string) => {
+  const imageName = imageUrl.split("images/")[1]
+  const pathName = path.join(__dirname, `../../public/images/${imageName}`)
+  fs.unlinkSync(pathName)
+}
