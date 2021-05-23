@@ -20,7 +20,7 @@ import PostResolver from "./resolvers/post"
 import LikeResolver from "./resolvers/like"
 import MessageResolver from "./resolvers/message"
 
-import { COOKIE_NAME } from "./constants"
+import { COOKIE_NAME, PORT } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
 import { createUserLoader } from "./utils/dataloaders"
 
@@ -57,7 +57,7 @@ const main = async () => {
 
   const app: express.Application = express()
   const httpServer = http.createServer(app)
-  app.use(cors(corsOptions))
+
   const sessionMiddleware = session({
     name: COOKIE_NAME,
     store: new RedisStore({
@@ -75,8 +75,11 @@ const main = async () => {
     resave: false,
   })
 
+  app.use(cors(corsOptions))
+  app.use(express.static("public"))
   app.use(sessionMiddleware)
-  app.use(graphqlUploadExpress({ maxFileSize: 10000, maxFiles: 1 }))
+  app.use(graphqlUploadExpress({ maxFileSize: 2500000, maxFiles: 1 }))
+  // 2500000 : 2.5Mb
 
   const pubsub = new RedisPubSub({
     connection: options,
@@ -110,8 +113,8 @@ const main = async () => {
 
   app.get("/", (_, res) => res.send("Circles API"))
 
-  httpServer.listen(4000, () =>
-    console.log(`URL: http://localhost:4000/graphql`)
+  httpServer.listen(PORT, () =>
+    console.log(`URL: http://localhost:${PORT}/graphql`)
   )
 }
 

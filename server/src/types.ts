@@ -14,6 +14,14 @@ export type Context = {
   connection?: any | undefined
 }
 
+export interface PostInput {
+  circleId: number
+  creatorId: number
+  text: string
+  imageUrl?: string
+  filename?: string
+}
+
 export const createPaginatedResponse = <TObj>(TClass: ClassType<TObj>) => {
   @ObjectType(`Paginated${TClass.name}`)
   class PaginatedResponse {

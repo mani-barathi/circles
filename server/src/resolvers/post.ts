@@ -15,7 +15,8 @@ import { getConnection } from "typeorm"
 import Post from "../entities/Post"
 import User from "../entities/User"
 import { isAuthorized } from "../middlewares/authMiddlewares"
-import { Context, createPaginatedResponse } from "../types"
+import { Context, createPaginatedResponse, PostInput } from "../types"
+import { saveToFs } from "../utils/saveToFs"
 
 const PaginatedPosts = createPaginatedResponse(Post)
 type PaginatedPosts = InstanceType<typeof PaginatedPosts>
@@ -97,19 +98,19 @@ export default class PostResolver {
     @Arg("image", () => GraphQLUpload, { nullable: true }) file: FileUpload,
     @Ctx() { req }: Context
   ): Promise<Post> {
-    const { userId } = req.session
-    const image = await file
-    console.log("image:", image)
-
     if (text.length < 1 || text.length > 2000)
       throw new Error("text should be between 1 and 2000 characters")
 
-    const post = await Post.create({
-      circleId,
-      creatorId: userId,
-      text,
-    }).save()
-    return post
+    const { userId } = req.session
+    let variables: PostInput = { circleId, creatorId: userId, text }
+
+    if (file) {
+      const { filename, createReadStream } = await file
+      const { imageUrl } = await saveToFs(filename, createReadStream)
+      variables = { ...variables, filename, imageUrl }
+    }
+
+    return await Post.create(variables).save()
   }
 
   @Mutation(() => Boolean)

@@ -40,7 +40,10 @@ const createpost: React.FC<createpostProps> = ({}) => {
     if (!uploadedFile.type.startsWith("image")) {
       return setErrors([{ message: "file should be an image" }])
     }
-    console.log(uploadedFile)
+
+    if (uploadedFile.size > 2500000) {
+      return setErrors([{ message: "image size should be less than 2.5Mb" }])
+    }
     setImage(uploadedFile)
   }, [])
 
@@ -61,7 +64,6 @@ const createpost: React.FC<createpostProps> = ({}) => {
     e.preventDefault()
     setErrors([])
     try {
-      console.log(image)
       await createPost({
         variables: { circleId, text, image },
       })
@@ -77,12 +79,6 @@ const createpost: React.FC<createpostProps> = ({}) => {
     e.stopPropagation()
     setImage(null)
   }
-  const onChange = ({
-    target: {
-      validity,
-      files: [file],
-    },
-  }: any) => validity.valid && setImage(file)
 
   return (
     <div className="app__window">
