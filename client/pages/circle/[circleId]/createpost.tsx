@@ -118,7 +118,6 @@ const createpost: React.FC<createpostProps> = ({}) => {
             </div>
           )}
         </div>
-        {/* <input type="file" required onChange={onChange} /> */}
 
         {errors.map((e) => (
           <div className="alert alert-danger mt-1 mb-2" key={e.message}>
@@ -131,16 +130,26 @@ const createpost: React.FC<createpostProps> = ({}) => {
           rows={3}
           onChange={(e) => setText(e.target.value)}
           value={text}
+          maxLength={280}
+          required
           placeholder="Type something"
         ></textarea>
-
-        <button
-          className="btn btn-primary mt-1"
-          disabled={loading}
-          type="submit"
-        >
-          Submit
-        </button>
+        <div>
+          <button
+            className="btn btn-primary mt-1 float-left"
+            disabled={loading}
+            type="submit"
+          >
+            Submit
+          </button>
+          <span
+            className={`font-weight-bold float-right ${
+              text.length > 280 ? "text-danger" : "text-muted"
+            }`}
+          >
+            {text.length}/280
+          </span>
+        </div>
       </form>
     </div>
   )

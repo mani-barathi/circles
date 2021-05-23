@@ -50,8 +50,12 @@ export default class Post extends BaseEntity {
   @OneToMany(() => Like, (like) => like.post)
   likes: Like[]
 
+  @Field(() => String, { nullable: true })
+  @Column({ type: "text", nullable: true })
+  imageUrl: string
+
   @Field(() => String)
-  @Column({ type: "text" })
+  @Column({ type: "varchar", length: 280 })
   text: string
 
   @Field(() => String)

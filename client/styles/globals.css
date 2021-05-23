@@ -9,14 +9,15 @@ button:disabled {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
   align-items: center;
 }
+
 .app__window {
   width: 100%;
   max-width: 1000px;
   padding: 0 1rem;
 }
+
 .chat__container {
   width: 100%;
   max-width: 1000px;
@@ -39,4 +40,11 @@ button:disabled {
 
 .chat__container::-webkit-scrollbar-thumb {
   background-color: rgba(61, 61, 61, 0.705);
+}
+
+.post__image {
+  object-fit: cover;
+  width: 100%;
+  min-height: 100%;
+  max-height: 500px;
 }

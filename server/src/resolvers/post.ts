@@ -98,8 +98,8 @@ export default class PostResolver {
     @Arg("image", () => GraphQLUpload, { nullable: true }) file: FileUpload,
     @Ctx() { req }: Context
   ): Promise<Post> {
-    if (text.length < 1 || text.length > 2000)
-      throw new Error("text should be between 1 and 2000 characters")
+    if (text.length < 1 || text.length > 280)
+      throw new Error("text should be between 1 and 280 characters")
 
     const { userId } = req.session
     let variables: PostInput = { circleId, creatorId: userId, text }

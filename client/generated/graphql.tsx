@@ -268,6 +268,7 @@ export type Post = {
   creator?: Maybe<User>;
   circleId: Scalars['Int'];
   circle?: Maybe<Circle>;
+  imageUrl?: Maybe<Scalars['String']>;
   text: Scalars['String'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
@@ -783,7 +784,7 @@ export type MyPostsQuery = (
     & Pick<PaginatedPost, 'hasMore'>
     & { data: Array<(
       { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'circleId' | 'createdAt' | 'likesCount' | 'hasLiked' | 'text'>
+      & Pick<Post, 'id' | 'circleId' | 'createdAt' | 'likesCount' | 'hasLiked' | 'imageUrl' | 'text'>
     )> }
   ) }
 );
@@ -801,7 +802,7 @@ export type PostsQuery = (
     & Pick<PaginatedPost, 'hasMore'>
     & { data: Array<(
       { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'creatorId' | 'createdAt' | 'likesCount' | 'hasLiked' | 'text'>
+      & Pick<Post, 'id' | 'creatorId' | 'createdAt' | 'likesCount' | 'hasLiked' | 'imageUrl' | 'text'>
       & { creator?: Maybe<(
         { __typename?: 'User' }
         & Pick<User, 'id' | 'username'>
@@ -1909,6 +1910,7 @@ export const MyPostsDocument = gql`
       createdAt
       likesCount
       hasLiked
+      imageUrl
       text
     }
   }
@@ -1953,6 +1955,7 @@ export const PostsDocument = gql`
       createdAt
       likesCount
       hasLiked
+      imageUrl
       text
       creator {
         id
