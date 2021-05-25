@@ -16,7 +16,10 @@ import Post from "../entities/Post"
 import User from "../entities/User"
 import { isAuthorized } from "../middlewares/authMiddlewares"
 import { Context, createPaginatedResponse, PostInput } from "../types"
-import { deleteFromFs, saveToFs } from "../utils/fsOperations"
+import {
+  deleteFromFirebaseStroage,
+  uploadToFirebaseStorage,
+} from "../utils/firebaseStorage"
 
 const PaginatedPosts = createPaginatedResponse(Post)
 type PaginatedPosts = InstanceType<typeof PaginatedPosts>
@@ -105,11 +108,15 @@ export default class PostResolver {
     let variables: PostInput = { circleId, creatorId: userId, text }
 
     if (file) {
-      const { filename, createReadStream } = await file
-      const { imageUrl } = await saveToFs(filename, createReadStream)
-      variables = { ...variables, filename, imageUrl }
+      const { filename, createReadStream, mimetype } = await file
+      // const url = await saveToFs(filename,createReadStream) // to uplaod to file system
+      const url = await uploadToFirebaseStorage(
+        createReadStream,
+        filename,
+        mimetype
+      )
+      variables.imageUrl = url
     }
-
     return await Post.create(variables).save()
   }
 
@@ -126,7 +133,9 @@ export default class PostResolver {
     )
 
     if (deletedCount === 1 && objs[0].imageUrl) {
-      deleteFromFs(objs[0].imageUrl)
+      // deleteFromFs(objs[0].imageUrl)  // to delete from filesystem
+      const imageUrl = objs[0].imageUrl as string
+      await deleteFromFirebaseStroage(imageUrl)
     }
 
     return true
