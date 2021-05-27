@@ -1,7 +1,9 @@
 import "reflect-metadata"
+import "dotenv-safe/config"
 import { ApolloServer } from "apollo-server-express"
 import express from "express"
 import http from "http"
+import path from "path"
 import cors from "cors"
 import redis from "redis"
 import connectRedis from "connect-redis"
@@ -20,24 +22,32 @@ import PostResolver from "./resolvers/post"
 import LikeResolver from "./resolvers/like"
 import MessageResolver from "./resolvers/message"
 
-import { COOKIE_NAME, PORT } from "./constants"
+import { COOKIE_NAME } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
 import { createUserLoader } from "./utils/dataloaders"
 
+const PORT = process.env.PORT
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: process.env.CORS_ORIGIN,
   credentials: true,
 }
-const options = {
-  host: "127.0.0.1",
-  port: 6379,
-  retryStrategy: (times: number) => {
-    return Math.min(times * 50, 2000)
+const redisPubSubOptions = {
+  connection: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT),
   },
+  retryStrategy: (times: number) => Math.min(times * 50, 2000),
 }
 
 const main = async () => {
-  await createConnection()
+  await createConnection({
+    type: "postgres",
+    url: process.env.DATABASE_URL,
+    logging: true,
+    synchronize: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
+    entities: [path.join(__dirname, "./entities/*")],
+  })
 
   const schema = await buildSchema({
     resolvers: [
@@ -53,7 +63,7 @@ const main = async () => {
     authChecker: customAuthChecker,
   })
   const RedisStore = connectRedis(session)
-  const redisClient = redis.createClient()
+  const redisClient = redis.createClient({ url: process.env.REDIS_URL })
 
   const app: express.Application = express()
   const httpServer = http.createServer(app)
@@ -69,9 +79,10 @@ const main = async () => {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
+      // domain:""
     },
     saveUninitialized: false,
-    secret: "aksdfmioy234-asdfn-23fs-234",
+    secret: process.env.SESSION_SECRET,
     resave: false,
   })
 
@@ -81,9 +92,7 @@ const main = async () => {
   app.use(graphqlUploadExpress({ maxFileSize: 2500000, maxFiles: 1 }))
   // 2500000 : 2.5Mb
 
-  const pubsub = new RedisPubSub({
-    connection: options,
-  })
+  const pubsub = new RedisPubSub(redisPubSubOptions)
 
   const apolloServer = new ApolloServer({
     schema,
