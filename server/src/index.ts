@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import "dotenv-safe/config"
+import dotenv from "dotenv"
 import { ApolloServer } from "apollo-server-express"
 import express from "express"
 import http from "http"
@@ -17,7 +17,7 @@ import UserResolver from "./resolvers/user"
 import CircleResolver from "./resolvers/circle"
 import InvitationResolver from "./resolvers/invitation"
 import MemberResolver from "./resolvers/member"
-import MemberRequestResolver from "./resolvers/MemberRequest"
+import MemberRequestResolver from "./resolvers/memberRequest"
 import PostResolver from "./resolvers/post"
 import LikeResolver from "./resolvers/like"
 import MessageResolver from "./resolvers/message"
@@ -26,6 +26,7 @@ import { COOKIE_NAME } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
 import { createUserLoader } from "./utils/dataloaders"
 
+dotenv.config()
 const PORT = process.env.PORT
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
@@ -79,7 +80,7 @@ const main = async () => {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
-      // domain:""
+      domain: "localhost",
     },
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,

@@ -1,3 +1,6 @@
+import dotenv from "dotenv"
+dotenv.config()
+
 export const UNIQUE_CONSTRAINT_ERROR_CODE = "23505"
 export const FOREIGN_KEY_CONSTRAINT_ERROR_CODE = "23503"
 

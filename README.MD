@@ -16,6 +16,7 @@ Developing a Social Groups web-app using typescript and graphQL
 - [**TypeGraphQL**](https://typegraphql.com/) for setting GraphQL-API
 - [**TypeORM**](https://typeorm.io/#/) as an ORM
 - [**Redis**](https://redis.io/) for storing user session
+- [**Firebase Storage**](https://firebase.google.com/products/storage) for storing and serving images
 
 ## Setup
 
@@ -26,18 +27,18 @@ Developing a Social Groups web-app using typescript and graphQL
    ```shell
        create database circle;
    ```
-1. Replace your database username and password in `./server/ormconfig.json`
+1. Replace your database url in `.env` (check `.env.example` file for reference)
 
 ### Frontend
 
 1. cd into the client and install all dependencies
    ```shell
       cd client
-      npm install
+      yarn
    ```
 1. start dev server
    ```shell
-       npm run dev
+       yarn dev
    ```
 
 ### Backend

@@ -140,7 +140,10 @@ const createpost: React.FC<createpostProps> = ({}) => {
             disabled={loading}
             type="submit"
           >
-            Submit
+            {loading && (
+              <span className="spinner-border spinner-border-sm mr-2"></span>
+            )}
+            {loading ? "Submitting..." : "Submit"}
           </button>
           <span
             className={`font-weight-bold float-right ${

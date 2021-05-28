@@ -30,15 +30,13 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
       senderId: invitation.sender.id,
     },
   })
-  const [
-    rejectInvite,
-    { loading: rejectLoading },
-  ] = useRejectInvitationMutation({
-    variables: {
-      circleId: parseInt(invitation.circle.id),
-      senderId: invitation.sender.id,
-    },
-  })
+  const [rejectInvite, { loading: rejectLoading }] =
+    useRejectInvitationMutation({
+      variables: {
+        circleId: parseInt(invitation.circle.id),
+        senderId: invitation.sender.id,
+      },
+    })
   const handleAcceptInvitation = async () => {
     try {
       await acceptInvite({
@@ -69,6 +67,7 @@ const CircleInvitation: React.FC<InvitationProps> = ({ invitation }) => {
                   {
                     ...invitation.circle,
                     isAdmin: false,
+                    isPublic: false,
                     updatedAt: new Date().getTime().toString(),
                   },
                   ...existingCircles.myCircles.data,
