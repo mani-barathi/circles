@@ -27,11 +27,14 @@ import { customAuthChecker } from "./utils/authChecker"
 import { createUserLoader } from "./utils/dataloaders"
 
 dotenv.config()
-const PORT = process.env.PORT
+const PORT = parseInt(process.env.PORT)
+const PROD = process.env.ENV === "production"
+
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
   credentials: true,
 }
+
 const redisPubSubOptions = {
   connection: {
     host: process.env.REDIS_HOST,
@@ -78,9 +81,10 @@ const main = async () => {
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
       httpOnly: true,
-      secure: false,
+      secure: PROD,
+      path: "/",
       sameSite: "lax",
-      domain: "localhost",
+      domain: PROD ? process.env.PROD_API_URL : "localhost",
     },
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,

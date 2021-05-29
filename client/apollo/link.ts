@@ -4,7 +4,6 @@ import { getMainDefinition } from "@apollo/client/utilities"
 import { createUploadLink } from "apollo-upload-client"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 
-// const baseUrl = "http://ec2-65-2-140-184.ap-south-1.compute.amazonaws.com"
 const baseUrl = process.env.NEXT_PUBLIC_API_URL
 const httpLink = createUploadLink({
   uri: `${baseUrl}/graphql`,
