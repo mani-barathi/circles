@@ -22,13 +22,11 @@ import PostResolver from "./resolvers/post"
 import LikeResolver from "./resolvers/like"
 import MessageResolver from "./resolvers/message"
 
-import { COOKIE_NAME } from "./constants"
+import { COOKIE_NAME, PORT, PROD, PROD_API_URL } from "./constants"
 import { customAuthChecker } from "./utils/authChecker"
 import { createUserLoader } from "./utils/dataloaders"
 
 dotenv.config()
-const PORT = parseInt(process.env.PORT)
-const PROD = process.env.ENV === "production"
 
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
@@ -82,11 +80,11 @@ const main = async () => {
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
       httpOnly: true,
       secure: PROD,
-      path: "/",
-      sameSite: "lax",
-      domain: PROD ? process.env.PROD_API_URL : "localhost",
+      // sameSite: PROD ? "none" : "lax",
+      domain: PROD ? PROD_API_URL : "localhost",
     },
     saveUninitialized: false,
+    proxy: PROD,
     secret: process.env.SESSION_SECRET,
     resave: false,
   })
@@ -95,7 +93,7 @@ const main = async () => {
   app.use(express.static("public"))
   app.use(sessionMiddleware)
   app.use(graphqlUploadExpress({ maxFileSize: 2500000, maxFiles: 1 }))
-  // 2500000 : 2.5Mb
+  // 2500000 is 2.5Mb
 
   const pubsub = new RedisPubSub(redisPubSubOptions)
 
@@ -120,12 +118,13 @@ const main = async () => {
       connection,
     }),
     uploads: false,
+    playground: !PROD,
   })
 
   apolloServer.applyMiddleware({ app, cors: false })
   apolloServer.installSubscriptionHandlers(httpServer)
 
-  app.get("/", (_, res) => res.send("Circles API"))
+  app.get("/", (_, res) => res.send("<h1>Circles API</h1>"))
 
   httpServer.listen(PORT, () =>
     console.log(`URL: http://localhost:${PORT}/graphql`)

@@ -12,7 +12,12 @@ import {
   UseMiddleware,
 } from "type-graphql"
 import { EntityNotFoundError, getManager } from "typeorm"
-import { COOKIE_NAME, UNIQUE_CONSTRAINT_ERROR_CODE } from "../constants"
+import {
+  COOKIE_NAME,
+  PROD,
+  UNIQUE_CONSTRAINT_ERROR_CODE,
+  PROD_API_URL,
+} from "../constants"
 import User from "../entities/User"
 import { isUnAuthorized } from "../middlewares/authMiddlewares"
 import { Context, CustomError } from "../types"
@@ -110,7 +115,10 @@ export default class UserResolver {
         if (err) {
           resolve(false)
         }
-        res.clearCookie(COOKIE_NAME)
+        res.clearCookie(COOKIE_NAME, {
+          path: "/",
+          domain: PROD ? PROD_API_URL : "localhost",
+        })
         resolve(true)
       })
     )

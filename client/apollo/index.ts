@@ -1,4 +1,4 @@
-import { ApolloClient, createHttpLink } from "@apollo/client"
+import { ApolloClient } from "@apollo/client"
 import cache from "./cache"
 import link from "./link"
 

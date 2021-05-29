@@ -4,14 +4,22 @@ import { getMainDefinition } from "@apollo/client/utilities"
 import { createUploadLink } from "apollo-upload-client"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL
+const domain = process.env.NEXT_PUBLIC_API_URL
+const PROD = process.env.NEXT_PUBLIC_NODE_ENV === "production"
+const graphqlUrl = PROD
+  ? `https://${domain}/graphql`
+  : `http://${domain}/graphql`
+const wsUrl = PROD
+  ? `wss://${domain}/subscriptions`
+  : `ws://${domain}/subscriptions`
+
 const httpLink = createUploadLink({
-  uri: `${baseUrl}/graphql`,
+  uri: graphqlUrl,
   credentials: "include",
 })
 
 export const subscriptionClient = process.browser
-  ? new SubscriptionClient(`${baseUrl}/subscriptions`, {
+  ? new SubscriptionClient(wsUrl, {
       lazy: true,
       reconnect: true,
     })

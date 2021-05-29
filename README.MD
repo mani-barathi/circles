@@ -22,12 +22,19 @@ Developing a Social Groups web-app using typescript and graphQL
 
 ### Database
 
+1. Make sure you have Redis installed in your computer
 1. Make sure you have Postgres installed in your computer if not install it from [here](https://www.postgresql.org/)
 1. Open the Postgres shell(psql) and create a database
    ```shell
        create database circle;
    ```
 1. Replace your database url in `.env` (check `.env.example` file for reference)
+
+### Firebase Storage
+
+1. Create a firebase project
+1. Go to project settings -> service accounts -> generate new key (it will download a json file which has project keys)
+1. save the json file as `src/firebase-admin-credentials.json`
 
 ### Frontend
 
