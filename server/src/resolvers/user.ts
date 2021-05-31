@@ -118,6 +118,8 @@ export default class UserResolver {
         res.clearCookie(COOKIE_NAME, {
           path: "/",
           domain: PROD ? PROD_API_URL : "localhost",
+          secure: PROD,
+          sameSite: "lax",
         })
         resolve(true)
       })

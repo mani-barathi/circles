@@ -1,5 +1,6 @@
 import {
   Arg,
+  Authorized,
   Ctx,
   Field,
   FieldResolver,
@@ -263,6 +264,23 @@ export default class CircleResolver {
         throw new Error("you are already a member of the circle")
       }
       throw new Error("something went wrong")
+    }
+  }
+
+  @Mutation(() => Boolean)
+  @Authorized(["ADMIN"])
+  async togglePublicCircle(
+    @Arg("circleId", () => Int) circleId: number,
+    @Arg("isPublic", () => Boolean) isPublic: Boolean
+  ): Promise<Boolean> {
+    try {
+      await getManager().query(
+        `update circle set "isPublic" = $1, "updatedAt" = now() where id = $2`,
+        [isPublic, circleId]
+      )
+      return true
+    } catch (e) {
+      throw new Error("something went wrong!")
     }
   }
 

@@ -80,7 +80,7 @@ const main = async () => {
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
       httpOnly: true,
       secure: PROD,
-      // sameSite: PROD ? "none" : "lax",
+      sameSite: "lax",
       domain: PROD ? PROD_API_URL : "localhost",
     },
     saveUninitialized: false,
