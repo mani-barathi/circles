@@ -10,7 +10,7 @@ export default function Home() {
   if (meLoading) return <Spinner center={true} large={true} />
   if (!meData || !meData.me)
     return (
-      <div className="app__window">
+      <div className="app__window py-3">
         <h2>Welcome to Circles</h2>
         <h4>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, neque.

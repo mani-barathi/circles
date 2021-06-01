@@ -1,15 +1,19 @@
-import React, { useState } from "react"
 import { useRouter } from "next/router"
+import React, { useEffect, useState } from "react"
+import Spinner from "../components/Spinner"
 import {
   MeDocument,
   MeQuery,
   useLoginMutation,
+  useMeQuery,
   useRegisterMutation,
 } from "../generated/graphql"
 
 interface loginProps {}
 
 const login: React.FC<loginProps> = ({}) => {
+  const [loading, setLoading] = useState(true)
+  const { data } = useMeQuery()
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState("")
@@ -19,6 +23,19 @@ const login: React.FC<loginProps> = ({}) => {
   const [feedback, setFeedback] = useState(null)
   const [loginUser, { loading: loginLoading }] = useLoginMutation()
   const [registerUser, { loading: registerLoading }] = useRegisterMutation()
+
+  useEffect(() => {
+    if (!data) return
+    if (data.me?.username) {
+      router.replace("/")
+    } else {
+      setLoading(false)
+    }
+  }, [data])
+
+  if (loading) {
+    return <Spinner center={true} large={true} />
+  }
 
   const clearFields = () => {
     setUsername("")

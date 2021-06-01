@@ -48,3 +48,17 @@ button:disabled {
   min-height: 100%;
   max-height: 500px;
 }
+
+.nav__linkIcon {
+  display: none;
+}
+
+@media screen and (max-width: 600px) {
+  .nav__linkText {
+    display: none;
+  }
+
+  .nav__linkIcon {
+    display: inline;
+  }
+}

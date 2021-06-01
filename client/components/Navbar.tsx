@@ -1,8 +1,14 @@
 import React from "react"
 import Link from "next/link"
-import { useLogoutMutation, useMeQuery } from "../generated/graphql"
 import { useApolloClient } from "@apollo/client"
 import { useRouter } from "next/router"
+
+import HomeIcon from "./icons/HomeIcon"
+import PlusIcon from "./icons/PlusIcon"
+import ArrowInIcon from "./icons/ArrowInIcon"
+import SearchIcon from "./icons/SearchIcon"
+
+import { useLogoutMutation, useMeQuery } from "../generated/graphql"
 
 interface NavbarProps {}
 
@@ -34,17 +40,14 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     <nav className="navbar navbar-dark bg-dark sticky-top w-100">
       <a className="navbar-brand ">Circles</a>
       <div className="d-flex ml-auto align-items-center">
-        <Link href="/">
-          <a className="nav-link active">Home </a>
-        </Link>
+        <NavLink href="/" icon={HomeIcon} text="Home" />
+
         {data?.me && (
-          <Link href="/createCircle">
-            <a className="nav-link active">New Circle </a>
-          </Link>
+          <NavLink href="/createCircle" icon={PlusIcon} text="New Circle" />
         )}
-        <Link href="/explore">
-          <a className="nav-link active">Explore </a>
-        </Link>
+
+        <NavLink href="/explore" icon={SearchIcon} text="Explore" />
+
         {data?.me ? (
           <img
             src={` https://ui-avatars.com/api/?name=${data.me.username} `}
@@ -54,12 +57,29 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             style={{ cursor: "pointer", width: "2rem", height: "2rem" }}
           />
         ) : (
-          <Link href="/login">
-            <a className="nav-link active ">Login </a>
-          </Link>
+          <NavLink href="/login" icon={ArrowInIcon} text="Login" />
         )}
       </div>
     </nav>
+  )
+}
+
+interface NavLinkProps {
+  text: string
+  icon: React.FC
+  href: string
+}
+
+const NavLink: React.FC<NavLinkProps> = ({ text, icon: Icon, href }) => {
+  return (
+    <Link href={href}>
+      <a className="nav-link active">
+        <span className="nav__linkText"> {text}</span>
+        <span className="nav__linkIcon" title={text}>
+          <Icon />
+        </span>
+      </a>
+    </Link>
   )
 }
 
