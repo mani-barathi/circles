@@ -1,0 +1,3 @@
+mutation TogglePublicCircle($circleId:Int!,$isPublic:Boolean!) {
+  togglePublicCircle(isPublic:$isPublic,circleId:$circleId)
+}

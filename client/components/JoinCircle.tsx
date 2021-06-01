@@ -14,7 +14,10 @@ const JoinCircle: React.FC<JoinCircleProps> = ({ circleId }) => {
       await JoinCircle({
         variables: { circleId },
         update: (cache, { data }) => {
-          if (!data || !data.joinCircle) return
+          if (!data || !data.joinCircle) {
+            alert("Unable to join the circle, maybe the circle is private")
+            return
+          }
 
           cache.writeFragment({
             id: "Circle:" + circleId,
@@ -25,9 +28,9 @@ const JoinCircle: React.FC<JoinCircleProps> = ({ circleId }) => {
             `,
             data: { isMember: true },
           })
+          alert("You have joined the cirle")
         },
       })
-      alert("You have joined the cirle")
     } catch (e) {
       console.log(e)
       alert(e.message)

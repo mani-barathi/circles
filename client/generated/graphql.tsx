@@ -105,6 +105,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   createCircle: CircleResponse;
   joinCircle: Scalars['Boolean'];
+  togglePublicCircle: Scalars['Boolean'];
   exitCircle: Scalars['Boolean'];
   acceptInvitation: Scalars['Boolean'];
   rejectInvitation: Scalars['Boolean'];
@@ -143,6 +144,12 @@ export type MutationCreateCircleArgs = {
 
 
 export type MutationJoinCircleArgs = {
+  circleId: Scalars['Int'];
+};
+
+
+export type MutationTogglePublicCircleArgs = {
+  isPublic: Scalars['Boolean'];
   circleId: Scalars['Int'];
 };
 
@@ -615,6 +622,17 @@ export type SendMessageMutationVariables = Exact<{
 export type SendMessageMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'sendMessage'>
+);
+
+export type TogglePublicCircleMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+  isPublic: Scalars['Boolean'];
+}>;
+
+
+export type TogglePublicCircleMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'togglePublicCircle'>
 );
 
 export type CircleQueryVariables = Exact<{
@@ -1523,6 +1541,38 @@ export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<
 export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
 export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
 export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
+export const TogglePublicCircleDocument = gql`
+    mutation TogglePublicCircle($circleId: Int!, $isPublic: Boolean!) {
+  togglePublicCircle(isPublic: $isPublic, circleId: $circleId)
+}
+    `;
+export type TogglePublicCircleMutationFn = Apollo.MutationFunction<TogglePublicCircleMutation, TogglePublicCircleMutationVariables>;
+
+/**
+ * __useTogglePublicCircleMutation__
+ *
+ * To run a mutation, you first call `useTogglePublicCircleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTogglePublicCircleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [togglePublicCircleMutation, { data, loading, error }] = useTogglePublicCircleMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *      isPublic: // value for 'isPublic'
+ *   },
+ * });
+ */
+export function useTogglePublicCircleMutation(baseOptions?: Apollo.MutationHookOptions<TogglePublicCircleMutation, TogglePublicCircleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TogglePublicCircleMutation, TogglePublicCircleMutationVariables>(TogglePublicCircleDocument, options);
+      }
+export type TogglePublicCircleMutationHookResult = ReturnType<typeof useTogglePublicCircleMutation>;
+export type TogglePublicCircleMutationResult = Apollo.MutationResult<TogglePublicCircleMutation>;
+export type TogglePublicCircleMutationOptions = Apollo.BaseMutationOptions<TogglePublicCircleMutation, TogglePublicCircleMutationVariables>;
 export const CircleDocument = gql`
     query Circle($circleId: Int!) {
   circle(circleId: $circleId) {
