@@ -29,12 +29,12 @@ button:disabled {
 }
 
 .chat__container {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: #292929 rgba(146, 145, 145, 0.705);
 }
 
 .chat__container::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
   background-color: rgba(146, 145, 145, 0.705);
 }
 
@@ -47,6 +47,13 @@ button:disabled {
   width: 100%;
   min-height: 100%;
   max-height: 500px;
+}
+
+.chatmessage {
+  width: fit-content;
+  min-width: "10%";
+  max-width: "80%";
+  border-radius: "0.5rem";
 }
 
 .nav__linkIcon {

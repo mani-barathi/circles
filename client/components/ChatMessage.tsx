@@ -1,4 +1,4 @@
-import React from "react"
+import React, { forwardRef } from "react"
 import { Message, User } from "../generated/graphql"
 import { formatTime } from "../utils/formatTime"
 
@@ -13,13 +13,12 @@ interface MessageProps {
   isMine: Boolean
 }
 
-const ChatMessage: React.FC<MessageProps> = ({ message, isMine }) => {
+function ChatMessage({ isMine, message }: MessageProps) {
   return (
     <div
-      className={`mb-1 border py-1 px-2 shadow-sm ${
+      className={`mb-1 border py-1 px-2 shadow-sm chatmessage ${
         isMine ? "ml-auto bg-light" : "bg-white"
       }`}
-      style={style}
     >
       {!isMine && (
         <small className="mr-2 font-weight-bold d-block">
@@ -40,10 +39,3 @@ const ChatMessage: React.FC<MessageProps> = ({ message, isMine }) => {
 }
 
 export default ChatMessage
-
-const style: React.CSSProperties = {
-  width: "fit-content",
-  minWidth: "10%",
-  maxWidth: "80%",
-  borderRadius: "0.5rem",
-}

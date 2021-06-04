@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { useMeQuery, useSendMessageMutation } from "../generated/graphql"
+import SendIcon from "./icons/SendIcon"
 
 interface MessageInputProps {
   circleId: number
@@ -38,7 +39,13 @@ const MessageInput: React.FC<MessageInputProps> = ({ circleId }) => {
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <button className="btn btn-info ml-2">Send</button>
+      <button disabled={loading} className="btn btn-info ml-2">
+        {loading ? (
+          <span className="spinner-border spinner-border-sm mr-2"></span>
+        ) : (
+          <SendIcon />
+        )}
+      </button>
     </form>
   )
 }

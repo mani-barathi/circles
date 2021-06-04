@@ -50,12 +50,7 @@ const createpost: React.FC<createpostProps> = ({}) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   if (circleLoading) return <Spinner center={true} large={true} />
-  if (circleError)
-    return (
-      <h4>
-        Something went wrong <p>{circleError.message}</p>
-      </h4>
-    )
+  if (circleError) return <PageNotFound />
 
   if (!circleData) return null
   if (!circleData?.circle.isMember) return <PageNotFound />

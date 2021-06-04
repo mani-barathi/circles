@@ -107,7 +107,7 @@ const cache = new InMemoryCache({
               data,
             }
           },
-        }, // end of myPosts
+        }, // end of messages
       }, // end of fields
     },
   },
