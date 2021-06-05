@@ -4,6 +4,7 @@ import React from "react"
 import CircleNavigation from "../../../components/CircleNavigation"
 import CreatePost from "../../../components/CreatePost"
 import JoinCircle from "../../../components/JoinCircle"
+import PageNotFound from "../../../components/PageNotFound"
 import Posts from "../../../components/Posts"
 import SendCancelMemberRequest from "../../../components/SendCancelMemberRequest"
 import Spinner from "../../../components/Spinner"
@@ -61,7 +62,7 @@ const circlePage: React.FC<circlePageProps> = ({}) => {
           )}
         </div>
       ) : (
-        <p>{error?.message}</p>
+        <PageNotFound />
       )}
     </div>
   )

@@ -107,6 +107,7 @@ export type Mutation = {
   joinCircle: Scalars['Boolean'];
   togglePublicCircle: Scalars['Boolean'];
   exitCircle: Scalars['Boolean'];
+  deleteCircle: Scalars['Boolean'];
   acceptInvitation: Scalars['Boolean'];
   rejectInvitation: Scalars['Boolean'];
   cancelInvitation: Scalars['Boolean'];
@@ -155,6 +156,11 @@ export type MutationTogglePublicCircleArgs = {
 
 
 export type MutationExitCircleArgs = {
+  circleId: Scalars['Int'];
+};
+
+
+export type MutationDeleteCircleArgs = {
   circleId: Scalars['Int'];
 };
 
@@ -467,6 +473,16 @@ export type DeclineMemberRequestMutationVariables = Exact<{
 export type DeclineMemberRequestMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'declineMemberRequest'>
+);
+
+export type DeleteCircleMutationVariables = Exact<{
+  circleId: Scalars['Int'];
+}>;
+
+
+export type DeleteCircleMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteCircle'>
 );
 
 export type DeletePostMutationVariables = Exact<{
@@ -1129,6 +1145,37 @@ export function useDeclineMemberRequestMutation(baseOptions?: Apollo.MutationHoo
 export type DeclineMemberRequestMutationHookResult = ReturnType<typeof useDeclineMemberRequestMutation>;
 export type DeclineMemberRequestMutationResult = Apollo.MutationResult<DeclineMemberRequestMutation>;
 export type DeclineMemberRequestMutationOptions = Apollo.BaseMutationOptions<DeclineMemberRequestMutation, DeclineMemberRequestMutationVariables>;
+export const DeleteCircleDocument = gql`
+    mutation DeleteCircle($circleId: Int!) {
+  deleteCircle(circleId: $circleId)
+}
+    `;
+export type DeleteCircleMutationFn = Apollo.MutationFunction<DeleteCircleMutation, DeleteCircleMutationVariables>;
+
+/**
+ * __useDeleteCircleMutation__
+ *
+ * To run a mutation, you first call `useDeleteCircleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCircleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCircleMutation, { data, loading, error }] = useDeleteCircleMutation({
+ *   variables: {
+ *      circleId: // value for 'circleId'
+ *   },
+ * });
+ */
+export function useDeleteCircleMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCircleMutation, DeleteCircleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCircleMutation, DeleteCircleMutationVariables>(DeleteCircleDocument, options);
+      }
+export type DeleteCircleMutationHookResult = ReturnType<typeof useDeleteCircleMutation>;
+export type DeleteCircleMutationResult = Apollo.MutationResult<DeleteCircleMutation>;
+export type DeleteCircleMutationOptions = Apollo.BaseMutationOptions<DeleteCircleMutation, DeleteCircleMutationVariables>;
 export const DeletePostDocument = gql`
     mutation DeletePost($postId: Int!) {
   deletePost(postId: $postId)

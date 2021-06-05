@@ -307,4 +307,16 @@ export default class CircleResolver {
       throw new Error("something went wrong!")
     }
   }
+
+  @Mutation(() => Boolean)
+  @Authorized(["ADMIN"])
+  async deleteCircle(
+    @Arg("circleId", () => Int) circleId: number
+  ): Promise<Boolean> {
+    const deleted = await Circle.delete({ id: circleId })
+    if (deleted?.affected !== 1) {
+      return false
+    }
+    return true
+  }
 }
