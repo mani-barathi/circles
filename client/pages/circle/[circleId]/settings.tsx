@@ -90,16 +90,19 @@ const info: React.FC<membersProps> = ({}) => {
           <hr />
         </>
       )}
+
       <Members
         circleId={circleId}
         totalMembers={circleData.circle.totalMembers}
         isAdmin={circleData.circle.isAdmin}
       />
 
-      <SettingsDangerZone
-        circleId={circleId}
-        isPublic={circleData.circle.isPublic}
-      />
+      {circleData.circle.isAdmin && (
+        <SettingsDangerZone
+          circleId={circleId}
+          isPublic={circleData.circle.isPublic}
+        />
+      )}
     </div>
   )
 }

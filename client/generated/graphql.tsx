@@ -858,7 +858,7 @@ export type SearchCircleQuery = (
     & Pick<PaginatedCircle, 'hasMore'>
     & { data: Array<(
       { __typename?: 'Circle' }
-      & Pick<Circle, 'id' | 'name' | 'totalMembers' | 'isPublic'>
+      & Pick<Circle, 'id' | 'name' | 'totalMembers' | 'isPublic' | 'updatedAt'>
       & { creator?: Maybe<(
         { __typename?: 'User' }
         & Pick<User, 'username'>
@@ -2100,6 +2100,7 @@ export const SearchCircleDocument = gql`
       name
       totalMembers
       isPublic
+      updatedAt
       creator {
         username
       }
