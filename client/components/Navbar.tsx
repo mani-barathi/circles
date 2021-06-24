@@ -1,40 +1,40 @@
-import React from "react"
-import Link from "next/link"
-import { useApolloClient } from "@apollo/client"
-import { useRouter } from "next/router"
+import React from "react";
+import Link from "next/link";
+import { useApolloClient } from "@apollo/client";
+import { useRouter } from "next/router";
 
-import HomeIcon from "./icons/HomeIcon"
-import PlusIcon from "./icons/PlusIcon"
-import ArrowInIcon from "./icons/ArrowInIcon"
-import SearchIcon from "./icons/SearchIcon"
+import HomeIcon from "./icons/HomeIcon";
+import PlusIcon from "./icons/PlusIcon";
+import ArrowInIcon from "./icons/ArrowInIcon";
+import SearchIcon from "./icons/SearchIcon";
 
-import { useLogoutMutation, useMeQuery } from "../generated/graphql"
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 
 interface NavbarProps {}
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
-  const router = useRouter()
-  const client = useApolloClient()
+  const router = useRouter();
+  const client = useApolloClient();
   const { data, error, loading } = useMeQuery({
     fetchPolicy: "cache-first",
-  })
-  const [logoutUser, { loading: logoutLoading }] = useLogoutMutation()
+  });
+  const [logoutUser, { loading: logoutLoading }] = useLogoutMutation();
 
   const handleLogout = async () => {
-    if (logoutLoading) return
+    if (logoutLoading) return;
     try {
-      const { data } = await logoutUser()
+      const { data } = await logoutUser();
       if (data?.logout) {
-        await client.cache.reset()
-        await router.push("/")
+        await client.cache.reset();
+        await router.push("/");
       } else {
-        alert("something went wrong try refreshing")
+        alert("something went wrong try refreshing");
       }
     } catch (e) {
-      console.log(e)
-      alert("something went wrong try refreshing")
+      console.log(e);
+      alert("something went wrong try refreshing");
     }
-  }
+  };
 
   return (
     <nav className="navbar navbar-dark bg-dark sticky-top w-100">
@@ -61,26 +61,26 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         )}
       </div>
     </nav>
-  )
-}
+  );
+};
 
 interface NavLinkProps {
-  text: string
-  icon: React.FC
-  href: string
+  text: string;
+  icon: React.FC;
+  href: string;
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ text, icon: Icon, href }) => {
   return (
     <Link href={href}>
       <a className="nav-link active">
-        <span className="nav__linkText"> {text}</span>
-        <span className="nav__linkIcon" title={text}>
+        {/* <span className="nav__linkText"> {text}</span> */}
+        <span title={text}>
           <Icon />
         </span>
       </a>
     </Link>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
